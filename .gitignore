@@ -2,3 +2,5 @@
 *.iml
 .idea/
 target/
+src/main/resources/big_help_links.html
+src/main/resources/config.properties
