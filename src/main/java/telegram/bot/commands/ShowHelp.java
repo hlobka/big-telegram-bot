@@ -1,0 +1,23 @@
+package telegram.bot.commands;
+
+import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.string.StringHelper;
+import javafx.util.Pair;
+
+import java.io.IOException;
+
+import static telegram.bot.data.Common.HELP_LINK;
+
+public class ShowHelp implements Command {
+
+    @Override
+    public Pair<ParseMode, String> run(Update update, String values) {
+        try {
+            return new Pair<>(ParseMode.HTML, StringHelper.getFileAsString(HELP_LINK));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Pair<>(ParseMode.HTML, "Big bot is a telegram bot to help organize work in team");
+    }
+}
