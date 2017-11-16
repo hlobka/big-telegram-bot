@@ -47,7 +47,7 @@ public class GoogleData {
         if(totalResults>0) {
             return response.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsString();
         } else {
-            return "Вики ничего не знает о этом. \nИщиет в гугле: \nhttps://www.google.com.ua/search?q=" + query;
+            return "Вики ничего не знает о этом. \nИщите в гугле: \nhttps://www.google.com.ua/search?q=" + query;
         }
     }
 }
