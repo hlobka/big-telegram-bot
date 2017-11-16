@@ -35,7 +35,9 @@ public class ShowActionItems implements Command {
                 continue;
             }
             String date = actionItemDto.getDate();
-            String actionItem = actionItemDto.getValue().replaceAll("#(AI|ai)", "<b>AI: </b>");
+            String actionItem = actionItemDto.getValue().replaceAll("#(AI|ai)", "<b>AI: </b>")
+                .replaceAll("<", "")
+                .replaceAll(">", "");
             s.append("    • ").append(date).append(" <pre>").append(actionItem).append("</pre>\n");
         }
         return new Pair<>(ParseMode.HTML, s.toString());

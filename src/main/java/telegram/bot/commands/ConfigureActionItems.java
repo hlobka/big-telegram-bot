@@ -35,7 +35,9 @@ public class ConfigureActionItems implements Command {
             }
             int hashCode = entry.getKey();
             String date = entry.getValue().getDate().replaceAll(":\\d\\d$", "");
-            String actionItem = entry.getValue().getValue().replaceAll("#(AI|ai)", "<b>AI: </b>");
+            String actionItem = entry.getValue().getValue().replaceAll("#(AI|ai)", "<b>AI: </b>")
+                .replaceAll("<", "")
+                .replaceAll(">", "");
             s += "/resolveAI__" + hashCode +" "+ date + " : [" + actionItem +"]\n";
         }
         return new Pair<>(ParseMode.HTML, s);
