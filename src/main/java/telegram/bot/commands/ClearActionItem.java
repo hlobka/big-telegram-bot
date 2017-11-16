@@ -24,7 +24,8 @@ public class ClearActionItem implements Command {
             resolvedItems.put(key, remove);
             SharedObject.save(ACTION_ITEMS2, actionItems);
             SharedObject.save(RESOLVED_ACTION_ITEMS, resolvedItems);
-            return new Pair<>(ParseMode.HTML, "Action item successfully resolved. \nTap /showActionItems to update list");
+            String message = String.format("Action item successfully resolved. <pre>%s</pre>\nTap /showActionItems to update list", remove.getValue());
+            return new Pair<>(ParseMode.HTML, message);
         }
         return new Pair<>(ParseMode.HTML, "Action item does not exist. \nTap /showActionItems to update list");
     }
