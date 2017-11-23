@@ -45,15 +45,15 @@ public class AnswerRule implements Rule {
             "— Дорогой, ты помнишь нашу прошлую ночь? У меня до сих пор мурашки по коже бегают!\n" +
             "Он:\n" +
             "— У меня тоже, уже трех поймал.",
-            "— Цель Вашего визита в Голландию?",
-            "- Лети-лети лепесток, через запад на восток, через север, через юг, возвращайся, сделав круг, лишь коснешься ты земли, быть по-моему вели: \"Вели, чтобы меня отпустило, волшебная чудо-трава\"...",
-            "- Пошли на балкон, покурим!\n" +
-                "- У тебя же нет балкона!\n" +
-                "- Когда курю, появляется",
-            "Сотрудники полиции в Подмосковье прикрыли наркопритон. Под прикрытием бизнес пошел вдвое лучше.",
-            "Василий Петрович из Калуги, собираясь на охоту, по ошибке взял сигареты сына, и уже к обеду, на лесной поляне, застрелил трех жирафов.",
-            "— Что такое учебный план?\n" +
-                "— Это обычный табак.",
+        "— Цель Вашего визита в Голландию?",
+        "- Лети-лети лепесток, через запад на восток, через север, через юг, возвращайся, сделав круг, лишь коснешься ты земли, быть по-моему вели: \"Вели, чтобы меня отпустило, волшебная чудо-трава\"...",
+        "- Пошли на балкон, покурим!\n" +
+            "- У тебя же нет балкона!\n" +
+            "- Когда курю, появляется",
+        "Сотрудники полиции в Подмосковье прикрыли наркопритон. Под прикрытием бизнес пошел вдвое лучше.",
+        "Василий Петрович из Калуги, собираясь на охоту, по ошибке взял сигареты сына, и уже к обеду, на лесной поляне, застрелил трех жирафов.",
+        "— Что такое учебный план?\n" +
+            "— Это обычный табак.",
         "Посадили в тюрьму наркомана и сифилитика сидят.вдруг у сифилитика нос отвалился, он его за решотку кинул, потом ухо отвалилось его тоже за решотку выбросил. Также и с другим ухом поступил. Наркоман смотрит и говорит: я смотрю ты потихоньку съеб@ваешься."
     );
 
@@ -61,8 +61,8 @@ public class AnswerRule implements Rule {
         this.bot = bot;
         answers.put("бот, привет", s -> "О, Привет!");
         commonRegAnswers.put("бот,? голос", s -> {
-            List<String> strings = Arrays.asList("Аф, Аф!!","Миаууу", "Пффф...", "ква-ква", "кря-кря", "Квооо-ко-ко-к-ко", "и-О-а-Аа Эи эи эии", "ква-ква", "Ым Ым", "ЫЫ-ЫЫ", "пых-пых", "ту-ту", "пи-пи-пи", "Ня-ня-ня");
-            return strings.get((int) Math.round(Math.random() * (strings.size()-1)));
+            List<String> strings = Arrays.asList("Аф, Аф!!", "Миаууу", "Пффф...", "ква-ква", "кря-кря", "Квооо-ко-ко-к-ко", "и-О-а-Аа Эи эи эии", "ква-ква", "Ым Ым", "ЫЫ-ЫЫ", "пых-пых", "ту-ту", "пи-пи-пи", "Ня-ня-ня");
+            return strings.get((int) Math.round(Math.random() * (strings.size() - 1)));
         });
         commonRegAnswers.put("бот,? анекдот", s -> {
             Collections.shuffle(popularBotJokes);
@@ -78,6 +78,8 @@ public class AnswerRule implements Rule {
         answers.put("нудануда", s -> "Женя, это ты?");
         answers.put("c'est la ", s -> "Женя, это ты?");
         answers.put("хех", s -> "Женя, это ты?");
+        answers.put("хэх", s -> "Женя, это ты?");
+        answers.put("хэг", s -> "Женя, это ты?");
         answers.put("годный апдейт", s -> "Женя, это ты?");
         answers.put("Хорошая практика", s -> "Женя, это ты?");
         answers.put("Ctrl+C", s -> "Не самая лучша практика");
@@ -102,22 +104,38 @@ public class AnswerRule implements Rule {
         answers.put("водка", s -> "пиво");
         answers.put("педалить", s -> "не лучшая практика в девелопменте");
 //        answers.put("женя", s -> "Женя опять ослепил гениальностью?");
-        answers.put("ревью", s -> "О, ревью, Набегай!");
+//        answers.put("ревью", s -> "О, ревью, Набегай!");
         answers.put("в смысле?", s -> "В прямом");
         answers.put("Lorem ipsum", s -> "https://ru.wikipedia.org/wiki/Lorem_ipsum");
 
 //        commonAnswers.put("бот ", s -> "Слушаю и повинуюсь мой господин. \nЖми сюда /help");
 //        commonAnswers.put(" бот", s -> "Слушаю и повинуюсь мой господин. \nЖми сюда /help");
+        commonRegAnswers.put("купить ([a-zA-Zа-яА-Я ]?)+лотерейку\\?", s -> {
+            switch (new Random().nextInt(5)) {
+                case 0:
+                    return "Да";
+                case 2:
+                    return "Нет";
+                case 3:
+                    return "Лучше две";
+                case 4:
+                    return "Нивкоем случае";
+                case 5:
+                    return "Возможно";
+            }
+            return "Сегодня не ваш день...";
+        });
         commonAnswers.put("Бот, как тебе ", s -> "Ну очень классная и крассивая " + StringHelper.getRegString(s, "Бот, как тебе (моя?и? )?([А-Яа-яa-zA-Z ]+)\\?", 2));
-        commonRegAnswers.put("да здравствует,? .*", s ->{
-            String who = StringHelper.getRegString(s, "да здравствует,? ?([А-Яа-яa-zA-Z ]+)", 1);
+        commonRegAnswers.put("да здравству(е|ю)т,? .*", s -> {
+            String who = StringHelper.getRegString(s, "да здравству(е|ю)т,? ?([А-Яа-яa-zA-Z ]+)", 2);
             who = who.replaceAll("(\\W+)(а$)", "$1у");
             who = who.replaceAll("(\\W+)(я$)", "$1ю");
+            who = who.replaceAll("(\\W+)(ь$)", "$1я");
             who = who.replaceAll("(\\W+)([бвгджзйклмнпрстфхцчшщ]$)", "$1$2а");
             return "Боже, Храни " + who + "!!!";
         });
         commonRegAnswers.put("бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$", s -> {
-            String regexp = "бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$";
+            String regexp =  "бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$";
             String regString1 = StringHelper.getRegString(s.toLowerCase(), regexp, 3);
             String regString2 = StringHelper.getRegString(s.toLowerCase(), regexp, 2);
             Long random1 = Math.round(Math.random() * 10);
@@ -125,14 +143,16 @@ public class AnswerRule implements Rule {
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
         commonRegAnswers.put("бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$", s -> {
-            String regexp = "бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$";
-            String regString1 = StringHelper.getRegString(s.toLowerCase(), regexp, 2);
+            String regexp =  "бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$";
+            String regString1 = StringHelper.getRegString(s, regexp, 2);
             String regString2 = StringHelper.getRegString(s.toLowerCase(), regexp, 3);
             Long random1 = Math.round(Math.random() * 10);
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что у %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
-        commonAnswers.put("* ETS *", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
+//        commonAnswers.put("* ETS *", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
+        commonRegAnswers.put("\\*+ ?ets ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
+        commonRegAnswers.put("\\*+ ?clarity ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://clarity.gtk.gtech.com:8043/niku/nu#action:npt.overview");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкаться.");
         commonAnswers.put("ебат", s -> "Попрошу не матюкаться.");
@@ -218,8 +238,11 @@ public class AnswerRule implements Rule {
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         String text = message.text() == null ? "" : message.text();
-        if(message.replyToMessage() != null) {
-            if(message.replyToMessage().from().isBot()){
+        if(message.from().isBot()){
+            return;
+        }
+        if (message.replyToMessage() != null) {
+            if (message.replyToMessage().from().isBot()) {
 //                String answer = "Какие наркотики";
                 Collections.shuffle(popularBotAnswers);
                 String answer = popularBotAnswers.get(0);

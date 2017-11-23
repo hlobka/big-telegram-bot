@@ -1,9 +1,10 @@
 package telegram.bot.rules;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.apache.commons.lang.ArrayUtils;
 import telegram.bot.data.Common;
@@ -21,10 +22,39 @@ public class IIAnswerRule implements Rule {
     }
 
     @Override
+    public void callback(CallbackQuery callbackQuery) {
+        Message message = callbackQuery.message();
+        String strAnswer = "Да да, " + callbackQuery.data();
+        SendMessage request = new SendMessage(message.chat().id(), strAnswer)
+            .parseMode(ParseMode.Markdown)
+            .disableWebPagePreview(false)
+            .disableNotification(true)
+            .replyToMessageId(message.messageId());
+        bot.execute(request);
+    }
+
+    @Override
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         String text = message.text() == null ? "" : message.text();
-        if (message.chat().id() == Common.TEST_FOR_BOT_GROUP_ID) {
+        if (message.chat().id() == Common.TEST_FOR_BOT_GROUP_ID && !message.from().isBot()) {
+            if(true) return;
+            Keyboard replyKeyboardMarkup = new ReplyKeyboardMarkup(
+                new String[]{"first row button1", "first row button2"},
+                new String[]{"second row button1", "second row button2"})
+                .oneTimeKeyboard(true)   // optional
+                .resizeKeyboard(true)    // optional
+                .selective(true);        // optional
+            SendMessage request2 = new SendMessage(message.chat().id(), "text")
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true)
+                .disableNotification(true)
+                .replyToMessageId(message.messageId())
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                    new InlineKeyboardButton("just pay").callbackData(")pay("),
+                    new InlineKeyboardButton("google it").callbackData("www.google.com")
+                }));
+            bot.execute(request2);
             if(true) return;
             if (message.replyToMessage() != null) {
                 Answer answer = null;

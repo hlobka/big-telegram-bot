@@ -7,7 +7,9 @@ import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.dto.ActionItemDto;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static telegram.bot.data.Common.ACTION_ITEMS2;
@@ -22,7 +24,7 @@ public class ConfigureActionItems implements Command {
     }
 
     @Override
-    public Pair<ParseMode, String> run(Update update, String values) {
+    public Pair<ParseMode, List<String>> run(Update update, String values) {
         Map<Integer, ActionItemDto> actionItems = SharedObject.loadMap(ACTION_ITEMS2, new HashMap<Integer, ActionItemDto>());
         String s = "Action items: \n";
         Message message = update.message() == null ? update.editedMessage() : update.message();
@@ -40,7 +42,7 @@ public class ConfigureActionItems implements Command {
                 .replaceAll(">", "");
             s += "/resolveAI__" + hashCode +" "+ date + " : [" + actionItem +"]\n";
         }
-        return new Pair<>(ParseMode.HTML, s);
+        return new Pair<>(ParseMode.HTML, Collections.singletonList(s));
     }
 
 

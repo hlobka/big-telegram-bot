@@ -7,7 +7,9 @@ import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.dto.ActionItemDto;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static telegram.bot.data.Common.ACTION_ITEMS2;
@@ -23,7 +25,7 @@ public class ShowActionItems implements Command {
     }
 
     @Override
-    public Pair<ParseMode, String> run(Update update, String values) {
+    public Pair<ParseMode, List<String>> run(Update update, String values) {
         Map<Integer, ActionItemDto> actionItems = SharedObject.loadMap(ACTION_ITEMS2, new HashMap<Integer, ActionItemDto>());
         StringBuilder s = new StringBuilder("Action items: \n");
         Message message = update.message() == null ? update.editedMessage() : update.message();
@@ -36,11 +38,16 @@ public class ShowActionItems implements Command {
             }
             String date = actionItemDto.getDate();
             String actionItem = actionItemDto.getValue().replaceAll("#(AI|ai)", "<b>AI: </b>")
+                .replaceAll("\\[", "")
+                .replaceAll("]", "")
+//                .replaceAll("\\)", "")
+//                .replaceAll("\\(", "")
                 .replaceAll("<", "")
                 .replaceAll(">", "");
             s.append("    • ").append(date).append(" <pre>").append(actionItem).append("</pre>\n");
         }
-        return new Pair<>(ParseMode.HTML, s.toString());
+        String s1 = s.toString();
+        return new Pair<>(ParseMode.HTML, Collections.singletonList(s1));
     }
 
     private boolean isNeedShowActionItem(ActionItemDto actionItemDto, boolean isBigGroup, Long chatId) {

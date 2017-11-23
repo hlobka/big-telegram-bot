@@ -15,7 +15,11 @@ public class Rules {
         for (Update update : updateList) {
             for (Rule rule : rules) {
                 try {
-                    rule.run(update);
+                    if(update.callbackQuery() != null){
+                        rule.callback(update.callbackQuery());
+                    } else {
+                        rule.run(update);
+                    }
                 } catch (Exception e){
                     e.printStackTrace();
                 }

@@ -15,7 +15,7 @@ public class StringHelper {
     }
 
     public static String getRegString(String text, String regex, int group) {
-        Pattern pattern = Pattern.compile("(?U)" + regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern pattern = Pattern.compile(/*"(?U)" + */regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher matcher = pattern.matcher(text);
         String values = "";
         if (matcher.find()) {

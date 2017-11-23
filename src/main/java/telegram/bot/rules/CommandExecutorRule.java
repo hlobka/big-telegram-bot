@@ -9,12 +9,15 @@ import javafx.util.Pair;
 import telegram.bot.commands.Command;
 import telegram.bot.commands.ExecutableCommand;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static helper.string.StringHelper.getRegString;
 
 public class CommandExecutorRule implements Rule {
+    public static final int MAX_MESSAGE_LENGTH = 4096;
     private TelegramBot bot;
     private Map<String, Command> commands = new HashMap<>();
 
@@ -31,8 +34,23 @@ public class CommandExecutorRule implements Rule {
             return;
         }
         String values = getRegString(text, "(\\/\\D\\w+)__(\\w+)@?.*", 2);
-        Pair<ParseMode, String> result = getCommandResult(command, update, values);
-        SendMessage request = new SendMessage(message.chat().id(), result.getValue())
+        Pair<ParseMode, List<String>> result = getCommandResult(command, update, values);
+        for (String messageStr : result.getValue()) {
+            sendMessage(message, new Pair<>(result.getKey(), messageStr));
+        }
+    }
+
+    private void sendMessage(Message message, Pair<ParseMode, String> result) {
+        String value = result.getValue();
+        int length = value.length();
+        if(length >= MAX_MESSAGE_LENGTH){
+            value = String.format("Превышина максимальная длина сообщения. \n Текущая %d из допустимых %d", length, MAX_MESSAGE_LENGTH);
+        }
+        if(result.getKey() == ParseMode.HTML){
+            value = value.replaceAll("\\[", "")
+                .replaceAll("]", "");
+        }
+        SendMessage request = new SendMessage(message.chat().id(), value)
             .parseMode(result.getKey())
             .disableWebPagePreview(false)
             .disableNotification(true)
@@ -40,9 +58,9 @@ public class CommandExecutorRule implements Rule {
         bot.execute(request);
     }
 
-    private Pair<ParseMode, String> getCommandResult(String command, Update update, String values) {
+    private Pair<ParseMode, List<String>> getCommandResult(String command, Update update, String values) {
         if (!commands.containsKey(command.toLowerCase())) {
-            return new Pair<>(ParseMode.Markdown, "Простите, данной комманды не сушествует.\n Попробуйте нажать /help");
+            return new Pair<>(ParseMode.Markdown, Collections.singletonList("Простите, данной комманды не сушествует.\n Попробуйте нажать /help"));
         }
         return commands.get(command.toLowerCase()).run(update, values);
     }
