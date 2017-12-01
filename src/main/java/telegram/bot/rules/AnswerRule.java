@@ -32,6 +32,7 @@ public class AnswerRule implements Rule {
         "Какие наркотики",
         "Кто тут?",
         "Lorem ipsum",
+        "Пробельчики",
         "чай, кофе, потанцуем?",
         "Все так говорят, а ты купи Слона"
     );
@@ -76,6 +77,7 @@ public class AnswerRule implements Rule {
         answers.put("drugs", s -> "Какие наркотики?");
         answers.put("баги", s -> "это не баги, это фичи");
         answers.put("нудануда", s -> "Женя, это ты?");
+        commonRegAnswers.put("ну почему.*\\?", s -> "Потому");
         answers.put("c'est la ", s -> "Женя, это ты?");
         answers.put("хех", s -> "Женя, это ты?");
         answers.put("хэх", s -> "Женя, это ты?");
@@ -125,7 +127,23 @@ public class AnswerRule implements Rule {
             }
             return "Сегодня не ваш день...";
         });
-        commonAnswers.put("Бот, как тебе ", s -> "Ну очень классная и крассивая " + StringHelper.getRegString(s, "Бот, как тебе (моя?и? )?([А-Яа-яa-zA-Z ]+)\\?", 2));
+        commonAnswers.put("Бот, как тебе ", s -> {
+            String who = StringHelper.getRegString(s, "Бот, как тебе (моя?и? )?([А-Яа-яa-zA-Z ]+)\\?", 2);
+            String which = "классная и красивая";
+            if (who.substring(who.length() - 1).matches("[бвгджзйклмнпрстфхцчшщ]")) {
+                which = "классный и красивый";
+            }
+            if (who.substring(who.length() - 1).matches("[ыЫиИ]")) {
+                which = "классные и красивые";
+            }
+            int nextInt = new Random().nextInt(100);
+            if (nextInt > 90) {
+                return "одобряю";
+            } else if (nextInt < 10) {
+                return "ну такое";
+            }
+            return "Ну очень " + which + " " + who;
+        });
         commonRegAnswers.put("да здравству(е|ю)т,? .*", s -> {
             String who = StringHelper.getRegString(s, "да здравству(е|ю)т,? ?([А-Яа-яa-zA-Z ]+)", 2);
             who = who.replaceAll("(\\W+)(а$)", "$1у");
@@ -135,15 +153,16 @@ public class AnswerRule implements Rule {
             return "Боже, Храни " + who + "!!!";
         });
         commonRegAnswers.put("бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$", s -> {
-            String regexp =  "бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$";
+            String regexp = "бот, (сколько|скока) (\\W+) в ([ a-zA-ZА-Яа-я]+) ?\\??$";
             String regString1 = StringHelper.getRegString(s.toLowerCase(), regexp, 3);
             String regString2 = StringHelper.getRegString(s.toLowerCase(), regexp, 2);
             Long random1 = Math.round(Math.random() * 10);
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
+        commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
         commonRegAnswers.put("бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$", s -> {
-            String regexp =  "бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$";
+            String regexp = "бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$";
             String regString1 = StringHelper.getRegString(s, regexp, 2);
             String regString2 = StringHelper.getRegString(s.toLowerCase(), regexp, 3);
             Long random1 = Math.round(Math.random() * 10);
@@ -238,7 +257,7 @@ public class AnswerRule implements Rule {
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         String text = message.text() == null ? "" : message.text();
-        if(message.from().isBot()){
+        if (message.from().isBot()) {
             return;
         }
         if (message.replyToMessage() != null) {
