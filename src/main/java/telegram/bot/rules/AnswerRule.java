@@ -161,6 +161,15 @@ public class AnswerRule implements Rule {
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
+        commonRegAnswers.put("бот, дай один.*", s -> "🖕");
+        commonRegAnswers.put("бот, дай два.*", s -> "🖕🖕");
+        commonRegAnswers.put("бот, дай три.*", s -> "🖕🖕🖕");
+        commonRegAnswers.put("бот, дай четыри.*", s -> "🖕🖕🖕🖕");
+        commonRegAnswers.put("бот, дай шесть.*", s -> "🖕🖕🖕🖕🖕🖕");
+        commonRegAnswers.put("бот, дай семь.*", s -> "🖕🖕🖕🖕🖕🖕🖕");
+        commonRegAnswers.put("бот, дай восемь.*", s -> "🖕🖕🖕🖕🖕🖕🖕🖕");
+        commonRegAnswers.put("бот, дай девять.*", s -> "🖕🖕🖕🖕🖕🖕🖕🖕🖕");
+        commonRegAnswers.put("бот, дай десять.*", s -> "✋✋️");
         commonRegAnswers.put("бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$", s -> {
             String regexp = "бот, (сколько|скока) у (\\W+) ([a-zA-ZА-Яа-я]+) ?\\??$";
             String regString1 = StringHelper.getRegString(s, regexp, 2);
@@ -216,12 +225,6 @@ public class AnswerRule implements Rule {
         commonAnswers.put("который час?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько время?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько времени?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
-        commonAnswers.put("обед", s -> {
-            Date time = Calendar.getInstance().getTime();
-            return String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(time));
-        });
-//        commonAnswers.put("из дому", s -> "");
-//        commonAnswers.put("из дома", s -> "");
         commonAnswers.put("что такое ", s -> {
             String query = StringHelper.getRegString(s, "что такое ([a-zA-Zа-яА-Я]+)\\??", 1);
             return Common.GOOGLE.getFirstResult(query);
