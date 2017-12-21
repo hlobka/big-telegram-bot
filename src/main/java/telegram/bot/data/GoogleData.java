@@ -45,7 +45,12 @@ public class GoogleData {
         }
         int totalResults = response.get("searchInformation").getAsJsonObject().get("totalResults").getAsInt();
         if(totalResults>0) {
-            return response.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsString();
+            JsonObject firstItem = response.get("items").getAsJsonArray().get(0).getAsJsonObject();
+            String result = firstItem.get("snippet").getAsString();
+            if(firstItem.has("formattedUrl")){
+                result += "\n" + firstItem.get("formattedUrl").getAsString();
+            }
+            return result;
         } else {
             return "Вики ничего не знает о этом. \nИщите в гугле: \nhttps://www.google.com.ua/search?q=" + query;
         }
