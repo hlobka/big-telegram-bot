@@ -19,7 +19,7 @@ public class GoogleData {
         key = properties.getProperty("google.api.translations.KEY");
     }
 
-    public String getUrl(String query){
+    public String getUrl(String query) {
         String encodedQuery;
         try {
             encodedQuery = URLEncoder.encode(query, "UTF-8");
@@ -30,7 +30,7 @@ public class GoogleData {
         return String.format(QUERY, key, cx, encodedQuery);
     }
 
-    public String getFirstResult(String query){
+    public String getFirstResult(String query) {
         JsonObject response;
         try {
             response = GetExecuter.getAsJson(getUrl(query));
@@ -44,11 +44,11 @@ public class GoogleData {
             }
         }
         int totalResults = response.get("searchInformation").getAsJsonObject().get("totalResults").getAsInt();
-        if(totalResults>0) {
+        if (totalResults > 0) {
             JsonObject firstItem = response.get("items").getAsJsonArray().get(0).getAsJsonObject();
             String result = firstItem.get("snippet").getAsString();
-            if(firstItem.has("formattedUrl")){
-                result += "\n" + firstItem.get("formattedUrl").getAsString();
+            if (firstItem.has("formattedUrl")) {
+                result += "\n[" + query + "](" + firstItem.get("formattedUrl").getAsString() + ")";
             }
             return result;
         } else {
