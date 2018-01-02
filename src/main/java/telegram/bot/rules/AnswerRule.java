@@ -160,6 +160,11 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
+        commonAnswers.put("Понедельник", s -> "День потеряного контекста");
+        commonAnswers.put("Вторник", s -> "День говна");
+        commonAnswers.put("Среда", s -> "Молчание ромы");
+        commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
+        commonAnswers.put("Пятница", s -> "Какие наркотики");
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
         commonRegAnswers.put("бот, дай один.*", s -> "🖕");
         commonRegAnswers.put("бот, дай два.*", s -> "🖕🖕");
@@ -226,11 +231,11 @@ public class AnswerRule implements Rule {
         commonAnswers.put("сколько время?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько времени?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("что такое ", s -> {
-            String query = StringHelper.getRegString(s, "что такое ([a-zA-Zа-яА-Я]+)\\??", 1);
+            String query = StringHelper.getRegString(s, "что такое ([a-zA-Zа-яА-Я ]+)\\??", 1);
             return Common.GOOGLE.getFirstResult(query);
         });
         commonAnswers.put("кто такой ", s -> {
-            String query = StringHelper.getRegString(s, "кто такой ([a-zA-Zа-яА-Я]+)\\??", 1);
+            String query = StringHelper.getRegString(s, "кто такой ([a-zA-Zа-яА-Я ]+)\\??", 1);
             return Common.GOOGLE.getFirstResult(query);
         });
 
