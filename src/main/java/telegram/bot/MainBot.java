@@ -5,13 +5,11 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.checker.JenkisChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
-import telegram.bot.rules.AnswerRule;
-import telegram.bot.rules.CommandExecutorRule;
-import telegram.bot.rules.IIAnswerRule;
-import telegram.bot.rules.Rules;
+import telegram.bot.rules.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,6 +23,7 @@ public class MainBot {
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
         Rules rules = new Rules();
+        rules.registerRule(new SlotMachineRule(bot));
         rules.registerRule(new AnswerRule(bot));
         rules.registerRule(new IIAnswerRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
@@ -47,6 +46,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
         rules.registerRule(commandExecutorRule);
         new JenkisChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
+        new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
         bot.setUpdatesListener(updatess -> {
             System.out.println("onResponse: " + updatess.toString());
             rules.handle(updatess);
