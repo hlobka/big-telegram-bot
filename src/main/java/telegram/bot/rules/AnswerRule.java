@@ -105,7 +105,6 @@ public class AnswerRule implements Rule {
         answers.put("пиво", s -> "водка");
         answers.put("водка", s -> "пиво");
         answers.put("педалить", s -> "не лучшая практика в девелопменте");
-//        answers.put("женя", s -> "Женя опять ослепил гениальностью?");
 //        answers.put("ревью", s -> "О, ревью, Набегай!");
         answers.put("в смысле?", s -> "В прямом");
         answers.put("Lorem ipsum", s -> "https://ru.wikipedia.org/wiki/Lorem_ipsum");
@@ -257,7 +256,7 @@ public class AnswerRule implements Rule {
                 i++;
             }
             SharedObject.save(ACTION_ITEMS2, actionItems2);
-            return result.toString();//"Сохранил ActionItem под ключем: <b>[" + date + "]</b>";
+            return result.toString();
         });
     }
 
@@ -270,7 +269,6 @@ public class AnswerRule implements Rule {
         }
         if (message.replyToMessage() != null) {
             if (message.replyToMessage().from().isBot()) {
-//                String answer = "Какие наркотики";
                 Collections.shuffle(popularBotAnswers);
                 String answer = popularBotAnswers.get(0);
                 SendMessage request = new SendMessage(message.chat().id(), answer)
