@@ -2,16 +2,14 @@ package helper.string;
 
 import helper.file.FileHelper;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringHelper {
 
     public static String getRegString(String text, String regex) {
-        return  getRegString(text, regex, 1);
+        return getRegString(text, regex, 1);
     }
 
     public static String getRegString(String text, String regex, int group) {
@@ -25,6 +23,25 @@ public class StringHelper {
     }
 
     public static String getFileAsString(String fileUrl) throws IOException {
+        try {
+            File fileDir = new File(FileHelper.getFilePath(fileUrl));
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(
+                    new FileInputStream(fileDir), "UTF8"));
+            String str;
+            StringBuilder result = new StringBuilder();
+            String newLine = "\n";
+            while ((str = in.readLine()) != null) {
+                result.append(str).append(newLine);
+            }
+            in.close();
+            return result.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static String getFileAsString2(String fileUrl) throws IOException {
         String filePath = FileHelper.getFilePath(fileUrl);
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             StringBuilder sb = new StringBuilder();
