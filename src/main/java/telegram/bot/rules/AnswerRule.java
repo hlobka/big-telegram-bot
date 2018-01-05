@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
 import helper.string.StringHelper;
+import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.dto.ActionItemDto;
 
@@ -24,7 +25,7 @@ public class AnswerRule implements Rule {
     public static final String MATH_MULTIPLY = String.format(MATH_REG, "\\*");
     public static final String MATH_DIVIDE = String.format(MATH_REG, "\\/");
     private final TelegramBot bot;
-    private Map<String, Function<String, String>> commonRegAnswers = new HashMap<>();
+    private Map<String, MessageSupplier<String>> commonRegAnswers = new HashMap<>();
     private Map<String, Function<String, String>> commonAnswers = new HashMap<>();
     private Map<String, Function<String, String>> answers = new HashMap<>();
     private Map<String, Function<Message, String>> actions = new HashMap<>();
@@ -183,7 +184,8 @@ public class AnswerRule implements Rule {
             return String.format("Я бы сказал что у %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
 //        commonAnswers.put("* ETS *", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
-        commonRegAnswers.put("\\*+ ?ets ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
+//        commonRegAnswers.put("\\*+ ?ets ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
+        commonRegAnswers.put("\\*+ ?ets ?\\*+", MessageSupplier.getAs(ParseMode.HTML, s -> EtsClarityChecker.getMessage()));
         commonRegAnswers.put("\\*+ ?clarity ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://clarity.gtk.gtech.com:8043/niku/nu#action:npt.overview");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкаться.");
@@ -312,16 +314,36 @@ public class AnswerRule implements Rule {
                 return;
             }
         }
-        for (Map.Entry<String, Function<String, String>> entry : commonRegAnswers.entrySet()) {
+        for (Map.Entry<String, MessageSupplier<String>> entry : commonRegAnswers.entrySet()) {
             if (text.toLowerCase().matches(entry.getKey())) {
                 SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(text))
-                    .parseMode(ParseMode.Markdown)
+                    .parseMode(entry.getValue().getParseMode())
                     .disableWebPagePreview(false)
                     .disableNotification(true)
                     .replyToMessageId(message.messageId());
                 bot.execute(request);
                 return;
             }
+        }
+    }
+
+    private interface MessageSupplier<T> extends Function<T, String> {
+        default ParseMode getParseMode(){
+            return ParseMode.Markdown;
+        }
+
+        static <T> MessageSupplier getAs(ParseMode parseMode, MessageSupplier<T> messageSupplier) {
+            return new MessageSupplier<T>() {
+                @Override
+                public String apply(T o) {
+                    return messageSupplier.apply(o);
+                }
+
+                @Override
+                public ParseMode getParseMode() {
+                    return parseMode;
+                }
+            };
         }
     }
 }

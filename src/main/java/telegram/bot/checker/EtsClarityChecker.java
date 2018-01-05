@@ -79,7 +79,7 @@ public class EtsClarityChecker extends Thread {
         bot.execute(request);
     }
 
-    private String getMessage() {
+    public static String getMessage() {
         String message = null;
         try {
             message = StringHelper.getFileAsString("ets_clarity.html");
