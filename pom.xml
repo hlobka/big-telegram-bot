@@ -91,6 +91,13 @@
                     </executions>
                     <configuration>
                         <mainClass>telegram.bot.MainBot</mainClass>
+                        <commandlineArgs>-Dfile.encoding=UTF-8</commandlineArgs>
+                        <systemProperties>
+                            <systemProperty>
+                                <key>file.encoding</key>
+                                <value>UTF-8</value>
+                            </systemProperty>
+                        </systemProperties>
                     </configuration>
                 </plugin>
             </plugins>
