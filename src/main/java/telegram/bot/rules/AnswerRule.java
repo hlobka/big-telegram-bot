@@ -252,6 +252,9 @@ public class AnswerRule implements Rule {
                 String date = new SimpleDateFormat("dd.MM/HH:mm:ss").format(Calendar.getInstance().getTime());
                 int key = Math.abs((date + i).hashCode());
                 actionItems2.put(key, new ActionItemDto(date, actionItem, message.chat().id()));
+                if (i > 0) {
+                    result.append("\n");
+                }
                 result.append("Сохранил ActionItem\n")
                     .append("Вы можете закрыть его используя комманду: ")
                     .append("/resolveAI__").append(key);
@@ -328,7 +331,7 @@ public class AnswerRule implements Rule {
     }
 
     private interface MessageSupplier<T> extends Function<T, String> {
-        default ParseMode getParseMode(){
+        default ParseMode getParseMode() {
             return ParseMode.Markdown;
         }
 
