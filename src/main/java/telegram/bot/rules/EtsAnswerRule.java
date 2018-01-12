@@ -30,8 +30,5 @@ public class EtsAnswerRule implements Rule {
             users.put(callbackQuery.from(), true);
             SharedObject.save(ETS_USERS, users);
         }
-//        System.out.println("");
-//        callbackQuery.
-//        new ResolveEts().run(update)
     }
 }

@@ -22,6 +22,7 @@ public class ResolveEts implements Command {
         strings.add("Ets resolved for: " + user.firstName());
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         users.put(user, true);
+        SharedObject.save(ETS_USERS, users);
         return new Pair<>(ParseMode.HTML, strings);
     }
 }

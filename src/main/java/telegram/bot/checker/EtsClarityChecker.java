@@ -67,7 +67,7 @@ public class EtsClarityChecker extends Thread {
             Calendar calendar = Calendar.getInstance();
             int currentTimeInHours = calendar.get(Calendar.HOUR_OF_DAY);
             int currentTimeInMinutes = calendar.get(Calendar.MINUTE);
-            if (currentTimeInHours >= 10 && currentTimeInHours < 17) {
+            if (currentTimeInHours >= 10 && currentTimeInHours < 18) {
                 int timeout = getTimeout();
                 if (timeout > 0) {
                     sleep(timeout, TimeUnit.MINUTES);
@@ -77,6 +77,10 @@ public class EtsClarityChecker extends Thread {
             }
         } else {
             isResolvedToday = false;
+            HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
+            for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
+                userBooleanEntry.setValue(false);
+            }
         }
     }
 
