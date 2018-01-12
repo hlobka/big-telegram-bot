@@ -185,7 +185,7 @@ public class AnswerRule implements Rule {
         });
 //        commonAnswers.put("* ETS *", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
 //        commonRegAnswers.put("\\*+ ?ets ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
-        commonRegAnswers.put("\\*+ ?ets ?\\*+", MessageSupplier.getAs(ParseMode.HTML, s -> EtsClarityChecker.getMessage()));
+        commonRegAnswers.put("\\*+ ?ets ?\\*+", MessageSupplier.getAs(ParseMode.HTML, s -> EtsClarityChecker.getMessage(bot)));
         commonRegAnswers.put("\\*+ ?clarity ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://clarity.gtk.gtech.com:8043/niku/nu#action:npt.overview");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкаться.");

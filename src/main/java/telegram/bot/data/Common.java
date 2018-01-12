@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class Common {
+    public static final String ETS_USERS = "/tmp/ets_users.ser";
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
     public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";

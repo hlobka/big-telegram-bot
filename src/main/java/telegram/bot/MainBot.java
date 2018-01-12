@@ -26,6 +26,7 @@ public class MainBot {
         rules.registerRule(new SlotMachineRule(bot));
         rules.registerRule(new AnswerRule(bot));
         rules.registerRule(new IIAnswerRule(bot));
+        rules.registerRule(new EtsAnswerRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCommand("/configureActionItems", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configure_Action_Items", new ConfigureActionItems(false));
@@ -44,6 +45,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/help", new ShowHelp());
         commandExecutorRule.addCommand("/showHelpLinks", new ShowHelpLinks());
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
+        commandExecutorRule.addCommand("/resolve_ets", new ResolveEts());
         rules.registerRule(commandExecutorRule);
         new JenkisChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
