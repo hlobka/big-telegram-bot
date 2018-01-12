@@ -102,16 +102,11 @@ public class EtsClarityChecker extends Thread {
         SendMessage request = new SendMessage(chatId, message)
             .parseMode(ParseMode.HTML)
             .disableWebPagePreview(true)
-            .disableNotification(false);
-        SendResponse execute = bot.execute(request);
-        request = new SendMessage(chatId, "Кнопка для его закрытия")
-            .parseMode(ParseMode.HTML)
-            .disableWebPagePreview(true)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
             }));
-        bot.execute(request);
+        SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
         LAST_MESSAGE_CHAT_ID = chatId;
         HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
