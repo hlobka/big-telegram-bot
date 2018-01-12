@@ -34,7 +34,7 @@ public class EtsClarityChecker extends Thread {
     public static Integer LAST_MESSAGE_ID = -1;
     public static long LAST_MESSAGE_CHAT_ID = -1;
 
-    public EtsClarityChecker(TelegramBot bot, long millis) throws URISyntaxException {
+    public EtsClarityChecker(TelegramBot bot, long millis) {
         this.bot = bot;
         this.millis = millis;
         HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
