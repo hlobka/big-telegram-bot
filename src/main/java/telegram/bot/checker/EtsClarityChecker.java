@@ -15,7 +15,6 @@ import helper.string.StringHelper;
 import telegram.bot.data.Common;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
@@ -31,8 +30,8 @@ public class EtsClarityChecker extends Thread {
     private TelegramBot bot;
     private long millis;
     private static boolean isResolvedToday = false;
-    public static Integer LAST_MESSAGE_ID = -1;
-    public static long LAST_MESSAGE_CHAT_ID = -1;
+    private static Integer LAST_MESSAGE_ID = -1;
+    private static long LAST_MESSAGE_CHAT_ID = -1;
 
     public EtsClarityChecker(TelegramBot bot, long millis) {
         this.bot = bot;
@@ -69,7 +68,7 @@ public class EtsClarityChecker extends Thread {
         System.out.println("EtsClarityChecker::check");
         boolean isFriday = LocalDate.now().getDayOfWeek() == DayOfWeek.FRIDAY;
         if (isFriday) {
-            if(isResolvedToday){
+            if (isResolvedToday) {
                 return;
             }
             Calendar calendar = Calendar.getInstance();
@@ -109,7 +108,7 @@ public class EtsClarityChecker extends Thread {
             .parseMode(ParseMode.HTML)
             .disableWebPagePreview(true)
             .disableNotification(false)
-            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
             }));
         bot.execute(request);
@@ -121,22 +120,26 @@ public class EtsClarityChecker extends Thread {
         SharedObject.save(COMMON_INT_DATA, commonData);
     }
 
-    public static void updateMessage(TelegramBot bot) {
+    public static void updateLastMessage(TelegramBot bot) {
+        if (LAST_MESSAGE_ID < 0 || LAST_MESSAGE_CHAT_ID < 0) {
+            System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
+            return;
+        }
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
-                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                     new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
                 }));
             bot.execute(request);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
     }
 
     public static String getMessage(TelegramBot bot) {
-        String message = getMessageFromFile("ets_clarity.html");
+        String message = getMessageFromFile();
         String users = getUsers(bot);
         message = message + users;
         return message;
@@ -153,21 +156,21 @@ public class EtsClarityChecker extends Thread {
                 User user = userBooleanEntry.getKey();
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
-                    resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved?"🍏":"🍎"));
+                    resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved ? "🍏" : "🍎"));
                 }
-                if(resolved){
+                if (resolved) {
                     resolvedCount++;
                 }
             }
         }
-        isResolvedToday = resolvedCount == count-1;
-        return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count-1);
+        isResolvedToday = resolvedCount == count - 1;
+        return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
     }
 
-    public static String getMessageFromFile(String fileUrl) {
+    private static String getMessageFromFile() {
         String message = null;
         try {
-            message = StringHelper.getFileAsString(fileUrl);
+            message = StringHelper.getFileAsString("ets_clarity.html");
         } catch (IOException e) {
             e.printStackTrace();
         }

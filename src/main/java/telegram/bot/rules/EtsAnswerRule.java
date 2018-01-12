@@ -29,9 +29,7 @@ public class EtsAnswerRule implements Rule {
             HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
             users.put(callbackQuery.from(), true);
             SharedObject.save(ETS_USERS, users);
-            if(EtsClarityChecker.LAST_MESSAGE_ID != -1){
-                EtsClarityChecker.updateMessage(bot);
-            }
+            EtsClarityChecker.updateLastMessage(bot);
         }
     }
 }

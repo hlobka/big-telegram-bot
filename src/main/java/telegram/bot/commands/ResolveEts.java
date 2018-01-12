@@ -25,9 +25,7 @@ public class ResolveEts implements Command {
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         users.put(user, true);
         SharedObject.save(ETS_USERS, users);
-        if (EtsClarityChecker.LAST_MESSAGE_ID != -1) {
-            EtsClarityChecker.updateMessage(Common.BOT);
-        }
+        EtsClarityChecker.updateLastMessage(Common.BOT);
         return new Pair<>(ParseMode.HTML, strings);
     }
 }
