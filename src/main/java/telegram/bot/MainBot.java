@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class MainBot {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
         TelegramBot bot = new TelegramBot(Common.data.token);
+        Common.BOT = bot;
         GetUpdatesResponse updatesResponse = bot.execute(new GetUpdates());
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());

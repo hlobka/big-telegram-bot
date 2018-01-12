@@ -112,7 +112,10 @@ public class EtsClarityChecker extends Thread {
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot))
                 .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(true);
+                .disableWebPagePreview(true)
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                    new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
+                }));
             bot.execute(request);
         } catch (RuntimeException e){
             e.printStackTrace();

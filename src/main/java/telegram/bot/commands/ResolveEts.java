@@ -6,6 +6,8 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import helper.file.SharedObject;
 import javafx.util.Pair;
+import telegram.bot.checker.EtsClarityChecker;
+import telegram.bot.data.Common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,9 @@ public class ResolveEts implements Command {
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         users.put(user, true);
         SharedObject.save(ETS_USERS, users);
+        if (EtsClarityChecker.LAST_MESSAGE_ID != -1) {
+            EtsClarityChecker.updateMessage(Common.BOT);
+        }
         return new Pair<>(ParseMode.HTML, strings);
     }
 }

@@ -1,5 +1,6 @@
 package telegram.bot.data;
 
+import com.pengrad.telegrambot.TelegramBot;
 import telegram.bot.data.chat.ChatData;
 
 import java.io.IOException;
@@ -27,6 +28,8 @@ public class Common {
     public static final String HELP_LINKS;
     public static final String BIG_HELP_LINKS;
     public static final String JENKINS_URL;
+    //todo: remove it;
+    public static TelegramBot BOT;
 
     static {
         BIG_GENERAL_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_CHAT_ID"));
