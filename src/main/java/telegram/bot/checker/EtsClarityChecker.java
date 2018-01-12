@@ -153,7 +153,7 @@ public class EtsClarityChecker extends Thread {
                 User user = userBooleanEntry.getKey();
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
-                    resolvedUsers.append(String.format("%s %s : %b%n", user.firstName(), user.lastName(), resolved));
+                    resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved?"🍏":"🍎"));
                 }
                 if(resolved){
                     resolvedCount++;
