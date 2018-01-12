@@ -66,8 +66,7 @@ public class EtsClarityChecker extends Thread {
 
     private void check() throws IOException {
         System.out.println("EtsClarityChecker::check");
-        boolean isFriday = LocalDate.now().getDayOfWeek() == DayOfWeek.FRIDAY;
-        if (isFriday) {
+        if (checkIsFriday()) {
             if (isResolvedToday) {
                 return;
             }
@@ -83,12 +82,12 @@ public class EtsClarityChecker extends Thread {
                 System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
             }
         } else {
-            isResolvedToday = false;
-            HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
-            for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
-                userBooleanEntry.setValue(false);
-            }
+            unResolveAll();
         }
+    }
+
+    private static boolean checkIsFriday() {
+        return LocalDate.now().getDayOfWeek() == DayOfWeek.FRIDAY;
     }
 
     private int getTimeout() {
@@ -120,6 +119,9 @@ public class EtsClarityChecker extends Thread {
             System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
             return;
         }
+        if(!checkIsFriday()){
+            unResolveAll();
+        }
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot))
                 .parseMode(ParseMode.HTML)
@@ -131,6 +133,21 @@ public class EtsClarityChecker extends Thread {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void unResolveAll() {
+        isResolvedToday = false;
+        HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
+        for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
+            userBooleanEntry.setValue(false);
+        }
+        SharedObject.save(ETS_USERS, users);
+        LAST_MESSAGE_ID = -1;
+        LAST_MESSAGE_CHAT_ID = -1;
+        HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
+        commonData.put("LAST_MESSAGE_ID", LAST_MESSAGE_ID);
+        commonData.put("LAST_MESSAGE_CHAT_ID", LAST_MESSAGE_CHAT_ID);
+        SharedObject.save(COMMON_INT_DATA, commonData);
     }
 
     public static String getMessage(TelegramBot bot) {
