@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 public class MainBot {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
         TelegramBot bot = new TelegramBot(Common.data.token);
-        Common.BOT = bot;
         GetUpdatesResponse updatesResponse = bot.execute(new GetUpdates());
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
@@ -46,7 +45,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/help", new ShowHelp());
         commandExecutorRule.addCommand("/showHelpLinks", new ShowHelpLinks());
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
-        commandExecutorRule.addCommand("/resolve_ets", new ResolveEts());
+        commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         rules.registerRule(commandExecutorRule);
         new JenkisChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
