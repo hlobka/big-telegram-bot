@@ -116,7 +116,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     public static void updateLastMessage(TelegramBot bot) {
-        if (LAST_MESSAGE_ID < 0 || LAST_MESSAGE_CHAT_ID < 0) {
+        if (LAST_MESSAGE_ID == -1 || LAST_MESSAGE_CHAT_ID == -1) {
             System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
             return;
         }
