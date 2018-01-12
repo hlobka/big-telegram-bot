@@ -5,9 +5,11 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.GetChatMembersCount;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetChatMembersCountResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
 import helper.string.StringHelper;
 import telegram.bot.data.Common;
@@ -28,6 +30,8 @@ public class EtsClarityChecker extends Thread {
     private TelegramBot bot;
     private long millis;
     private static boolean isResolvedToday = false;
+    public static Integer LAST_MESSAGE_ID = -1;
+    public static long LAST_MESSAGE_CHAT_ID = -1;
 
     public EtsClarityChecker(TelegramBot bot, long millis) throws URISyntaxException {
         this.bot = bot;
@@ -99,16 +103,20 @@ public class EtsClarityChecker extends Thread {
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
             }));
-        bot.execute(request);
-        /*SendMessage request2 = new SendMessage(message.chat().id(), "text")
-            .parseMode(ParseMode.HTML)
-            .disableWebPagePreview(true)
-            .disableNotification(true)
-            .replyToMessageId(message.messageId())
-            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
-                new InlineKeyboardButton("just pay").callbackData(")pay("),
-                new InlineKeyboardButton("google it").callbackData("www.google.com")
-            }));*/
+        SendResponse execute = bot.execute(request);
+        LAST_MESSAGE_ID = execute.message().messageId();
+        LAST_MESSAGE_CHAT_ID = chatId;
+    }
+
+    public static void updateMessage(TelegramBot bot) {
+        try {
+            EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot))
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true);
+            bot.execute(request);
+        } catch (RuntimeException e){
+            e.printStackTrace();
+        }
     }
 
     public static String getMessage(TelegramBot bot) {

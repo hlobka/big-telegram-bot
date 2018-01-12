@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import helper.file.SharedObject;
-import telegram.bot.commands.ResolveEts;
+import telegram.bot.checker.EtsClarityChecker;
 
 import java.util.HashMap;
 
@@ -29,6 +29,9 @@ public class EtsAnswerRule implements Rule {
             HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
             users.put(callbackQuery.from(), true);
             SharedObject.save(ETS_USERS, users);
+            if(EtsClarityChecker.LAST_MESSAGE_ID != -1){
+                EtsClarityChecker.updateMessage(bot);
+            }
         }
     }
 }
