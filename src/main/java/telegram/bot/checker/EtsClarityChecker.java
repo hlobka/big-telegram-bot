@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static telegram.bot.data.Common.COMMON_INT_DATA;
 import static telegram.bot.data.Common.ETS_USERS;
 
 public class EtsClarityChecker extends Thread {
@@ -36,6 +37,9 @@ public class EtsClarityChecker extends Thread {
     public EtsClarityChecker(TelegramBot bot, long millis) throws URISyntaxException {
         this.bot = bot;
         this.millis = millis;
+        HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
+        LAST_MESSAGE_CHAT_ID = commonData.getOrDefault("LAST_MESSAGE_CHAT_ID", 2472).longValue();
+        LAST_MESSAGE_ID = commonData.getOrDefault("LAST_MESSAGE_ID", Common.BIG_GENERAL_CHAT_ID).intValue();
     }
 
     @Override
@@ -106,6 +110,10 @@ public class EtsClarityChecker extends Thread {
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
         LAST_MESSAGE_CHAT_ID = chatId;
+        HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
+        commonData.put("LAST_MESSAGE_ID", LAST_MESSAGE_ID);
+        commonData.put("LAST_MESSAGE_CHAT_ID", LAST_MESSAGE_CHAT_ID);
+        SharedObject.save(COMMON_INT_DATA, commonData);
     }
 
     public static void updateMessage(TelegramBot bot) {
