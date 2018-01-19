@@ -67,7 +67,7 @@ public class EtsClarityChecker extends Thread {
     private void check() throws IOException {
         System.out.println("EtsClarityChecker::check");
         if (checkIsFriday()) {
-            if (isResolvedToday) {
+            if (checkIsResolvedToDay()) {
                 return;
             }
             Calendar calendar = Calendar.getInstance();
@@ -177,6 +177,26 @@ public class EtsClarityChecker extends Thread {
         }
         isResolvedToday = resolvedCount == count - 1;
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
+    }
+
+    private Boolean checkIsResolvedToDay() {
+        int resolvedCount = 0;
+        HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
+        if (!users.isEmpty()) {
+            for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
+                User user = userBooleanEntry.getKey();
+                Boolean resolved = userBooleanEntry.getValue();
+                if (user.isBot()) {
+                    continue;
+                }
+                if (resolved) {
+                    resolvedCount++;
+                }
+            }
+        }
+        GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
+        int count = response.count();
+        return checkIsFriday() && resolvedCount == count - 1;
     }
 
     private static String getMessageFromFile() {
