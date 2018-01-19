@@ -77,11 +77,12 @@ public class EtsClarityChecker extends Thread {
             if (currentTimeInHours >= 10 && currentTimeInHours < 20) {
                 int timeout = getTimeout();
                 if (timeout > 0) {
-                    sleep(timeout, TimeUnit.MINUTES);
+//                    sleep(timeout, TimeUnit.MINUTES);
                 }
                 sendNotification(Common.BIG_GENERAL_CHAT_ID);
                 System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
             }
+            System.out.println(new Date().getTime() + "::EtsClarityChecker::FALSE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
         } else {
             unResolveAll();
         }
