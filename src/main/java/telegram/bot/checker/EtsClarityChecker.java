@@ -68,9 +68,9 @@ public class EtsClarityChecker extends Thread {
     private void check() throws IOException {
         System.out.println("EtsClarityChecker::check");
         if (checkIsFriday()) {
-            if (isResolvedToday) {
+            /*if (isResolvedToday) {
                 return;
-            }
+            }*/
             Calendar calendar = Calendar.getInstance();
             int currentTimeInHours = calendar.get(Calendar.HOUR_OF_DAY);
             int currentTimeInMinutes = calendar.get(Calendar.MINUTE);
