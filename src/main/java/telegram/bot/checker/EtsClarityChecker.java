@@ -46,6 +46,7 @@ public class EtsClarityChecker extends Thread {
         super.run();
         while (true) {
             try {
+                check();
                 long timeout = TimeUnit.MINUTES.toMillis(getTimeout());
                 long oneMinuteInMilliseconds = TimeUnit.MINUTES.toMillis(1);
                 long min = Math.max(oneMinuteInMilliseconds, Math.min(millis, timeout));
