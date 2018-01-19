@@ -46,7 +46,6 @@ public class EtsClarityChecker extends Thread {
         super.run();
         while (true) {
             try {
-                check();
                 long timeout = TimeUnit.MINUTES.toMillis(getTimeout());
                 long oneMinuteInMilliseconds = TimeUnit.MINUTES.toMillis(1);
                 long min = Math.max(oneMinuteInMilliseconds, Math.min(millis, timeout));
@@ -68,21 +67,20 @@ public class EtsClarityChecker extends Thread {
     private void check() throws IOException {
         System.out.println("EtsClarityChecker::check");
         if (checkIsFriday()) {
-            /*if (isResolvedToday) {
+            if (isResolvedToday) {
                 return;
-            }*/
+            }
             Calendar calendar = Calendar.getInstance();
             int currentTimeInHours = calendar.get(Calendar.HOUR_OF_DAY);
             int currentTimeInMinutes = calendar.get(Calendar.MINUTE);
             if (currentTimeInHours >= 10 && currentTimeInHours < 20) {
                 int timeout = getTimeout();
                 if (timeout > 0) {
-//                    sleep(timeout, TimeUnit.MINUTES);
+                    sleep(timeout, TimeUnit.MINUTES);
                 }
                 sendNotification(Common.BIG_GENERAL_CHAT_ID);
                 System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
             }
-            System.out.println(new Date().getTime() + "::EtsClarityChecker::FALSE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
         } else {
             unResolveAll();
         }
