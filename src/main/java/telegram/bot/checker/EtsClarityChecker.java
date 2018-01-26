@@ -67,7 +67,11 @@ public class EtsClarityChecker extends Thread {
     private void check() throws IOException {
         System.out.println("EtsClarityChecker::check");
         if (checkIsFriday()) {
-            if (checkIsResolvedToDay()) {
+            if (checkIsResolvedToDay(bot)) {
+                if(!isResolvedToday){
+                    isResolvedToday = true;
+
+                }
                 return;
             }
             Calendar calendar = Calendar.getInstance();
@@ -179,7 +183,7 @@ public class EtsClarityChecker extends Thread {
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
     }
 
-    private Boolean checkIsResolvedToDay() {
+    public static Boolean checkIsResolvedToDay(TelegramBot bot) {
         int resolvedCount = 0;
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         if (!users.isEmpty()) {

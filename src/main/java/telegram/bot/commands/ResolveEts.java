@@ -8,6 +8,8 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
+import telegram.bot.data.Common;
+import telegram.bot.helper.BotHelper;
 
 import java.util.*;
 
@@ -36,6 +38,9 @@ public class ResolveEts implements Command {
         clearFromDuplicates(users);
         SharedObject.save(ETS_USERS, users);
         EtsClarityChecker.updateLastMessage(bot);
+        if(EtsClarityChecker.checkIsResolvedToDay(bot)){
+            BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, "EtsClarity resolved today!!!", ParseMode.Markdown);
+        }
     }
 
     private static void clearFromDuplicates(HashMap<User, Boolean> users) {
