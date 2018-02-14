@@ -162,7 +162,7 @@ public class AnswerRule implements Rule {
         });
         commonAnswers.put("Понедельник", s -> "День потеряного контекста");
         commonAnswers.put("Вторник", s -> "День говна");
-        commonAnswers.put("Среда", s -> "Молчание ромы");
+        commonAnswers.put("Среда", s -> "Молчание Ромы");
         commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
         commonAnswers.put("Пятница", s -> "Какие наркотики");
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
