@@ -66,7 +66,7 @@ public class AnswerRule implements Rule {
             List<String> strings = Arrays.asList("Аф, Аф!!", "Миаууу", "Пффф...", "ква-ква", "кря-кря", "Квооо-ко-ко-к-ко", "и-О-а-Аа Эи эи эии", "ква-ква", "Ым Ым", "ЫЫ-ЫЫ", "пых-пых", "ту-ту", "пи-пи-пи", "Ня-ня-ня");
             return strings.get((int) Math.round(Math.random() * (strings.size() - 1)));
         });
-        commonRegAnswers.put("бот,? анекдот", s -> {
+        commonRegAnswers.put("бот,?.* анекдот\\??", s -> {
             Collections.shuffle(popularBotJokes);
             return popularBotJokes.get(0);
         });
