@@ -22,31 +22,23 @@ public class SharedObject {
         return loadMap(url, new HashMap<String, String>());
     }
 
+    private static boolean checkIsExist(String url) {
+        return new File(url).exists();
+    }
     private static boolean createNewFile(String url) {
-        String[] strings = url.split("/");
-        String filePath = "";
-        for (String fileName : strings) {
-            System.out.println("fileName = [" + fileName + "]");
-            if (fileName.isEmpty()) {
-                continue;
-            }
-            filePath += "/" + fileName;
-            File file = new File(filePath);
-            if (file.exists()) {
-                continue;
-            }
-            if (fileName.contains(".")) {
-                try {
-                    return file.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            } else {
-                file.mkdir();
-            }
+        String folders = url.replaceAll("\\/[a-zA-Z0-9]+\\.\\w+", "");
+        if(!folders.contains(".")) {
+            new File(folders).mkdirs();
         }
-        return false;
+        if(new File(url).exists()){
+            return false;
+        }
+        try {
+            return new File(url).createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return true;
+        }
     }
 
     public static void save(String url, Serializable data) {
@@ -58,5 +50,30 @@ public class SharedObject {
         } finally {
             System.out.println("Serialized data is saved in " + url);
         }
+    }
+
+    private static void removeFile(String url) {
+        if(new File(url).exists()){
+            new File(url).delete();
+        }
+    }
+
+    public static void remove(String url) {
+        removeFile(url);
+    }
+
+    public static <T> T load(String url, Class<T> eClass) {
+        T result;
+        if(!checkIsExist(url)){
+            return null;
+        }
+        createNewFile(url);
+        try (FileInputStream fileIn = new FileInputStream(url); ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            result = (T) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return result;
     }
 }
