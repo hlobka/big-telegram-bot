@@ -35,6 +35,40 @@ public class SharedObjectTest {
     }
 
     @Test
+    public void testLoadList() {
+        Assertions
+            .assertThat(SharedObject.loadList(testFileUrl))
+            .isEqualTo(new ArrayList<>());
+    }
+
+    @Test
+    public void testSaveAndLoadList() {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("1");
+        SharedObject.save(testFileUrl, strings);
+        Assertions
+            .assertThat(SharedObject.loadList(testFileUrl))
+            .isEqualTo(strings);
+    }
+
+    @Test
+    public void testLoadListWithDefaultValue() {
+        Assertions
+            .assertThat(SharedObject.loadList(testFileUrl, new ArrayList<>()))
+            .isEqualTo(new ArrayList<>());
+    }
+
+    @Test
+    public void testSaveAndLoadListWithDefaultValue() {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("1");
+        SharedObject.save(testFileUrl, strings);
+        Assertions
+            .assertThat(SharedObject.loadList(testFileUrl, new ArrayList<>()))
+            .isEqualTo(strings);
+    }
+
+    @Test
     public void testLoadMap() {
         Assertions
             .assertThat(SharedObject.loadMap(testFileUrl))

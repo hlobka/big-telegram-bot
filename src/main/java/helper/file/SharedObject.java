@@ -1,12 +1,13 @@
 package helper.file;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SharedObject {
     public static <K, V> HashMap<K, V> loadMap(String url, HashMap<K, V> defaultValue) {
         HashMap<K, V> result;
-        if(createNewFile(url)){
+        if (createNewFile(url)) {
             save(url, defaultValue);
         }
         try (FileInputStream fileIn = new FileInputStream(url); ObjectInputStream in = new ObjectInputStream(fileIn)) {
@@ -25,12 +26,13 @@ public class SharedObject {
     private static boolean checkIsExist(String url) {
         return new File(url).exists();
     }
+
     private static boolean createNewFile(String url) {
         String folders = url.replaceAll("\\/[a-zA-Z0-9]+\\.\\w+", "");
-        if(!folders.contains(".")) {
+        if (!folders.contains(".")) {
             new File(folders).mkdirs();
         }
-        if(new File(url).exists()){
+        if (new File(url).exists()) {
             return false;
         }
         try {
@@ -43,7 +45,7 @@ public class SharedObject {
 
     public static void save(String url, Serializable data) {
         createNewFile(url);
-        try (FileOutputStream fileOut = new FileOutputStream(url);ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+        try (FileOutputStream fileOut = new FileOutputStream(url); ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(data);
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,7 +55,7 @@ public class SharedObject {
     }
 
     private static void removeFile(String url) {
-        if(new File(url).exists()){
+        if (new File(url).exists()) {
             new File(url).delete();
         }
     }
@@ -64,7 +66,7 @@ public class SharedObject {
 
     public static <T> T load(String url, Class<T> eClass) {
         T result;
-        if(!checkIsExist(url)){
+        if (!checkIsExist(url)) {
             return null;
         }
         createNewFile(url);
@@ -75,5 +77,14 @@ public class SharedObject {
             return null;
         }
         return result;
+    }
+
+    public static ArrayList<String> loadList(String url) {
+        return loadList(url, new ArrayList<>());
+    }
+
+    public static <E> ArrayList<E> loadList(String url, ArrayList<E> defaultValue) {
+        ArrayList result = load(url, ArrayList.class);
+        return result == null ? defaultValue : result;
     }
 }
