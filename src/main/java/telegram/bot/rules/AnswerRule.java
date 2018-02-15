@@ -17,6 +17,7 @@ import java.util.function.Function;
 
 import static telegram.bot.data.Common.ACTION_ITEMS2;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
+import static telegram.bot.data.Common.JOKE_ITEMS;
 
 public class AnswerRule implements Rule {
     public static final String MATH_REG = "^(\\d+(\\.\\d+)?)( ?)+%s( ?)+(\\d+(\\.\\d+)?)$";
@@ -37,27 +38,6 @@ public class AnswerRule implements Rule {
         "чай, кофе, потанцуем?",
         "Все так говорят, а ты купи Слона"
     );
-    private List<String> popularBotJokes = Arrays.asList(
-        "— Когда клеишь обои, главное, чтобы пузырей не было. А то мы как-то раз взяли два пузыря…",
-        "Президент Трамп решил исправить историческую ошибку, все негры — потомки насильно ввезенных рабов абсолютно бесплатно, за счет правительства США будут возвращены на свою родину в Африку.",
-        "Сижу в классе, кушаю твикс, и тут одноклассница говорит:\n" +
-            "— Кинь мне палочку.\n" +
-            "Я чуть не поперхнулся.",
-        "Она звонит ему:\n" +
-            "— Дорогой, ты помнишь нашу прошлую ночь? У меня до сих пор мурашки по коже бегают!\n" +
-            "Он:\n" +
-            "— У меня тоже, уже трех поймал.",
-        "— Цель Вашего визита в Голландию?",
-        "- Лети-лети лепесток, через запад на восток, через север, через юг, возвращайся, сделав круг, лишь коснешься ты земли, быть по-моему вели: \"Вели, чтобы меня отпустило, волшебная чудо-трава\"...",
-        "- Пошли на балкон, покурим!\n" +
-            "- У тебя же нет балкона!\n" +
-            "- Когда курю, появляется",
-        "Сотрудники полиции в Подмосковье прикрыли наркопритон. Под прикрытием бизнес пошел вдвое лучше.",
-        "Василий Петрович из Калуги, собираясь на охоту, по ошибке взял сигареты сына, и уже к обеду, на лесной поляне, застрелил трех жирафов.",
-        "— Что такое учебный план?\n" +
-            "— Это обычный табак.",
-        "Посадили в тюрьму наркомана и сифилитика сидят.вдруг у сифилитика нос отвалился, он его за решотку кинул, потом ухо отвалилось его тоже за решотку выбросил. Также и с другим ухом поступил. Наркоман смотрит и говорит: я смотрю ты потихоньку съеб@ваешься."
-    );
 
     public AnswerRule(TelegramBot bot) {
         this.bot = bot;
@@ -67,6 +47,7 @@ public class AnswerRule implements Rule {
             return strings.get((int) Math.round(Math.random() * (strings.size() - 1)));
         });
         commonRegAnswers.put("бот,?.* анекдот\\??", s -> {
+            ArrayList<String> popularBotJokes = SharedObject.loadList(JOKE_ITEMS);
             Collections.shuffle(popularBotJokes);
             return popularBotJokes.get(0);
         });
@@ -109,9 +90,6 @@ public class AnswerRule implements Rule {
 //        answers.put("ревью", s -> "О, ревью, Набегай!");
         answers.put("в смысле?", s -> "В прямом");
         answers.put("Lorem ipsum", s -> "https://ru.wikipedia.org/wiki/Lorem_ipsum");
-
-//        commonAnswers.put("бот ", s -> "Слушаю и повинуюсь мой господин. \nЖми сюда /help");
-//        commonAnswers.put(" бот", s -> "Слушаю и повинуюсь мой господин. \nЖми сюда /help");
         commonRegAnswers.put("купить ([a-zA-Zа-яА-Я ]?)+лотерейку\\?", s -> {
             switch (new Random().nextInt(5)) {
                 case 0:
@@ -262,6 +240,24 @@ public class AnswerRule implements Rule {
             }
             SharedObject.save(ACTION_ITEMS2, actionItems2);
             return result.toString();
+        });
+        Function<Message, String> jokesSaver = message -> {
+            String text = message.text() == null ? "" : message.text();
+            ArrayList<String> popularBotJokes = SharedObject.loadList(JOKE_ITEMS);
+            for (String joke : text.split("#(анекдот|joke) ")) {
+                if (joke.isEmpty()) {
+                    continue;
+                }
+                popularBotJokes.add(joke);
+            }
+            SharedObject.save(JOKE_ITEMS, popularBotJokes);
+            return "Jokes saved";
+        };
+        actions.put("#анекдот", jokesSaver);
+        actions.put("#joke", jokesSaver);
+        actions.put("#clearJokes",  message -> {
+            SharedObject.save(JOKE_ITEMS, new ArrayList<String>());
+            return "jokes cleared";
         });
     }
 
