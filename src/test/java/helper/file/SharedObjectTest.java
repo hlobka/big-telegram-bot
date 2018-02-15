@@ -26,6 +26,14 @@ public class SharedObjectTest {
     }
 
     @Test
+    public void testLoadIncorrectValue() {
+        SharedObject.save(testFileUrl, "Test");
+        Assertions
+            .assertThat(SharedObject.load(testFileUrl, Integer.class))
+            .isInstanceOf(String.class);
+    }
+
+    @Test
     public void testSaveAndLoad() {
         SharedObject.save(testFileUrl, 1);
         Assertions
