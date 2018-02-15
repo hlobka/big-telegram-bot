@@ -25,7 +25,7 @@ public class SharedObjectTest {
             .isNull();
     }
 
-    @Test
+    @Test(expectedExceptions = ClassCastException.class)
     public void testLoadIncorrectValue() {
         SharedObject.save(testFileUrl, "Test");
         Assertions
