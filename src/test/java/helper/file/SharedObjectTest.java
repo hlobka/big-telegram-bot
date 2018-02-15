@@ -8,11 +8,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.testng.Assert.*;
 
 public class SharedObjectTest {
 
-    protected String testFileUrl = "tmp/test/testFile.ser";
+    private String testFileUrl = "tmp/test/testFile.ser";
 
     @AfterMethod
     public void tearDown() {
