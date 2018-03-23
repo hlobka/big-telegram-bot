@@ -28,6 +28,7 @@ public class MainBot {
         rules.registerRule(new IIAnswerRule(bot));
         rules.registerRule(new EtsAnswerRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
+        commandExecutorRule.addCommand("/getChatId", new GetChatIdCommand());
         commandExecutorRule.addCommand("/configureActionItems", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configure_Action_Items", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configureAllActionItems", new ConfigureActionItems(true));

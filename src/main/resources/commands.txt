@@ -7,3 +7,4 @@ configure_all_action_items - Need to resolve all available action items
 show_resolved_action_items - Should be show all resolved action items for this group
 show_all_resolved_action_items - Should be show all action items
 resolve_ets - need to resolve ets today
+getChatId - need to get chat id
