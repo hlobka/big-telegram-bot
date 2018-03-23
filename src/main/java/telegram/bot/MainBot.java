@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.checker.JenkisChecker;
+import telegram.bot.checker.JenkinsChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.rules.*;
@@ -48,7 +48,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         rules.registerRule(commandExecutorRule);
-        new JenkisChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
+        new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
         bot.setUpdatesListener(updatess -> {
             System.out.println("onResponse: " + updatess.toString());

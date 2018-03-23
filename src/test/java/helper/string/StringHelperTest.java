@@ -7,19 +7,19 @@ import static org.testng.Assert.*;
 
 public class StringHelperTest {
     @Test
-    public void testGetRegString() throws Exception {
+    public void testGetRegString() {
         Assertions.assertThat(StringHelper.getRegString("Кто такой Шива?", "кто такой ([a-zA-Zа-яА-Я]+)\\??"))
             .isEqualTo("Шива");
     }
 
     @Test
-    public void testGetRegString1() throws Exception {
+    public void testGetRegString1() {
         Assertions.assertThat(StringHelper.getRegString("Кто такой Шива?", "(кто такой) ([a-zA-Zа-яА-Я]+)\\??", 2))
             .isEqualTo("Шива");
     }
 
     @Test
-    public void testReplace() throws Exception {
+    public void testReplace() {
 //        String input = ":20:9405601140";
 //        input.replaceAll("(:20):(\\d+)(?!\\d)", "$1");
 //        input.replaceAll("(:20):(\\d+)(?!\\d)", "$1");
@@ -28,7 +28,7 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testGetFileAsString() throws Exception {
+    public void testGetFileAsString() {
 
     }
 

@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import static telegram.bot.data.Common.JENKINS_STATUSES;
 
-public class JenkisChecker extends Thread {
+public class JenkinsChecker extends Thread {
     private TelegramBot bot;
     private long millis;
     protected final JenkinsServer jenkins;
     private HashMap<String, Boolean> statuses;
-    public JenkisChecker(TelegramBot bot, long millis, String jenkinsServerUrl) throws URISyntaxException {
+    public JenkinsChecker(TelegramBot bot, long millis, String jenkinsServerUrl) throws URISyntaxException {
         this.bot = bot;
         this.millis = millis;
         jenkins = new JenkinsServer(new URI(jenkinsServerUrl));
@@ -50,7 +50,7 @@ public class JenkisChecker extends Thread {
     }
 
     private void check() throws IOException {
-        System.out.println("JenkisChecker::check");
+        System.out.println("JenkinsChecker::check");
         for (Map.Entry<String, Job> entry : jenkins.getJobs().entrySet()) {
             for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
                 for (String jenkinsId : chatData.getJenkinsIds()) {
