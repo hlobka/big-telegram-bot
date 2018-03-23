@@ -24,6 +24,7 @@ public class Common {
     public static final long OLLIE_BALLOONIES_CHAT_ID;
     public static final long DEV_TALKS_CHAT_ID;
     public static final long OLLIE_ELECTRIC_TIGER_CHAT_ID;
+    public static final long OLLIE_WILD_FURY_CHAT_ID;
     public static final long TEST_FOR_BOT_GROUP_ID;
     public static final List<Long> BIG_GENERAL_GROUP_IDS;
     public static final String HELP_LINK;
@@ -36,6 +37,7 @@ public class Common {
         OLLIE_BALLOONIES_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_BALLOONIES_CHAT_ID"));
         DEV_TALKS_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.DEV_TALKS_CHAT_ID"));
         OLLIE_ELECTRIC_TIGER_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_ELECTRIC_TIGER_CHAT_ID"));
+        OLLIE_WILD_FURY_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_WILD_FURY_CHAT_ID"));
         TEST_FOR_BOT_GROUP_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.TEST_FOR_BOT_GROUP_ID"));
         List<String> bigGeneralGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_GROUP_IDS").split(","));
         BIG_GENERAL_GROUP_IDS = bigGeneralGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
@@ -61,8 +63,9 @@ public class Common {
 
     public static final List<ChatData> BIG_GENERAL_GROUPS = Arrays.asList(
         new ChatData(OLLIE_BALLOONIES_CHAT_ID, Collections.singletonList("ballooniesIXF")),
+        new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury")),
         new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF")),
-        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF")),
-        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF"))
+        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury")),
+        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury"))
     );
 }
