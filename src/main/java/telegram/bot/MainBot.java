@@ -30,8 +30,8 @@ public class MainBot {
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
-        commandExecutorRule.addCommand("/send_on_vacation", new AddUserByIdOnVocationListCommand(bot));
-        commandExecutorRule.addCommand("/return_from_vacation", new RemoveUserByIdOnVocationListCommand(bot));
+        commandExecutorRule.addCommand("/send_on_vacation", new AddUserByIdOnVacationListCommand(bot));
+        commandExecutorRule.addCommand("/return_from_vacation", new RemoveUserByIdOnVacationListCommand(bot));
         commandExecutorRule.addCommand("/configureActionItems", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configure_Action_Items", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configureAllActionItems", new ConfigureActionItems(true));

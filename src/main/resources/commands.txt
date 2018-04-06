@@ -9,5 +9,5 @@ show_all_resolved_action_items - Should be show all action items
 resolve_ets - need to resolve ets today
 get_chat_id - need to get chat id
 get_user_id_by_name - need to get user id by name
-send_on_vacation - need to send user on vocation by it id
-return_from_vacation - need to return user from vocation by it id
+send_on_vacation - need to send user on vacation by it id
+return_from_vacation - need to return user from vacation by it id

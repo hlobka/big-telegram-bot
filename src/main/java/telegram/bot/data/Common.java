@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class Common {
     public static final String ETS_USERS = "/tmp/ets_users.ser";
-    public static final String ETS_USERS_IN_VOCATION = "/tmp/ets_users_in_vocation.ser";
+    public static final String ETS_USERS_IN_VACATION = "/tmp/ets_users_in_vacation.ser";
     public static final String COMMON_INT_DATA = "/tmp/common.ser";
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
     public static final String JOKE_ITEMS = "/tmp/jokeItems.ser";

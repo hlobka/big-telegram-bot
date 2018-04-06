@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static telegram.bot.data.Common.COMMON_INT_DATA;
 import static telegram.bot.data.Common.ETS_USERS;
-import static telegram.bot.data.Common.ETS_USERS_IN_VOCATION;
+import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
 
 public class EtsClarityChecker extends Thread {
     private TelegramBot bot;
@@ -165,14 +165,14 @@ public class EtsClarityChecker extends Thread {
         int count = response.count();
         StringBuilder resolvedUsers = new StringBuilder();
         int resolvedCount = 0;
-        ArrayList<User> usersInVocation = SharedObject.loadList(ETS_USERS_IN_VOCATION, new ArrayList<User>());
+        ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
 
         if (!users.isEmpty()) {
             for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
                 User user = userBooleanEntry.getKey();
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
-                    if(usersInVocation.contains(user)){
+                    if(usersInVacation.contains(user)){
                         resolved = true;
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍌"));
                     } else {
@@ -191,7 +191,7 @@ public class EtsClarityChecker extends Thread {
     public static Boolean checkIsResolvedToDay(TelegramBot bot) {
         int resolvedCount = 0;
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
-        ArrayList<User> usersInVocation = SharedObject.loadList(ETS_USERS_IN_VOCATION, new ArrayList<User>());
+        ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
         if (!users.isEmpty()) {
             for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
                 User user = userBooleanEntry.getKey();
@@ -206,7 +206,7 @@ public class EtsClarityChecker extends Thread {
         }
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
         int count = response.count();
-        int expectedCount = count - 1 - usersInVocation.size();
+        int expectedCount = count - 1 - usersInVacation.size();
         return checkIsFriday() && resolvedCount == expectedCount;
     }
 

@@ -11,13 +11,13 @@ import telegram.bot.checker.EtsClarityChecker;
 import java.util.*;
 
 import static telegram.bot.data.Common.ETS_USERS;
-import static telegram.bot.data.Common.ETS_USERS_IN_VOCATION;
+import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
 
-public class RemoveUserByIdOnVocationListCommand implements Command {
+public class AddUserByIdOnVacationListCommand implements Command {
 
     private TelegramBot bot;
 
-    public RemoveUserByIdOnVocationListCommand(TelegramBot bot) {
+    public AddUserByIdOnVacationListCommand(TelegramBot bot) {
         this.bot = bot;
     }
 
@@ -34,12 +34,10 @@ public class RemoveUserByIdOnVocationListCommand implements Command {
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("Invalid user id: %s", values)));
             }
             if(user.id() == userId){
-                ArrayList<User> usersInVocation = SharedObject.loadList(ETS_USERS_IN_VOCATION, new ArrayList<User>());
-                if(usersInVocation.contains(user)){
-                    usersInVocation.remove(user);
-                }
+                ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
+                usersInVacation.add(user);
                 EtsClarityChecker.updateLastMessage(bot);
-                return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s returns from vocation", user.firstName())));
+                return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", user.firstName())));
             }
         }
 
