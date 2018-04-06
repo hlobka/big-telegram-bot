@@ -64,7 +64,7 @@ public class ResolveEts implements Command {
                     if (isContains) {
                         SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
                         EtsClarityChecker.updateLastMessage(bot);
-                        String message = String.format("user %s return form vacation", user.firstName());
+                        String message = String.format("user %s returns from vacation", user.firstName());
                         BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, message, ParseMode.Markdown);
                     }
                 }
