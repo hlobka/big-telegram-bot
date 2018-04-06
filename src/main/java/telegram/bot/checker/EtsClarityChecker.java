@@ -106,7 +106,7 @@ public class EtsClarityChecker extends Thread {
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                new InlineKeyboardButton("Resolve").callbackData("ets_on_vocation"),
+                new InlineKeyboardButton("On Vocation").callbackData("ets_on_vocation"),
             }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
@@ -131,7 +131,7 @@ public class EtsClarityChecker extends Thread {
                 .disableWebPagePreview(true)
                 .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                     new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                    new InlineKeyboardButton("Resolve").callbackData("ets_on_vocation"),
+                    new InlineKeyboardButton("On Vocation").callbackData("ets_on_vocation"),
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
