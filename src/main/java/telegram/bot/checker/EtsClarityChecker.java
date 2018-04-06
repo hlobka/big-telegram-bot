@@ -105,7 +105,8 @@ public class EtsClarityChecker extends Thread {
             .disableWebPagePreview(true)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
+                new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                new InlineKeyboardButton("Resolve").callbackData("ets_on_vocation"),
             }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
@@ -129,7 +130,8 @@ public class EtsClarityChecker extends Thread {
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
                 .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                    new InlineKeyboardButton("Resolve").callbackData("ets_resolved")
+                    new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                    new InlineKeyboardButton("Resolve").callbackData("ets_on_vocation"),
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
@@ -184,7 +186,8 @@ public class EtsClarityChecker extends Thread {
                 }
             }
         }
-        isResolvedToday = resolvedCount == count - 1;
+        int expectedCount = count - 1 - usersInVacation.size();
+        isResolvedToday = resolvedCount >= expectedCount;
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
     }
 
@@ -207,7 +210,7 @@ public class EtsClarityChecker extends Thread {
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
         int count = response.count();
         int expectedCount = count - 1 - usersInVacation.size();
-        return checkIsFriday() && resolvedCount == expectedCount;
+        return checkIsFriday() && resolvedCount >= expectedCount;
     }
 
     private static String getMessageFromFile() {

@@ -37,6 +37,7 @@ public class RemoveUserByIdOnVacationListCommand implements Command {
                 ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
                 if(usersInVacation.contains(user)){
                     usersInVacation.remove(user);
+                    SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
                 }
                 EtsClarityChecker.updateLastMessage(bot);
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s returns from vacation", user.firstName())));

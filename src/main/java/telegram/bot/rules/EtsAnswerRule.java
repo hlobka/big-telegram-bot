@@ -19,8 +19,14 @@ public class EtsAnswerRule implements Rule {
 
     @Override
     public void callback(CallbackQuery callbackQuery) {
-        if (callbackQuery.from() != null && callbackQuery.data() != null && callbackQuery.data().equals("ets_resolved")) {
-            ResolveEts.resolveUser(callbackQuery.from(), bot);
+        boolean isDataPresent = callbackQuery.from() != null && callbackQuery.data() != null;
+        if (isDataPresent){
+            String data = callbackQuery.data();
+            if(data.equals("ets_resolved")){
+                ResolveEts.resolveUser(callbackQuery.from(), bot);
+            } else if(data.equals("ets_on_vocation")){
+                ResolveEts.sendUserOnVocation(callbackQuery.from(), bot);
+            }
         }
     }
 }

@@ -35,7 +35,10 @@ public class AddUserByIdOnVacationListCommand implements Command {
             }
             if(user.id() == userId){
                 ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
-                usersInVacation.add(user);
+                if(!usersInVacation.contains(user)) {
+                    usersInVacation.add(user);
+                }
+                SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
                 EtsClarityChecker.updateLastMessage(bot);
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", user.firstName())));
             }
