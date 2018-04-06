@@ -75,6 +75,7 @@ public class AnswerRule implements Rule {
         answers.put("ctrl+v", s -> "Не самая лучша практика");
         answers.put("ctrl+c", s -> "Не самая лучша практика");
         answers.put("плохо", s -> "бывает и хуже");
+        commonRegAnswers.put("куда хуже .*?", s -> "есть куда...");
 //        answers.put("очень плохо", s -> "бывает и хуже");
         answers.put("домой", s -> "не рановато ли?");
         answers.put("кушать", s -> "пару минут, мне тут надо до перепроверить");
@@ -171,6 +172,7 @@ public class AnswerRule implements Rule {
         commonAnswers.put("ебан", s -> "Попрошу не матюкаться.");
         commonAnswers.put("бля", s -> "Попрошу не матюкаться.");
         commonAnswers.put("сволочь", s -> "Попрошу не выражаться.");
+        commonAnswers.put("поц", s -> "Попрошу не выражаться.");
         commonAnswers.put("придур", s -> "Попрошу не выражаться.");
         commonAnswers.put("дура", s -> "Попрошу не выражаться.");
 //        commonAnswers.put("фак ", s -> "Попрошу не выражаться.");
