@@ -77,6 +77,7 @@ public class ResolveEts implements Command {
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         users.put(user, true);
         clearFromDuplicates(users);
+        returnUserFromVocation(user, bot);
         SharedObject.save(ETS_USERS, users);
         EtsClarityChecker.updateLastMessage(bot);
         if (EtsClarityChecker.checkIsResolvedToDay(bot)) {
