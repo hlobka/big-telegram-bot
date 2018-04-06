@@ -24,7 +24,7 @@ public class EtsAnswerRule implements Rule {
             String data = callbackQuery.data();
             if(data.equals("ets_resolved")){
                 ResolveEts.resolveUser(callbackQuery.from(), bot);
-            } else if(data.equals("ets_on_vocation")){
+            } else if(data.equals("ets_on_vacation")){
                 ResolveEts.sendUserOnVocation(callbackQuery.from(), bot);
             }
         }
