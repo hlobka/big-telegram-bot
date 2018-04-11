@@ -59,6 +59,7 @@ public class AnswerRule implements Rule {
         answers.put("drugs", s -> "Какие наркотики?");
         answers.put("баги", s -> "это не баги, это фичи");
         answers.put("нудануда", s -> "Женя, это ты?");
+        answers.put("рофл", s -> "Рома, это ты?");
         commonRegAnswers.put("ну почему.*\\?", s -> "Потому");
         answers.put("c'est la ", s -> "Женя, это ты?");
         answers.put("хех", s -> "Женя, это ты?");
