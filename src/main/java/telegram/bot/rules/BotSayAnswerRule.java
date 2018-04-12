@@ -44,7 +44,7 @@ public class BotSayAnswerRule implements Rule {
 
     private void sendMessage(Message message) {
         SendMessage request = new SendMessage(message.chat().id(), message.text().replaceAll("#bot_say", ""))
-            .parseMode(ParseMode.Markdown)
+            .parseMode(ParseMode.HTML)
             .disableWebPagePreview(false)
             .disableNotification(false);
         bot.execute(request);
