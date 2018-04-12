@@ -28,6 +28,7 @@ public class MainBot {
         rules.registerRule(new IIAnswerRule(bot));
         rules.registerRule(new EtsAnswerRule(bot));
         rules.registerRule(new LikeAnswerRule(bot));
+        rules.registerRule(new BotSayAnswerRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
