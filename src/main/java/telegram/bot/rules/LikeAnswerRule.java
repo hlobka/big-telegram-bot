@@ -46,7 +46,7 @@ public class LikeAnswerRule implements Rule {
 
     private void sendMessage(Message message) {
         SendMessage request = new SendMessage(message.chat().id(), "Like it: " + message.text().replaceAll("#like", ""))
-            .parseMode(ParseMode.HTML)
+            .parseMode(ParseMode.Markdown)
             .disableWebPagePreview(false)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
@@ -59,7 +59,7 @@ public class LikeAnswerRule implements Rule {
     private void updateMessage(Message message, Integer numberOfLikes) {
         try {
             EditMessageText request = new EditMessageText(message.chat().id(), message.messageId(), message.text())
-                .parseMode(ParseMode.HTML)
+                .parseMode(ParseMode.Markdown)
                 .disableWebPagePreview(false)
                 .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
                     new InlineKeyboardButton(String.format("Like %d 👍🏻", numberOfLikes)).callbackData("like_"+numberOfLikes)
