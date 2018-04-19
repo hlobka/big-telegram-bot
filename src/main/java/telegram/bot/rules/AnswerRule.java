@@ -140,9 +140,9 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
-        commonAnswers.put("Понедельник", s -> "День потеряного контекста");
+        commonAnswers.put("Понедельник", s -> "День потерянного контекста");
         commonAnswers.put("Вторник", s -> "День говна");
-        commonAnswers.put("Среда", s -> "Молчание Ромы");
+        commonAnswers.put("Среда", s -> "Рунглишь дэй");
         commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
         commonAnswers.put("Пятница", s -> "Какие наркотики");
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
