@@ -10,6 +10,10 @@ import telegram.bot.checker.JenkinsChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.rules.*;
+import telegram.bot.rules.world.EmptyWorldEntity;
+import telegram.bot.rules.world.Rabbit;
+import telegram.bot.rules.world.WoldControl;
+import telegram.bot.rules.world.WorldGameRule;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,6 +27,16 @@ public class MainBot {
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
         Rules rules = new Rules();
+
+        WorldGameRule worldGameRule = new WorldGameRule(bot);
+        worldGameRule.setSize(10, 10);
+        worldGameRule.addEntity(new Rabbit(), 5, 5, WoldControl.values());
+        worldGameRule.addEntity(new EmptyWorldEntity("🔴"), 0, 0);
+        worldGameRule.addEntity(new EmptyWorldEntity("🔴"), 9, 0);
+        worldGameRule.addEntity(new EmptyWorldEntity("🔴"), 9, 9);
+        worldGameRule.addEntity(new EmptyWorldEntity("🔴"), 0, 9);
+
+        rules.registerRule(worldGameRule);
         rules.registerRule(new SlotMachineRule(bot));
         rules.registerRule(new AnswerRule(bot));
         rules.registerRule(new IIAnswerRule(bot));
