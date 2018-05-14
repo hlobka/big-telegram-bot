@@ -62,9 +62,7 @@ public class UpsourceReviewsProvider {
     private List<Review> collectResults(List<LinkedHashMap> reviews) {
         List<Review> result = new ArrayList<>();
         for (LinkedHashMap review : reviews) {
-//            new Review();
             Review reviewDto = Review.create(review);
-
             result.add(reviewDto);
         }
         return result;
