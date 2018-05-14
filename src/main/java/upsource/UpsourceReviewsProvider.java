@@ -1,7 +1,7 @@
 package upsource;
 
 import upsource.dto.Review;
-import upsource.filter.CompleteCountCondition;
+import upsource.filter.CountCondition;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,7 +28,7 @@ public class UpsourceReviewsProvider {
         return this;
     }
 
-    public UpsourceReviewsProvider withCompleteCount(Integer count, CompleteCountCondition equals) {
+    public UpsourceReviewsProvider withCompleteCount(Integer count, CountCondition equals) {
         Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review-> review.completionRate().completedCount, count);
         filters.add(reviewPredicate);
         return this;

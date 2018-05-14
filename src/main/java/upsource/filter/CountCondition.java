@@ -3,7 +3,7 @@ package upsource.filter;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public enum CompleteCountCondition {
+public enum CountCondition {
     EQUALS(Object::equals),
     MORE_THAN((t, e)-> t.doubleValue() > e.doubleValue()),
     LESS_THAN((t, e)-> t.doubleValue() < e.doubleValue()),
@@ -12,7 +12,7 @@ public enum CompleteCountCondition {
 
     private ConditionChecker<Number, Number> conditionChecker;
 
-    CompleteCountCondition(ConditionChecker<Number, Number> conditionChecker) {
+    CountCondition(ConditionChecker<Number, Number> conditionChecker) {
         this.conditionChecker = conditionChecker;
     }
 
