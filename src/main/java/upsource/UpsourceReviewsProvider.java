@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class UpsourceReviewsProvider {
     private UpsourceProject upsourceProject;
-    private long durationInMilliseconds;
-    private ReviewState state;
     private List<Predicate<Review>> filters = new ArrayList<>();
 
     UpsourceReviewsProvider(UpsourceProject upsourceProject) {
@@ -19,12 +17,16 @@ public class UpsourceReviewsProvider {
     }
 
     public UpsourceReviewsProvider withDuration(long milliseconds) {
-        this.durationInMilliseconds = milliseconds;
+        CountCondition countCondition = CountCondition.LESS_THAN;
+        Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, review -> new Date().getTime() - review.createdAt(), milliseconds);
+        filters.add(reviewPredicate);
         return this;
     }
 
     public UpsourceReviewsProvider withState(ReviewState state) {
-        this.state = state;
+        CountCondition countCondition = CountCondition.EQUALS;
+        Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, Review::state, state.ordinal()+1);
+        filters.add(reviewPredicate);
         return this;
     }
 
@@ -47,16 +49,6 @@ public class UpsourceReviewsProvider {
         LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");
         List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.get("reviews");
         List<Review> result = collectResults(reviews);
-        if (durationInMilliseconds > 0) {
-            result = result.stream()
-                .filter(review -> new Date().getTime() - review.createdAt() < durationInMilliseconds)
-                .collect(Collectors.toList());
-        }
-        if(state != null){
-            result = result.stream()
-                .filter(review -> review.state() == state.ordinal()+1)
-                .collect(Collectors.toList());
-        }
         for (Predicate<Review> filter : filters) {
             result = result.stream()
                 .filter(filter)
