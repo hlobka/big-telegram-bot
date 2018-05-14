@@ -1,18 +1,18 @@
 package upsource;
 
-import upsource.dto.CompletionRate;
-import upsource.dto.DiscussionCounter;
 import upsource.dto.Review;
-import upsource.dto.UpsourceUser;
+import upsource.filter.CompleteCountCondition;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class UpsourceReviewsProvider {
     private UpsourceProject upsourceProject;
     private long durationInMilliseconds;
     private ReviewState state;
+    private List<Predicate<Review>> filters = new ArrayList<>();
 
     UpsourceReviewsProvider(UpsourceProject upsourceProject) {
         this.upsourceProject = upsourceProject;
@@ -51,6 +51,11 @@ public class UpsourceReviewsProvider {
                 .filter(review -> review.state() == state.ordinal()+1)
                 .collect(Collectors.toList());
         }
+        for (Predicate<Review> filter : filters) {
+            result = result.stream()
+                .filter(filter)
+                .collect(Collectors.toList());
+        }
         return result;
     }
 
@@ -66,4 +71,9 @@ public class UpsourceReviewsProvider {
     }
 
 
+    public UpsourceReviewsProvider withCompleteCount(Integer count, CompleteCountCondition equals) {
+        Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review-> review.completionRate().completedCount, count);
+        filters.add(reviewPredicate);
+        return this;
+    }
 }
