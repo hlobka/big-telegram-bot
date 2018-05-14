@@ -28,6 +28,12 @@ public class UpsourceReviewsProvider {
         return this;
     }
 
+    public UpsourceReviewsProvider withCompleteCount(Integer count, CompleteCountCondition equals) {
+        Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review-> review.completionRate().completedCount, count);
+        filters.add(reviewPredicate);
+        return this;
+    }
+
     public List<Review> getReviews() throws IOException {
         String url = upsourceProject.url;
         byte[] credentials = String.format("%s:%s", upsourceProject.userName, upsourceProject.pass).getBytes();
@@ -66,12 +72,5 @@ public class UpsourceReviewsProvider {
             result.add(reviewDto);
         }
         return result;
-    }
-
-
-    public UpsourceReviewsProvider withCompleteCount(Integer count, CompleteCountCondition equals) {
-        Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review-> review.completionRate().completedCount, count);
-        filters.add(reviewPredicate);
-        return this;
     }
 }
