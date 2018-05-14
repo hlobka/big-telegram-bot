@@ -16,4 +16,8 @@ public class UpsourceProject {
     public UpsourceReviewsProvider getReviewsProvider() {
         return new UpsourceReviewsProvider(this);
     }
+
+    public UpsourceRevisionsProvider getRevisionsProvider() {
+        return new UpsourceRevisionsProvider(this);
+    }
 }
