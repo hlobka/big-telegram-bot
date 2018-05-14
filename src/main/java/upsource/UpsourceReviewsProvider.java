@@ -42,9 +42,8 @@ public class UpsourceReviewsProvider {
         String credentialsBase64 = Base64.getEncoder().encodeToString(credentials);
         RpmExecutor rpmExecutor = new RpmExecutor(url, credentialsBase64);
         Map<Object, Object> params = new HashMap<>();
-        params.put("projectId", "wildfury");
+        params.put("projectId", upsourceProject.projectId);
         params.put("limit", 100);
-        params.put("duration", "week");
         Object responseObject = rpmExecutor.doRequestJson("getReviews", params);
         LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");
         List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.get("reviews");
