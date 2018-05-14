@@ -21,6 +21,7 @@ public class Common {
     private static final Properties PROPERTIES = System.getProperties();
     public static final Common data = new Common();
     public static final GoogleData GOOGLE = new GoogleData(PROPERTIES);
+    public static final UpsourceData UPSOURCE = new UpsourceData(PROPERTIES);
     public static final long BIG_GENERAL_CHAT_ID;
     public static final long OLLIE_BALLOONIES_CHAT_ID;
     public static final long DEV_TALKS_CHAT_ID;
