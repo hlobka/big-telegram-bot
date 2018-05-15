@@ -22,6 +22,7 @@ public class TimeHelperTest {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         assertEquals(48, TimeHelper.getHoursUntilTarget(hour + 24 * 2));
+        assertEquals(TimeHelper.getHoursUntilTarget(hour), TimeHelper.getHoursUntilTarget(hour - 24 * 2));
     }
 
     @Test

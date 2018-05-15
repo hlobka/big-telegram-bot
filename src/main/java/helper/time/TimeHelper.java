@@ -7,7 +7,9 @@ public class TimeHelper {
     public static int getHoursUntilTarget(int targetHour) {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        return hour < targetHour ? targetHour - hour : targetHour - hour + 24;
+        while (hour >= targetHour){
+            hour -= 24;
+        }
+        return targetHour - hour;
     }
-
 }
