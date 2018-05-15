@@ -12,6 +12,7 @@ import com.pengrad.telegrambot.response.GetChatMembersCountResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
 import helper.string.StringHelper;
+import helper.time.TimeHelper;
 import telegram.bot.data.Common;
 
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     private static boolean checkIsFriday() {
-        return LocalDate.now().getDayOfWeek() == DayOfWeek.FRIDAY;
+        return TimeHelper.checkToDayIs(DayOfWeek.FRIDAY);
     }
 
     private int getTimeout() {

@@ -1,5 +1,7 @@
 package helper.time;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -22,5 +24,13 @@ public class TimeHelper {
             hour -= 24;
         }
         return TimeUnit.HOURS.toMinutes(targetHour - hour) + minutes;
+    }
+
+    public static boolean checkToDayIs(DayOfWeek dayOfWeek) {
+        return checkDaysAreSame(dayOfWeek, LocalDate.now().getDayOfWeek());
+    }
+
+    protected static boolean checkDaysAreSame(DayOfWeek dayOfWeek1, DayOfWeek dayOfWeek2) {
+        return dayOfWeek1 == dayOfWeek2;
     }
 }

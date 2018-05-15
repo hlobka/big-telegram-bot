@@ -1,11 +1,15 @@
 package helper.time;
 
+import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.*;
 
 public class TimeHelperTest {
@@ -77,5 +81,17 @@ public class TimeHelperTest {
             Function<Long, Long> hoursToMinutes = aHour -> minutes + hours.toMinutes(aHour);
             assertEquals(hoursToMinutes.apply(i), TimeHelper.getMinutesUntilTargetHour((int) targetHour));
         }
+    }
+
+    @Test
+    public void testCheckDaysAreSame() {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            assertThat(TimeHelper.checkDaysAreSame(dayOfWeek, DayOfWeek.of(dayOfWeek.ordinal()+1))).isTrue();
+        }
+    }
+
+    @Test
+    public void testCheckToDayIs() {
+        assertThat(TimeHelper.checkToDayIs(LocalDate.now().getDayOfWeek())).isTrue();
     }
 }
