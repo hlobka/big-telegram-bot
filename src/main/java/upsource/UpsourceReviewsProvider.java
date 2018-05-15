@@ -9,11 +9,26 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class UpsourceReviewsProvider {
-    private UpsourceProject upsourceProject;
-    private List<Predicate<Review>> filters = new ArrayList<>();
+    private final String projectId;
+    private final RpmExecutor rpmExecutor;
+    private final Boolean useCache;
+    private final List<Predicate<Review>> filters = new ArrayList<>();
+    private List<Review> cachedResult;
 
-    UpsourceReviewsProvider(UpsourceProject upsourceProject) {
-        this.upsourceProject = upsourceProject;
+    UpsourceReviewsProvider(String projectId, RpmExecutor rpmExecutor, Boolean useCache) {
+        this.projectId = projectId;
+        this.rpmExecutor = rpmExecutor;
+        this.useCache = useCache;
+    }
+
+    public UpsourceReviewsProvider clearFilters() {
+        filters.clear();
+        return this;
+    }
+
+    public UpsourceReviewsProvider clearCache() {
+        cachedResult = null;
+        return this;
     }
 
     public UpsourceReviewsProvider withDuration(long milliseconds) {
@@ -25,33 +40,49 @@ public class UpsourceReviewsProvider {
 
     public UpsourceReviewsProvider withState(ReviewState state) {
         CountCondition countCondition = CountCondition.EQUALS;
-        Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, Review::state, state.ordinal()+1);
+        Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, Review::state, state.ordinal() + 1);
         filters.add(reviewPredicate);
         return this;
     }
 
     public UpsourceReviewsProvider withCompleteCount(Integer count, CountCondition equals) {
-        Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review-> review.completionRate().completedCount, count);
+        Predicate<Review> reviewPredicate = equals.getChecker(Review.class, review -> review.completionRate().completedCount, count);
         filters.add(reviewPredicate);
         return this;
     }
 
     public List<Review> getReviews() throws IOException {
-        String url = upsourceProject.url;
-        byte[] credentials = String.format("%s:%s", upsourceProject.userName, upsourceProject.pass).getBytes();
-        String credentialsBase64 = Base64.getEncoder().encodeToString(credentials);
-        RpmExecutor rpmExecutor = new RpmExecutor(url, credentialsBase64);
-        Map<Object, Object> params = new HashMap<>();
-        params.put("projectId", upsourceProject.projectId);
-        params.put("limit", 100);
-        Object responseObject = rpmExecutor.doRequestJson("getReviews", params);
-        LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");
-        List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.get("reviews");
-        List<Review> result = collectResults(reviews);
+        return getReviews(100);
+    }
+
+    public List<Review> getReviews(int limit) throws IOException {
+        List<Review> result = getReviewsFromServer(limit);
+        result = applyFilters(result);
+        return result;
+    }
+
+    private List<Review> applyFilters(List<Review> result) {
         for (Predicate<Review> filter : filters) {
             result = result.stream()
                 .filter(filter)
                 .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    private List<Review> getReviewsFromServer(int limit) throws IOException {
+        if (cachedResult != null) {
+            return cachedResult;
+        }
+        Map<Object, Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("limit", limit);
+        Object responseObject = rpmExecutor.doRequestJson("getReviews", params);
+        LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");
+        List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.get("reviews");
+        List<Review> result = collectResults(reviews);
+        if (useCache) {
+            cachedResult = result;
         }
         return result;
     }

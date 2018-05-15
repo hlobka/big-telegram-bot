@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.util.*;
 
 public class UpsourceRevisionsProvider {
-    private UpsourceProject upsourceProject;
+    private final String projectId;
+    private final RpmExecutor rpmExecutor;
 
-    public UpsourceRevisionsProvider(UpsourceProject upsourceProject) {
-        this.upsourceProject = upsourceProject;
+    public UpsourceRevisionsProvider(String projectId, RpmExecutor rpmExecutor) {
+        this.projectId = projectId;
+        this.rpmExecutor = rpmExecutor;
     }
 
     public List<Revision> getRevisions() throws IOException {
@@ -17,12 +19,8 @@ public class UpsourceRevisionsProvider {
     }
 
     public List<Revision> getRevisions(Integer limit) throws IOException {
-        String url = upsourceProject.url;
-        byte[] credentials = String.format("%s:%s", upsourceProject.userName, upsourceProject.pass).getBytes();
-        String credentialsBase64 = Base64.getEncoder().encodeToString(credentials);
-        RpmExecutor rpmExecutor = new RpmExecutor(url, credentialsBase64);
         Map<Object, Object> params = new HashMap<>();
-        params.put("projectId", upsourceProject.projectId);
+        params.put("projectId", projectId);
         params.put("limit", limit);
         Object responseObject = rpmExecutor.doRequestJson("getRevisionsList", params);
         LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");

@@ -1,5 +1,7 @@
 package upsource;
 
+import java.util.Base64;
+
 public class UpsourceProject {
     protected String url;
     protected final String userName;
@@ -14,10 +16,20 @@ public class UpsourceProject {
     }
 
     public UpsourceReviewsProvider getReviewsProvider() {
-        return new UpsourceReviewsProvider(this);
+        return getReviewsProvider(false);
+    }
+
+    public UpsourceReviewsProvider getReviewsProvider(Boolean useCache) {
+        return new UpsourceReviewsProvider(projectId, getRpmExecutor(), useCache);
     }
 
     public UpsourceRevisionsProvider getRevisionsProvider() {
-        return new UpsourceRevisionsProvider(this);
+        return new UpsourceRevisionsProvider(projectId, getRpmExecutor());
+    }
+
+    private RpmExecutor getRpmExecutor() {
+        byte[] credentials = String.format("%s:%s", userName, pass).getBytes();
+        String credentialsBase64 = Base64.getEncoder().encodeToString(credentials);
+        return new RpmExecutorImpl(url, credentialsBase64);
     }
 }
