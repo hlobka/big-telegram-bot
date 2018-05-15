@@ -8,4 +8,5 @@ import java.util.List;
 public class ChatData {
     private final long chatId;
     private final List<String> jenkinsIds;
+    private final List<String> upsourceIds;
 }
