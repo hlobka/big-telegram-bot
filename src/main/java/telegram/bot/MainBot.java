@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.checker.JenkinsChecker;
+import telegram.bot.checker.UpsourceChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.rules.*;
@@ -55,6 +56,7 @@ public class MainBot {
         rules.registerRule(commandExecutorRule);
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
+        new UpsourceChecker(bot).start();
         bot.setUpdatesListener(updatess -> {
             System.out.println("onResponse: " + updatess.toString());
             rules.handle(updatess);
