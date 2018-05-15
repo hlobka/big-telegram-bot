@@ -32,7 +32,10 @@ public class UpsourceReviewsProvider {
     }
 
     public UpsourceReviewsProvider withDuration(long milliseconds) {
-        CountCondition countCondition = CountCondition.LESS_THAN;
+        return withDuration(milliseconds, CountCondition.MORE_THAN_OR_EQUALS);
+    }
+
+    public UpsourceReviewsProvider withDuration(long milliseconds, CountCondition countCondition) {
         Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, review -> new Date().getTime() - review.createdAt(), milliseconds);
         filters.add(reviewPredicate);
         return this;
