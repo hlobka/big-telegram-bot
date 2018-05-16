@@ -14,6 +14,7 @@ import upsource.filter.CountCondition;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -68,19 +69,19 @@ public class UpsourceChecker extends Thread {
         System.out.println("UpsourceChecker::check");
         UpsourceApi upsourceApi = new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
-            Boolean isResultPresented = false;
-            String message = "Господа, ваши содевелоперы, ожидают фидбэка по ревью, Будьте бдительны, Не заставляйте их ждать!!!";
+            String title = "Господа, ваши содевелоперы, ожидают фидбэка по ревью, Будьте бдительны, Не заставляйте их ждать!!!";
+            List<String> messages = new ArrayList<>();
             for (String upsourceId : chatData.getUpsourceIds()) {
+                String message = "";
                 List<Review> reviews = upsourceApi.getProject(upsourceId)
                     .getReviewsProvider(true)
                     .withDuration(TimeUnit.DAYS.toMillis(1))
                     .withState(ReviewState.OPEN)
                     .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
                     .getReviews();
-                String format = "%n%1$-16s|%2$11s|%3$-12s|%4$5s|%5$3s";
+                String format = "%n%1$-13s|%2$11s|%3$-15s|%4$5s|%5$3s";
                 if (reviews.size() > 0) {
-                    isResultPresented = true;
-                    message += "\n ** " + upsourceId + " **";
+                    message += "\n * " + upsourceId + " *";
                     message += "\n```";
                     message += "\n------------------------------------------------------";
                     message += String.format(format, "Содевелопер", "Задача", "Ревью", "Готов", "Статус");
@@ -96,11 +97,18 @@ public class UpsourceChecker extends Thread {
                 if (reviews.size() > 0) {
                     message += "\n------------------------------------------------------";
                     message += "\n```";
+                    messages.add(message);
                 }
 
             }
-            if (isResultPresented) {
-                BotHelper.sendMessage(bot, chatData.getChatId(), message, ParseMode.Markdown);
+            if (messages.size() == 1) {
+                BotHelper.sendMessage(bot, chatData.getChatId(), title + messages.get(0), ParseMode.Markdown);
+            } else if (messages.size() > 0) {
+                BotHelper.sendMessage(bot, chatData.getChatId(), title, ParseMode.Markdown);
+                for (String s : messages) {
+                    BotHelper.sendMessage(bot, chatData.getChatId(), s, ParseMode.Markdown);
+                }
+
             }
         }
     }
