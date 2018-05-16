@@ -7,7 +7,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import javafx.util.Pair;
 import telegram.bot.commands.Command;
-import telegram.bot.commands.ExecutableCommand;
+import telegram.bot.data.TelegramCriteria;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,7 +17,6 @@ import java.util.Map;
 import static helper.string.StringHelper.getRegString;
 
 public class CommandExecutorRule implements Rule {
-    public static final int MAX_MESSAGE_LENGTH = 4096;
     private TelegramBot bot;
     private Map<String, Command> commands = new HashMap<>();
 
@@ -43,10 +42,10 @@ public class CommandExecutorRule implements Rule {
     private void sendMessage(Message message, Pair<ParseMode, String> result) {
         String value = result.getValue();
         int length = value.length();
-        if(length >= MAX_MESSAGE_LENGTH){
-            value = String.format("Превышина максимальная длина сообщения. \n Текущая %d из допустимых %d", length, MAX_MESSAGE_LENGTH);
+        if (length >= TelegramCriteria.MAX_MESSAGE_LENGTH) {
+            value = String.format("Превышина максимальная длина сообщения. \n Текущая %d из допустимых %d", length, TelegramCriteria.MAX_MESSAGE_LENGTH);
         }
-        if(result.getKey() == ParseMode.HTML){
+        if (result.getKey() == ParseMode.HTML) {
             value = value.replaceAll("\\[", "")
                 .replaceAll("]", "");
         }
