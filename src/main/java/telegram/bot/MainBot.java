@@ -1,10 +1,12 @@
 package telegram.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import okhttp3.OkHttpClient;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.checker.JenkinsChecker;
 import telegram.bot.checker.UpsourceChecker;
@@ -16,10 +18,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainBot {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
-        TelegramBot bot = new TelegramBot(Common.data.token);
+        OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .build();
+        TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token,client);
+//        TelegramBot bot = new TelegramBot(Common.data.token);
         GetUpdatesResponse updatesResponse = bot.execute(new GetUpdates());
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
@@ -58,7 +67,9 @@ public class MainBot {
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
         new UpsourceChecker(bot).start();
         bot.setUpdatesListener(updatess -> {
-            System.out.println("onResponse: " + updatess.toString());
+            if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
+                System.out.println("onResponse: " + updatess.toString());
+            }
             rules.handle(updatess);
             /*try {
                 TimeUnit.SECONDS.sleep(1);

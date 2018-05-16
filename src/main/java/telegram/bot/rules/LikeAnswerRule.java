@@ -80,7 +80,9 @@ public class LikeAnswerRule implements Rule {
                 String data = callbackQuery.data();
                 if (data.contains("like_")) {
                     String numberOfLikesAsString = StringHelper.getRegString(data, "like_(\\d+)");
-                    int numberOfLikes = listOfLikes.getOrDefault(message.messageId(), Integer.parseInt(numberOfLikesAsString)) + 1;
+                    int numberOfLikesFromString = Integer.parseInt(numberOfLikesAsString);
+                    int numberOfLikes = listOfLikes.getOrDefault(message.messageId(), numberOfLikesFromString) + 1;
+                    numberOfLikes = Math.max(numberOfLikes, numberOfLikesFromString);
                     listOfLikes.put(message.messageId(), numberOfLikes);
                     updateMessage(message, numberOfLikes);
                 }
