@@ -60,11 +60,11 @@ public class MainBot {
         bot.setUpdatesListener(updatess -> {
             System.out.println("onResponse: " + updatess.toString());
             rules.handle(updatess);
-            try {
+            /*try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
+            }*/
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
