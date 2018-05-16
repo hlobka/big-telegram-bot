@@ -82,9 +82,9 @@ public class UpsourceChecker extends Thread {
                     isResultPresented = true;
                     message += "\n ** " + upsourceId + " **";
                     message += "\n```";
-                    message += "\n--------------------------------------------------------";
+                    message += "\n------------------------------------------------------";
                     message += String.format(format, "Содевелопер", "Задача", "Ревью", "Готов", "Статус");
-                    message += "\n--------------------------------------------------------";
+                    message += "\n------------------------------------------------------";
                 }
                 for (Review review : reviews) {
                     String createdBy = Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
@@ -94,7 +94,7 @@ public class UpsourceChecker extends Thread {
                     review.title();
                 }
                 if (reviews.size() > 0) {
-                    message += "\n--------------------------------------------------------";
+                    message += "\n------------------------------------------------------";
                     message += "\n```";
                 }
 
