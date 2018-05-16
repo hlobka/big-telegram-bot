@@ -72,6 +72,6 @@ public class Common {
         new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.singletonList("actionjack")),
         new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW")),
         new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList())
-//        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack"))
+//        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("BIXF_NEW", "wildfury", "actionjack", "electrictigerixf"))
     );
 }
