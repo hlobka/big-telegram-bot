@@ -55,4 +55,20 @@ public class StringHelper {
             return sb.toString();
         }
     }
+
+    public static String getAsSimpleCrypted(String value) {
+        String result = "";
+        for (char b : value.toCharArray()) {
+            result += (char)((int)b + 1);
+        }
+        return result;
+    }
+
+    public static String getAsSimpleDeCrypted(String value) {
+        String result = "";
+        for (char b : value.toCharArray()) {
+            result += (char)((int)b - 1);
+        }
+        return result;
+    }
 }

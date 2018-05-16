@@ -28,8 +28,12 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testGetFileAsString() {
-
+    public void testCryptedStrings() {
+        String value = "asd";
+        String cryptedAsd = StringHelper.getAsSimpleCrypted(value);
+        String deCryptedAsd = StringHelper.getAsSimpleDeCrypted(cryptedAsd);
+        Assertions.assertThat(cryptedAsd).isEqualTo(cryptedAsd);
+        Assertions.assertThat(deCryptedAsd).isEqualTo(value);
     }
 
 }
