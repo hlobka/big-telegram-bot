@@ -89,7 +89,7 @@ public class UpsourceChecker extends Thread {
                 }
                 for (Review review : reviews) {
                     String createdBy = Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
-                    String issueId = StringHelper.getRegString(review.title(), "([\\S-]+) .*", 1);
+                    String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
                     String completedRate = review.completionRate().completedCount + "/" + review.completionRate().reviewersCount;
                     message += String.format(format, createdBy, issueId, review.reviewId(), !review.discussionCounter().hasUnresolved, completedRate);
                     review.title();

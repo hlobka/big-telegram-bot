@@ -1,20 +1,19 @@
 package helper.string;
 
-import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StringHelperTest {
     @Test
     public void testGetRegString() {
-        Assertions.assertThat(StringHelper.getRegString("Кто такой Шива?", "кто такой ([a-zA-Zа-яА-Я]+)\\??"))
+        assertThat(StringHelper.getRegString("Кто такой Шива?", "кто такой ([a-zA-Zа-яА-Я]+)\\??"))
             .isEqualTo("Шива");
     }
 
     @Test
     public void testGetRegString1() {
-        Assertions.assertThat(StringHelper.getRegString("Кто такой Шива?", "(кто такой) ([a-zA-Zа-яА-Я]+)\\??", 2))
+        assertThat(StringHelper.getRegString("Кто такой Шива?", "(кто такой) ([a-zA-Zа-яА-Я]+)\\??", 2))
             .isEqualTo("Шива");
     }
 
@@ -32,8 +31,19 @@ public class StringHelperTest {
         String value = "asd";
         String cryptedAsd = StringHelper.getAsSimpleCrypted(value);
         String deCryptedAsd = StringHelper.getAsSimpleDeCrypted(cryptedAsd);
-        Assertions.assertThat(cryptedAsd).isEqualTo(cryptedAsd);
-        Assertions.assertThat(deCryptedAsd).isEqualTo(value);
+        assertThat(cryptedAsd).isEqualTo(cryptedAsd);
+        assertThat(deCryptedAsd).isEqualTo(value);
     }
 
+    @Test
+    public void testGetIssueIdFromSvnRevisionComment() {
+        assertThat(StringHelper.getIssueIdFromSvnRevisionComment("WILDFU-120, WILDFU-38 | stopping picker wheel according to server respone"))
+            .isEqualTo("WILDFU-120");
+        assertThat(StringHelper.getIssueIdFromSvnRevisionComment("WILDFU-144| popups refactoring"))
+            .isEqualTo("WILDFU-144");
+        assertThat(StringHelper.getIssueIdFromSvnRevisionComment("WILDFU-104 | Picker : Added helper for wheel rotation"))
+            .isEqualTo("WILDFU-104");
+        assertThat(StringHelper.getIssueIdFromSvnRevisionComment("WILDFU-104 WILDFU-38 | Picker : Added helper for wheel rotation"))
+            .isEqualTo("WILDFU-104");
+    }
 }

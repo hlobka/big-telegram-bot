@@ -71,4 +71,8 @@ public class StringHelper {
         }
         return result;
     }
+
+    public static String getIssueIdFromSvnRevisionComment(String comment) {
+        return getRegString(comment, "(\\w+-\\d+).*", 1);
+    }
 }
