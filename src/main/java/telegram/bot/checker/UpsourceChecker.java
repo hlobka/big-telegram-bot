@@ -1,7 +1,11 @@
 package telegram.bot.checker;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import telegram.bot.data.Common;
@@ -102,14 +106,26 @@ public class UpsourceChecker extends Thread {
 
             }
             if (messages.size() == 1) {
-                BotHelper.sendMessage(bot, chatData.getChatId(), title + messages.get(0), ParseMode.Markdown);
+                sendMessageWithInlineBtns(chatData, title + messages.get(0));
             } else if (messages.size() > 0) {
                 BotHelper.sendMessage(bot, chatData.getChatId(), title, ParseMode.Markdown);
-                for (String s : messages) {
-                    BotHelper.sendMessage(bot, chatData.getChatId(), s, ParseMode.Markdown);
+                for (String message : messages) {
+                    sendMessageWithInlineBtns(chatData, message);
                 }
 
             }
         }
+    }
+
+    private void sendMessageWithInlineBtns(ChatData chatData, String message) {
+        SendMessage request = new SendMessage(chatData.getChatId(), message)
+            .parseMode(ParseMode.Markdown)
+            .disableWebPagePreview(false)
+            .disableNotification(false)
+            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+                new InlineKeyboardButton("Подробнее")
+                    .callbackData("show_upsource_checker_tabs_description")
+            }));
+        SendResponse execute = bot.execute(request);
     }
 }
