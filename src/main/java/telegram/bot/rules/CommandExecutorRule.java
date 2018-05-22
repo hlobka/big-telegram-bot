@@ -19,9 +19,18 @@ import static helper.string.StringHelper.getRegString;
 public class CommandExecutorRule implements Rule {
     private TelegramBot bot;
     private Map<String, Command> commands = new HashMap<>();
+    private Map<String, Command> callBackCommands = new HashMap<>();
 
     public CommandExecutorRule(TelegramBot bot) {
         this.bot = bot;
+    }
+
+    @Override
+    public void callback(Update update) {
+        String data = update.callbackQuery().data();
+        if(callBackCommands.containsKey(data)){
+            callBackCommands.get(data).run(update, data);
+        }
     }
 
     @Override
@@ -66,5 +75,9 @@ public class CommandExecutorRule implements Rule {
 
     public void addCommand(String strCommand, Command command) {
         commands.put(strCommand.toLowerCase(), command);
+    }
+
+    public void addCallBackCommand(String strCommand, Command command) {
+        callBackCommands.put(strCommand, command);
     }
 }

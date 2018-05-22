@@ -16,7 +16,7 @@ public class Rules {
             for (Rule rule : rules) {
                 try {
                     if(update.callbackQuery() != null){
-                        rule.callback(update.callbackQuery());
+                        rule.callback(update);
                     } else {
                         rule.run(update);
                     }

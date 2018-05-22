@@ -5,7 +5,12 @@ import com.pengrad.telegrambot.model.Update;
 
 public interface Rule {
     void run(Update update);
-    default void callback(CallbackQuery callbackQuery){
+
+    default void callback(Update update) {
+        callback(update.callbackQuery());
+    }
+
+    default void callback(CallbackQuery callbackQuery) {
         //nothing
     }
 }
