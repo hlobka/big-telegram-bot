@@ -22,18 +22,6 @@ public class IIAnswerRule implements Rule {
     }
 
     @Override
-    public void callback(CallbackQuery callbackQuery) {
-        Message message = callbackQuery.message();
-        String strAnswer = "Да да, " + callbackQuery.data();
-        SendMessage request = new SendMessage(message.chat().id(), strAnswer)
-            .parseMode(ParseMode.Markdown)
-            .disableWebPagePreview(false)
-            .disableNotification(true)
-            .replyToMessageId(message.messageId());
-        bot.execute(request);
-    }
-
-    @Override
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         String text = message.text() == null ? "" : message.text();
