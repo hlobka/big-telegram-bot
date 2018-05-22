@@ -11,8 +11,10 @@ public class UpsourceData {
     public final String login;
     public final String pass;
     public final Map<String, String> userIdOnNameMap;
+    public String checkerHelpLink;
 
     public UpsourceData(Properties properties) {
+        checkerHelpLink = properties.getProperty("upsource.checkerHelpLink");
         url = properties.getProperty("upsource.url");
         login = properties.getProperty("upsource.auth.login");
         if(properties.containsKey("upsource.auth.cryptedPass")){

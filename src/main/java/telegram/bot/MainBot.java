@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import okhttp3.OkHttpClient;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainBot {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
@@ -40,6 +40,7 @@ public class MainBot {
         rules.registerRule(new LikeAnswerRule(bot));
         rules.registerRule(new BotSayAnswerRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
+        commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
         commandExecutorRule.addCommand("/send_on_vacation", new AddUserByIdOnVacationListCommand(bot));
