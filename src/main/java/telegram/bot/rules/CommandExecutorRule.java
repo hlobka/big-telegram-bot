@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
+import helper.string.StringHelper;
 import javafx.util.Pair;
 import telegram.bot.commands.Command;
 import telegram.bot.data.TelegramCriteria;
@@ -18,8 +19,8 @@ import static helper.string.StringHelper.getRegString;
 
 public class CommandExecutorRule implements Rule {
     private TelegramBot bot;
-    private Map<String, Command> commands = new HashMap<>();
-    private Map<String, Command> callBackCommands = new HashMap<>();
+    protected Map<String, Command> commands = new HashMap<>();
+    protected Map<String, Command> callBackCommands = new HashMap<>();
 
     public CommandExecutorRule(TelegramBot bot) {
         this.bot = bot;
@@ -28,8 +29,10 @@ public class CommandExecutorRule implements Rule {
     @Override
     public void callback(Update update) {
         String data = update.callbackQuery().data();
-        if(callBackCommands.containsKey(data)){
-            callBackCommands.get(data).run(update, data);
+        String commandKey = StringHelper.getRegString(data, "(\\w+).*", 1);
+        String commandValue = StringHelper.getRegString(data, "(\\w+):(.*)", 2);
+        if(callBackCommands.containsKey(commandKey)){
+            callBackCommands.get(commandKey).run(update, commandValue);
         }
     }
 
