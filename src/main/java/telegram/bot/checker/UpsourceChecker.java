@@ -56,15 +56,18 @@ public class UpsourceChecker extends Thread {
     }
 
     private boolean sleepToNextCheck() throws InterruptedException {
-        boolean isWeekends = TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
-        if (isWeekends) {
-            TimeUnit.HOURS.sleep(1);
-            return false;
-        }
         Long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
         TimeUnit.MINUTES.sleep(minutesUntilTargetHour);
+        if (isWeekends()) {
+            TimeUnit.MINUTES.sleep(1);
+            return false;
+        }
         return true;
 
+    }
+
+    private boolean isWeekends() {
+        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
     }
 
     private Long getMinutesUntilNextTargetHour() {
