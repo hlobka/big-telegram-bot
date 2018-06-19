@@ -9,13 +9,12 @@ import helper.file.SharedObject;
 import helper.string.StringHelper;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
-import telegram.bot.dto.ActionItemDto;
+import telegram.bot.helper.ActionItemsHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 
-import static telegram.bot.data.Common.ACTION_ITEMS2;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 import static telegram.bot.data.Common.JOKE_ITEMS;
 
@@ -223,16 +222,24 @@ public class AnswerRule implements Rule {
 
         actions.put("#AI", message -> {
             String text = message.text() == null ? "" : message.text();
-            HashMap<Integer, ActionItemDto> actionItems2 = SharedObject.loadMap(ACTION_ITEMS2, new HashMap<Integer, ActionItemDto>());
             StringBuilder result = new StringBuilder();
             Integer i = 0;
+            Message reply = message.replyToMessage();
+            if(reply != null) {
+                if(reply.from().isBot()){
+                    return "Бот не может навязывать нам ActionItems";
+                }
+                int key = ActionItemsHelper.unresolved.saveActionItem(reply.text(), message.chat().id());
+                result.append("Сохранил ActionItem\n")
+                    .append("Вы можете закрыть его используя комманду: ")
+                    .append("/resolveAI__").append(key);
+                return result.toString();
+            }
             for (String actionItem : text.split("#(AI|ai|Ai|aI) ")) {
                 if (actionItem.isEmpty()) {
                     continue;
                 }
-                String date = new SimpleDateFormat("dd.MM/HH:mm:ss").format(Calendar.getInstance().getTime());
-                int key = Math.abs((date + i).hashCode());
-                actionItems2.put(key, new ActionItemDto(date, actionItem, message.chat().id()));
+                int key = ActionItemsHelper.unresolved.saveActionItem(actionItem, message.chat().id(), i);
                 if (i > 0) {
                     result.append("\n");
                 }
@@ -241,7 +248,6 @@ public class AnswerRule implements Rule {
                     .append("/resolveAI__").append(key);
                 i++;
             }
-            SharedObject.save(ACTION_ITEMS2, actionItems2);
             return result.toString();
         });
         Function<Message, String> jokesSaver = message -> {

@@ -3,13 +3,14 @@ package telegram.bot.commands;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.dto.ActionItemDto;
+import telegram.bot.helper.ActionItemsHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import static telegram.bot.data.Common.RESOLVED_ACTION_ITEMS;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 
 public class ShowResolvedActionItems implements Command {
@@ -22,7 +23,7 @@ public class ShowResolvedActionItems implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        Map<Integer, ActionItemDto> actionItems = SharedObject.loadMap(RESOLVED_ACTION_ITEMS, new HashMap<Integer, ActionItemDto>());
+        Map<Integer, ActionItemDto> actionItems = ActionItemsHelper.resolved.loadActionItems();
         List<String> messages = new ArrayList<>();
         StringBuilder s = new StringBuilder("Resolved Action items: \n");
         messages.add(s.toString());
