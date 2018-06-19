@@ -113,6 +113,7 @@ public class UpsourceChecker extends Thread {
 //            .withDuration(TimeUnit.DAYS.toMillis(1))
             .withState(ReviewState.OPEN)
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
+            .withReviewersCount(0, CountCondition.MORE_THAN)
             .getReviews().stream().sorted(Comparator.comparing(Review::createdBy)).collect(Collectors.toList());
         String format = "%n%1$-13s|%2$11s|%3$-15s|%4$5s|%5$3s";
         if (reviews.size() > 0) {

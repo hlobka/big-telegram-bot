@@ -54,6 +54,12 @@ public class UpsourceReviewsProvider {
         return this;
     }
 
+    public UpsourceReviewsProvider withReviewersCount(int count, CountCondition countCondition) {
+        Predicate<Review> reviewPredicate = countCondition.getChecker(Review.class, review -> review.completionRate().reviewersCount, count);
+        filters.add(reviewPredicate);
+        return this;
+    }
+
     public List<Review> getReviews() throws IOException {
         return getReviews(100);
     }
