@@ -22,8 +22,10 @@ import upsource.filter.CountCondition;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class UpsourceChecker extends Thread {
     private TelegramBot bot;
@@ -108,10 +110,10 @@ public class UpsourceChecker extends Thread {
         String message = "";
         List<Review> reviews = upsourceApi.getProject(upsourceId)
             .getReviewsProvider(true)
-            .withDuration(TimeUnit.DAYS.toMillis(1))
+//            .withDuration(TimeUnit.DAYS.toMillis(1))
             .withState(ReviewState.OPEN)
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
-            .getReviews();
+            .getReviews().stream().sorted(Comparator.comparing(Review::createdBy)).collect(Collectors.toList());
         String format = "%n%1$-13s|%2$11s|%3$-15s|%4$5s|%5$3s";
         if (reviews.size() > 0) {
             message += "\n * " + upsourceId + " *";
