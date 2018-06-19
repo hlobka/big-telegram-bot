@@ -10,6 +10,7 @@ import helper.string.StringHelper;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.ActionItemsHelper;
+import telegram.bot.helper.StringMath;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -19,11 +20,6 @@ import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 import static telegram.bot.data.Common.JOKE_ITEMS;
 
 public class AnswerRule implements Rule {
-    public static final String MATH_REG = "^(\\d+(\\.\\d+)?)( ?)+%s( ?)+(\\d+(\\.\\d+)?)$";
-    public static final String MATH_PLUS = String.format(MATH_REG, "\\+");
-    public static final String MATH_MINUS = String.format(MATH_REG, "\\-");
-    public static final String MATH_MULTIPLY = String.format(MATH_REG, "\\*");
-    public static final String MATH_DIVIDE = String.format(MATH_REG, "\\/");
     private final TelegramBot bot;
     private Map<String, MessageSupplier<String>> commonRegAnswers = new HashMap<>();
     private Map<String, Function<String, String>> commonAnswers = new HashMap<>();
@@ -184,29 +180,12 @@ public class AnswerRule implements Rule {
         commonRegAnswers.put("^[a-zа-я]{21,}$", s -> "Ну очень длинное слово");
         commonRegAnswers.put("(.*(Ф|ф)а+к,? .*)|(^(Ф|ф)а+к!{0,})", s -> "Попрошу не выражаться.");
         commonRegAnswers.put("^(M|m)erde$", s -> "Pue");
-        commonRegAnswers.put(MATH_PLUS, s -> {
-            String regString1 = StringHelper.getRegString(s, MATH_PLUS, 1);
-            String regString2 = StringHelper.getRegString(s, MATH_PLUS, 5);
-            return Float.parseFloat(regString1) + Float.parseFloat(regString2) + "";
-        });
-        commonRegAnswers.put(MATH_MULTIPLY, s -> {
-            String regString1 = StringHelper.getRegString(s, MATH_MULTIPLY, 1);
-            String regString2 = StringHelper.getRegString(s, MATH_MULTIPLY, 5);
-            return Float.parseFloat(regString1) * Float.parseFloat(regString2) + "";
-        });
-        commonRegAnswers.put(MATH_MINUS, s -> {
-            String regString1 = StringHelper.getRegString(s, MATH_MINUS, 1);
-            String regString2 = StringHelper.getRegString(s, MATH_MINUS, 5);
-            return Float.parseFloat(regString1) - Float.parseFloat(regString2) + "";
-        });
-        commonRegAnswers.put(MATH_DIVIDE, s -> {
-            String regString1 = StringHelper.getRegString(s, MATH_DIVIDE, 1);
-            String regString2 = StringHelper.getRegString(s, MATH_DIVIDE, 5);
-            float secondParam = Float.parseFloat(regString2);
-            if (secondParam == 0) {
+        commonRegAnswers.put("[(0-9+-/*^)(]+", s -> {
+            try {
+                return StringMath.stringToMathResult(s) + "";
+            } catch (NumberFormatException e) {
                 return "NaN";
             }
-            return Float.parseFloat(regString1) / secondParam + "";
         });
         commonAnswers.put("который час?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько время?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
@@ -225,8 +204,8 @@ public class AnswerRule implements Rule {
             StringBuilder result = new StringBuilder();
             Integer i = 0;
             Message reply = message.replyToMessage();
-            if(reply != null) {
-                if(reply.from().isBot()){
+            if (reply != null) {
+                if (reply.from().isBot()) {
                     return "Бот не может навязывать нам ActionItems";
                 }
                 int key = ActionItemsHelper.unresolved.saveActionItem(reply.text(), message.chat().id());
@@ -264,7 +243,7 @@ public class AnswerRule implements Rule {
         };
         actions.put("#анекдот", jokesSaver);
         actions.put("#joke", jokesSaver);
-        actions.put("#clearJokes",  message -> {
+        actions.put("#clearJokes", message -> {
             SharedObject.save(JOKE_ITEMS, new ArrayList<String>());
             return "jokes cleared";
         });
