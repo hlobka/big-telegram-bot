@@ -12,6 +12,14 @@ public class StringHelper {
         return getRegString(text, regex, 1);
     }
 
+    public static boolean hasRegString(String text, String regex, int group) {
+        try {
+            return !getRegString(text, regex, group).isEmpty();
+        } catch (IndexOutOfBoundsException e){
+            return false;
+        }
+    }
+
     public static String getRegString(String text, String regex, int group) {
         Pattern pattern = Pattern.compile(/*"(?U)" + */regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher matcher = pattern.matcher(text);
