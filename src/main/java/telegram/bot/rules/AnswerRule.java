@@ -87,6 +87,8 @@ public class AnswerRule implements Rule {
 //        answers.put("ревью", s -> "О, ревью, Набегай!");
         answers.put("в смысле?", s -> "В прямом");
         answers.put("Lorem ipsum", s -> "https://ru.wikipedia.org/wiki/Lorem_ipsum");
+        commonRegAnswers.put("бимба", s -> "Это не я!!!");
+        commonRegAnswers.put("заминировали", s -> "бимба!!!");
         commonRegAnswers.put("купить ([a-zA-Zа-яА-Я ]?)+лотерейку\\?", s -> {
             switch (new Random().nextInt(5)) {
                 case 0:
@@ -140,6 +142,7 @@ public class AnswerRule implements Rule {
         commonAnswers.put("Среда", s -> "Рунглишь дэй");
         commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
         commonAnswers.put("Пятница", s -> "Какие наркотики");
+        commonRegAnswers.put(".*(среду|пятницу).*", s -> Math.random() > 0.5 ? "не лучший день" : "лучше на пиво в этот день");
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
         commonRegAnswers.put("бот, дай один.*", s -> "🖕");
         commonRegAnswers.put("бот, дай два.*", s -> "🖕🖕");
