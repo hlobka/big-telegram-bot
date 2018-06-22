@@ -34,7 +34,7 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
         if(replyToMessage != null) {
             User replyUser = replyToMessage.from();
             if(!users.containsKey(replyUser)){
-                users.remove(replyUser, false);
+                users.remove(replyUser);
             }
             if(!usersInVacation.contains(replyUser)) {
                 usersInVacation.remove(replyUser);
