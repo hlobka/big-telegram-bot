@@ -33,12 +33,8 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
         Message replyToMessage = update.message().replyToMessage();
         if(replyToMessage != null) {
             User replyUser = replyToMessage.from();
-            if(!users.containsKey(replyUser)){
-                users.remove(replyUser);
-            }
-            if(!usersInVacation.contains(replyUser)) {
-                usersInVacation.remove(replyUser);
-            }
+            users.remove(replyUser);
+            usersInVacation.remove(replyUser);
             SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
             SharedObject.save(ETS_USERS, users);
             EtsClarityChecker.updateLastMessage(bot);
