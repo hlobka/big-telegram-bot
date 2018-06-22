@@ -273,7 +273,11 @@ public class AnswerRule implements Rule {
         }
         for (Map.Entry<String, Function<Message, String>> entry : actions.entrySet()) {
             if (text.toLowerCase().contains(entry.getKey().toLowerCase())) {
-                SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(message))
+                String messageFroAction = entry.getValue().apply(message);
+                if(messageFroAction.isEmpty()){
+                    continue;
+                }
+                SendMessage request = new SendMessage(message.chat().id(), messageFroAction)
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
