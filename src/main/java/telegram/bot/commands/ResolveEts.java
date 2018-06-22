@@ -10,6 +10,7 @@ import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.EtsHelper;
 
 import java.util.*;
 
@@ -76,37 +77,12 @@ public class ResolveEts implements Command {
     public static void resolveUser(User user, TelegramBot bot) {
         HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
         users.put(user, true);
-        clearFromDuplicates(users);
+        EtsHelper.clearFromDuplicates(users);
         returnUserFromVocation(user, bot);
         SharedObject.save(ETS_USERS, users);
         EtsClarityChecker.updateLastMessage(bot);
         if (EtsClarityChecker.checkIsResolvedToDay(bot)) {
             BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, "EtsClarity resolved today!!!", ParseMode.Markdown);
         }
-    }
-
-    private static void clearFromDuplicates(HashMap<User, Boolean> users) {
-        List<User> userList = new ArrayList<>();
-        Set<Map.Entry<User, Boolean>> entries = users.entrySet();
-        for (Map.Entry<User, Boolean> userBooleanEntry : entries) {
-            User user = userBooleanEntry.getKey();
-            if (isUserPresent(user, entries)) {
-                userList.add(user);
-            }
-        }
-        for (User user : userList) {
-            users.remove(user);
-        }
-    }
-
-    private static boolean isUserPresent(User user, Set<Map.Entry<User, Boolean>> entries) {
-        Integer amount = 0;
-        for (Map.Entry<User, Boolean> userBooleanEntry : entries) {
-            User entryKey = userBooleanEntry.getKey();
-            if (!entryKey.equals(user) && Objects.equals(entryKey.id(), user.id())) {
-                amount++;
-            }
-        }
-        return amount > 0;
     }
 }

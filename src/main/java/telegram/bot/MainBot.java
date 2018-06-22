@@ -44,7 +44,8 @@ public class MainBot {
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
-        commandExecutorRule.addCommand("/send_on_vacation", new AddUserByIdOnVacationListCommand(bot));
+        commandExecutorRule.addCommand("/send_on_vacation_by_id", new AddUserByIdOnVacationListCommand(bot));
+        commandExecutorRule.addCommand("/send_on_vacation", new SendUserOnVacationByReplyListCommand(bot));
         commandExecutorRule.addCommand("/return_from_vacation", new RemoveUserByIdOnVacationListCommand(bot));
         commandExecutorRule.addCommand("/configureActionItems", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configure_Action_Items", new ConfigureActionItems(false));
