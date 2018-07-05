@@ -34,6 +34,7 @@ public class Common {
     public static final String HELP_LINKS;
     public static final String BIG_HELP_LINKS;
     public static final String JENKINS_URL;
+    public static final String JENKINS_JOBS_URL;
 
     static {
         BIG_GENERAL_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_CHAT_ID"));
@@ -49,6 +50,7 @@ public class Common {
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
         JENKINS_URL = PROPERTIES.getProperty("jenkins.url");
+        JENKINS_JOBS_URL = PROPERTIES.getProperty("jenkins.jobs.url");
     }
 
     public final String token;
