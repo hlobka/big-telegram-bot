@@ -1,5 +1,7 @@
 package http;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -16,11 +18,18 @@ public class GetExecuter {
         return convertStreamToString(is);
     }
 
-    public static JsonObject getAsJson(String url) throws IOException {
-        String response = execute(url);
-        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
-        return jsonObject;
+    public static JsonArray getAsJsonArray(String url) throws IOException {
+        return getAsJsonElement(url).getAsJsonArray();
+    }
 
+    public static JsonObject getAsJson(String url) throws IOException {
+        JsonElement jsonElement = getAsJsonElement(url);
+        return jsonElement.getAsJsonObject();
+    }
+
+    public static JsonElement getAsJsonElement(String url) throws IOException {
+        String response = execute(url);
+        return new JsonParser().parse(response);
     }
 
     private static String convertStreamToString(java.io.InputStream is) {

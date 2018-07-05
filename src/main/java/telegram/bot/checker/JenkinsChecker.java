@@ -6,12 +6,14 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
+import http.GetExecuter;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,7 @@ import static telegram.bot.data.Common.JENKINS_STATUSES;
 public class JenkinsChecker extends Thread {
     private TelegramBot bot;
     private long millis;
-    protected final JenkinsServer jenkins;
+    private final JenkinsServer jenkins;
     private HashMap<String, Boolean> statuses;
 
     public JenkinsChecker(TelegramBot bot, long millis, String jenkinsServerUrl) throws URISyntaxException {
@@ -105,6 +107,7 @@ public class JenkinsChecker extends Thread {
             return;
         }
         String url = job.getUrl();
+        url = getShortUrlAsLink(url, key);
         List<Build> allBuilds = jobWithDetails.getAllBuilds();
         if(allBuilds == null){
             allBuilds = jobWithDetails.getBuilds();
@@ -112,7 +115,7 @@ public class JenkinsChecker extends Thread {
         long successCount = getNumberOfSuccessBuilds(allBuilds);
         int totalBuilds = allBuilds.size();
         long failedCount = totalBuilds - successCount;
-        String msg = String.format("Entry: %s: status: %s%n%s%nTotal builds:%d; Success builds:%d; Failed builds:%d", key, result, url, totalBuilds, successCount, failedCount);
+        String msg = String.format("Entry: %s %nStatus: <b>%s</b> %nTotal builds: <b>%d</b>; %nSuccess builds:<b>%d</b>; %nFailed builds:<b>%d</b>", url, result, totalBuilds, successCount, failedCount);
         System.out.println(msg);
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
             .parseMode(ParseMode.HTML)
@@ -121,6 +124,21 @@ public class JenkinsChecker extends Thread {
         bot.execute(request);
         statuses.put(statusKey, true);
         SharedObject.save(JENKINS_STATUSES, statuses);
+    }
+
+    private String getShortUrlAsLink(String url, String urlName)  {
+        String shortUrl = url;
+        try {
+            shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return shortUrl;
+    }
+
+    private String getShortUrl(String url) throws IOException {
+        String requestToShortUrl = "https://clck.ru/--?json=on&url=" + URLDecoder.decode(url, "UTF-8");
+        return GetExecuter.getAsJsonArray(requestToShortUrl).get(0).getAsString();
     }
 
     private long getNumberOfSuccessBuilds(List<Build> allBuilds) throws IOException {
