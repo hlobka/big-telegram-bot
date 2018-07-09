@@ -103,6 +103,9 @@ public class JenkinsChecker extends Thread {
         if (statuses.containsKey(statusKey)) {
             return;
         }
+        if(result == null){
+            return;
+        }
         if (result.equals(BuildResult.SUCCESS) || result.equals(BuildResult.NOT_BUILT) || result.equals(BuildResult.BUILDING)) {
             return;
         }
