@@ -27,6 +27,7 @@ public class JenkinsChecker extends Thread {
     private long millis;
     private final JenkinsServer jenkins;
     private HashMap<String, Boolean> statuses;
+    private Boolean isFirstTime = true;
 
     public JenkinsChecker(TelegramBot bot, long millis, String jenkinsServerUrl) throws URISyntaxException {
         this.bot = bot;
@@ -40,6 +41,8 @@ public class JenkinsChecker extends Thread {
         super.run();
         while (true) {
             try {
+                long millis = isFirstTime?1:this.millis;
+                isFirstTime = false;
                 TimeUnit.MILLISECONDS.sleep(millis);
                 check();
             } catch (InterruptedException e) {
