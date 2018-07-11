@@ -102,22 +102,29 @@ public class JenkinsChecker extends Thread {
         BuildWithDetails lastBuildDetails = jobWithDetails.getLastBuild().details();
         BuildResult result = lastBuildDetails.getResult();
         long timestamp = lastBuildDetails.getTimestamp();
-        String statusKey = key + timestamp + chatData.getChatId();
+        String statusKey = getStatusKey(chatData, key, timestamp);
         if (statuses.containsKey(statusKey)) {
             return;
         }
         if(result == null){
             return;
         }
-        if (result.equals(BuildResult.SUCCESS) || result.equals(BuildResult.NOT_BUILT) || result.equals(BuildResult.BUILDING)) {
+        if (result.equals(BuildResult.NOT_BUILT) || result.equals(BuildResult.BUILDING)) {
             return;
         }
-        String url = job.getUrl();
-        url = getShortUrlAsLink(url, key);
+
         List<Build> allBuilds = jobWithDetails.getAllBuilds();
         if(allBuilds == null){
             allBuilds = jobWithDetails.getBuilds();
         }
+        if (result.equals(BuildResult.SUCCESS)) {
+            Boolean isBuildFixed = isBuildFixed(chatData, key, allBuilds);
+            if(!isBuildFixed) {
+                return;
+            }
+        }
+        String url = job.getUrl();
+        url = getShortUrlAsLink(url, key);
         long successCount = getNumberOfSuccessBuilds(allBuilds);
         int totalBuilds = allBuilds.size();
         long failedCount = totalBuilds - successCount;
@@ -128,8 +135,29 @@ public class JenkinsChecker extends Thread {
             .disableWebPagePreview(true)
             .disableNotification(false);
         bot.execute(request);
-        statuses.put(statusKey, true);
+        statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
         SharedObject.save(JENKINS_STATUSES, statuses);
+    }
+
+    private Boolean isBuildFixed(ChatData chatData, String key, List<Build> allBuilds) throws IOException {
+        Boolean isBuildFixed = false;
+        for (Build build : allBuilds) {
+            BuildWithDetails details = build.details();
+            String previousBuildStatusKey = getStatusKey(chatData, key, details.getTimestamp());
+            if(statuses.containsKey(previousBuildStatusKey) && details.getResult().equals(BuildResult.SUCCESS)){
+                isBuildFixed = false;
+                break;
+            }
+            if(!details.getResult().equals(BuildResult.SUCCESS)){
+                isBuildFixed = true;
+                break;
+            }
+        }
+        return isBuildFixed;
+    }
+
+    private String getStatusKey(ChatData chatData, String key, long timestamp) {
+        return key + timestamp + chatData.getChatId();
     }
 
     private String getShortUrlAsLink(String url, String urlName)  {
