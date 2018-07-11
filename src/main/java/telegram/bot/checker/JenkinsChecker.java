@@ -57,7 +57,7 @@ public class JenkinsChecker extends Thread {
     }
 
     private void check() throws IOException {
-        System.out.println("JenkinsChecker::check");
+        System.out.println("JenkinsChecker::check:start");
         Map<String, Job> jobs = jenkins.getJobs();
         Map<String, Job> internalJobs = new HashMap<>();
         List<String> jenkinsIds = new ArrayList<>();
@@ -81,6 +81,7 @@ public class JenkinsChecker extends Thread {
             }
         }
         checkJobsStatus(internalJobs);
+        System.out.println("JenkinsChecker::check:end");
     }
 
     private void checkJobsStatus(Map<String, Job> jobs) throws IOException {
@@ -90,6 +91,7 @@ public class JenkinsChecker extends Thread {
                     String key = entry.getKey();
                     Job job = entry.getValue();
                     if (key.contains(jenkinsId)) {
+                        System.out.println("JenkinsChecker::checkJobsStatus:" + key + " for chat: " + chatData.getChatId());
                         checkJobStatus(chatData, key, job);
                     }
                 }
