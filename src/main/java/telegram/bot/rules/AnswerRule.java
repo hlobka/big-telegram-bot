@@ -116,6 +116,8 @@ public class AnswerRule implements Rule {
             int nextInt = new Random().nextInt(100);
             if (nextInt > 90) {
                 return "одобряю";
+            } if (nextInt > 10 && nextInt < 20) {
+                return "ржунемагу";
             } else if (nextInt < 10) {
                 return "ну такое";
             }
