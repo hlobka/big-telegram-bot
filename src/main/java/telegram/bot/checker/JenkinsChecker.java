@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
+import helper.string.StringHelper;
 import http.GetExecuter;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
@@ -41,7 +42,7 @@ public class JenkinsChecker extends Thread {
         super.run();
         while (true) {
             try {
-                long millis = isFirstTime?1:this.millis;
+                long millis = isFirstTime ? 1 : this.millis;
                 isFirstTime = false;
                 TimeUnit.MILLISECONDS.sleep(millis);
                 check();
@@ -108,7 +109,7 @@ public class JenkinsChecker extends Thread {
         if (statuses.containsKey(statusKey)) {
             return;
         }
-        if(result == null){
+        if (result == null) {
             return;
         }
         if (result.equals(BuildResult.NOT_BUILT) || result.equals(BuildResult.BUILDING)) {
@@ -116,29 +117,72 @@ public class JenkinsChecker extends Thread {
         }
 
         List<Build> allBuilds = jobWithDetails.getAllBuilds();
-        if(allBuilds == null){
+        if (allBuilds == null) {
             allBuilds = jobWithDetails.getBuilds();
         }
         if (result.equals(BuildResult.SUCCESS)) {
             Boolean isBuildFixed = isBuildFixed(chatData, key, allBuilds);
-            if(!isBuildFixed) {
+            if (!isBuildFixed) {
                 return;
             }
         }
-        String url = job.getUrl();
-        url = getShortUrlAsLink(url, key);
-        long successCount = getNumberOfSuccessBuilds(allBuilds);
-        int totalBuilds = allBuilds.size();
-        long failedCount = totalBuilds - successCount;
-        String msg = String.format("Entry: %s %nStatus: <b>%s</b> %nTotal builds: <b>%d</b>; %nSuccess builds:<b>%d</b>; %nFailed builds:<b>%d</b>", url, result, totalBuilds, successCount, failedCount);
+        String msg = getBuildMessage(key, job, lastBuildDetails, allBuilds);
         System.out.println(msg);
+        sendMessage(chatData, msg);
+        statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
+        SharedObject.save(JENKINS_STATUSES, statuses);
+    }
+
+    private void sendMessage(ChatData chatData, String msg) {
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
             .parseMode(ParseMode.HTML)
             .disableWebPagePreview(true)
             .disableNotification(false);
         bot.execute(request);
-        statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
-        SharedObject.save(JENKINS_STATUSES, statuses);
+    }
+
+    private String getBuildMessage(String key, Job job, BuildWithDetails lastBuildDetails, List<Build> allBuilds) throws IOException {
+        BuildResult result = lastBuildDetails.getResult();
+        String url = job.getUrl();
+        url = getShortUrlAsLink(url, key);
+        long successCount = getNumberOfSuccessBuilds(allBuilds);
+        int totalBuilds = allBuilds.size();
+        long failedCount = totalBuilds - successCount;
+        String changes = getChanges(lastBuildDetails);
+        String possibleException = getPossibleException(lastBuildDetails);
+
+        return String.format("Entry: %s %nStatus: <b>%s</b> %nTotal builds: <b>%d</b>; %nSuccess builds:<b>%d</b>; %nFailed builds:<b>%d</b>%n%s%n%s", url, result, totalBuilds, successCount, failedCount, changes, possibleException);
+    }
+
+    private String getChanges(BuildWithDetails details) {
+        StringBuilder result = new StringBuilder();
+        BuildChangeSet changeSet = details.getChangeSet();
+        if (changeSet != null) {
+            result = new StringBuilder("Last Changes: \n");
+            for (BuildChangeSetItem buildChangeSetItem : changeSet.getItems()) {
+                result
+                    .append("<b>").append(buildChangeSetItem.getAuthor().getFullName()).append("</b>")
+                    .append(":").append(buildChangeSetItem.getMsg())
+                    .append("\n");
+            }
+        }
+        return result.toString();
+    }
+
+    private String getPossibleException(BuildWithDetails details) {
+        String consoleOutputText = getConsoleText(details);
+        if (StringHelper.hasRegString(consoleOutputText, ".*\\/(\\w+.hx:\\d+: \\w+ \\d+-\\d+ : .*)", 0)) {
+            return "Errors: " + StringHelper.getRegString(consoleOutputText, ".*\\/(\\w+.hx:\\d+: \\w+ \\d+-\\d+ : .*)");
+        }
+        return "";
+    }
+
+    private String getConsoleText(BuildWithDetails details) {
+        try {
+            return details.getConsoleOutputText();
+        } catch (IOException e) {
+            return "";
+        }
     }
 
     private Boolean isBuildFixed(ChatData chatData, String key, List<Build> allBuilds) throws IOException {
@@ -146,11 +190,11 @@ public class JenkinsChecker extends Thread {
         for (Build build : allBuilds) {
             BuildWithDetails details = build.details();
             String previousBuildStatusKey = getStatusKey(chatData, key, details.getTimestamp());
-            if(statuses.containsKey(previousBuildStatusKey) && details.getResult().equals(BuildResult.SUCCESS)){
+            if (statuses.containsKey(previousBuildStatusKey) && details.getResult().equals(BuildResult.SUCCESS)) {
                 isBuildFixed = false;
                 break;
             }
-            if(!details.getResult().equals(BuildResult.SUCCESS)){
+            if (!details.getResult().equals(BuildResult.SUCCESS)) {
                 isBuildFixed = true;
                 break;
             }
@@ -162,7 +206,7 @@ public class JenkinsChecker extends Thread {
         return key + timestamp + chatData.getChatId();
     }
 
-    private String getShortUrlAsLink(String url, String urlName)  {
+    private String getShortUrlAsLink(String url, String urlName) {
         String shortUrl = url;
         try {
             shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
