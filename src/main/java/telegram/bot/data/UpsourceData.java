@@ -15,13 +15,10 @@ public class UpsourceData {
 
     public UpsourceData(Properties properties) {
         checkerHelpLink = properties.getProperty("upsource.checkerHelpLink");
-        url = properties.getProperty("upsource.url");
-        login = properties.getProperty("upsource.auth.login");
-        if(properties.containsKey("upsource.auth.cryptedPass")){
-            pass = StringHelper.getAsSimpleDeCrypted(properties.getProperty("upsource.auth.cryptedPass"));
-        } else {
-            pass = properties.getProperty("upsource.auth.pass");
-        }
+        LoginData loginData = new LoginData(properties, "upsource");
+        url = loginData.url;
+        login = loginData.login;
+        pass = loginData.pass;
         userIdOnNameMap = new HashMap<>();
         String userIdsMap = properties.getProperty("upsource.userIdsMap");
         for (String userIdsOnName : userIdsMap.split(",")) {
