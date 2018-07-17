@@ -200,7 +200,7 @@ public class AnswerRule implements Rule {
             return Common.GOOGLE.getFirstResult(query);
         });
         commonRegAnswers.put("кто так(ой|ая),? .*", s -> {
-            String query = StringHelper.getRegString(s, "кто так(ой|ая),? ([a-zA-Zа-яА-Я ]+)\\??", 1);
+            String query = StringHelper.getRegString(s, "кто так(ой|ая),? ([a-zA-Zа-яА-Я ]+)\\??", 2);
             return Common.GOOGLE.getFirstResult(query);
         });
 
