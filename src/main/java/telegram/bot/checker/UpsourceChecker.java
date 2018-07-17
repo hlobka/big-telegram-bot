@@ -1,5 +1,8 @@
 package telegram.bot.checker;
 
+import atlassian.jira.JiraHelper;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
@@ -78,19 +81,33 @@ public class UpsourceChecker extends Thread {
         return Math.min(minutesUntilTargetHourForFirstPartOfDay, minutesUntilTargetHourForSecondPartOfDay);
     }
 
-    private void check() throws IOException {
-        System.out.println("UpsourceChecker::check");
-        UpsourceApi upsourceApi = new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
+    public void check() throws IOException {
+        UpsourceApi upsourceApi = getUpsourceApi();
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
-            List<Pair<String, String>> messages = new ArrayList<>();
-            for (String upsourceId : chatData.getUpsourceIds()) {
-                String message = getUpsourceViewResult(upsourceApi, upsourceId);
-                if (message.length() > 0) {
-                    messages.add(new Pair<>(upsourceId, message));
-                }
-            }
-            sendMessagesWithViewResult(chatData, messages);
+            check(upsourceApi, chatData);
         }
+    }
+
+    public void check(ChatData chatData) throws IOException {
+        UpsourceApi upsourceApi = getUpsourceApi();
+        check(upsourceApi, chatData);
+    }
+
+    private static UpsourceApi getUpsourceApi() {
+        return new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
+    }
+
+    public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
+        System.out.println("UpsourceChecker::check:" + chatData.getUpsourceIds());
+        List<Pair<String, String>> messages = new ArrayList<>();
+        for (String upsourceId : chatData.getUpsourceIds()) {
+            String message = getUpsourceViewResult(upsourceApi, upsourceId);
+            if (message.length() > 0) {
+                messages.add(new Pair<>(upsourceId, message));
+            }
+        }
+        sendMessagesWithViewResult(chatData, messages);
+        System.out.println("UpsourceChecker::check:end");
     }
 
     private void sendMessagesWithViewResult(ChatData chatData, List<Pair<String, String>> messages) {
@@ -115,19 +132,23 @@ public class UpsourceChecker extends Thread {
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
             .withReviewersCount(0, CountCondition.MORE_THAN)
             .getReviews().stream().sorted(Comparator.comparing(Review::createdBy)).collect(Collectors.toList());
-        String format = "%n%1$-13s|%2$11s|%3$-15s|%4$5s|%5$3s";
+        String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
         if (reviews.size() > 0) {
             message += "\n * " + upsourceId + " *";
             message += "\n```";
             message += "\n------------------------------------------------------";
-            message += String.format(format, "Содевелопер", "Задача", "Ревью", "Готов", "Статус");
+            message += String.format(format, "Содевелопер", "Задача", "Ревьювер", "РИД", "Готов", "Стс");
             message += "\n------------------------------------------------------";
         }
+        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA);
         for (Review review : reviews) {
             String createdBy = Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
             String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
             String completedRate = review.completionRate().completedCount + "/" + review.completionRate().reviewersCount;
-            message += String.format(format, createdBy, issueId, review.reviewId(), !review.discussionCounter().hasUnresolved, completedRate);
+            boolean status = !review.discussionCounter().hasUnresolved;
+            String reviewId = StringHelper.getRegString(review.reviewId(), "\\w+-(\\d+)");
+            String reviewer = getReviewerId(jiraHelper, issueId);
+            message += String.format(format, createdBy, issueId, reviewer, reviewId, status, completedRate);
             review.title();
         }
         if (reviews.size() > 0) {
@@ -135,6 +156,12 @@ public class UpsourceChecker extends Thread {
             message += "\n```";
         }
         return message;
+    }
+
+    private static String getReviewerId(JiraHelper jiraHelper, String issueId) {
+        Issue issue = jiraHelper.getIssue(issueId);
+        User assignee = issue.getAssignee();
+        return assignee == null ? "unassigned" : assignee.getName();
     }
 
     private void sendMessageWithInlineBtns(ChatData chatData, String message, String upsourceProjectId) {
@@ -147,7 +174,7 @@ public class UpsourceChecker extends Thread {
     }
 
     public static void updateMessage(TelegramBot bot, String upsourceProjectId, Message message) {
-        UpsourceApi upsourceApi = new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
+        UpsourceApi upsourceApi = getUpsourceApi();
         String upsourceViewResult = null;
         try {
             upsourceViewResult = getUpsourceViewResult(upsourceApi, upsourceProjectId);
@@ -159,7 +186,7 @@ public class UpsourceChecker extends Thread {
     }
 
     private static void updateMessage(TelegramBot bot, String upsourceProjectId, Message message, String newMessage) {
-        if(message.text().contains(TITLE)){
+        if (message.text().contains(TITLE)) {
             newMessage = TITLE + newMessage;
         }
         try {

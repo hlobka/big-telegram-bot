@@ -40,6 +40,9 @@ public class ShowAlertFromResource implements Command {
             .text(text)
             .showAlert(true)
         );
+        if(!response.isOk()){
+            throw new RuntimeException(String.format("req:[%s], res: [%s]", callbackQuery.data(), response.description()));
+        }
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Ok: " + response.description()));
     }
 }
