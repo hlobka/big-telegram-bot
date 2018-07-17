@@ -20,6 +20,7 @@ public class Common {
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";
     private static final Properties PROPERTIES = System.getProperties();
     public static final Common data = new Common();
+    public static final LoginData JIRA = new LoginData(PROPERTIES, "atlassian.jira");
     public static final GoogleData GOOGLE = new GoogleData(PROPERTIES);
     public static final UpsourceData UPSOURCE = new UpsourceData(PROPERTIES);
     public static final long BIG_GENERAL_CHAT_ID;
