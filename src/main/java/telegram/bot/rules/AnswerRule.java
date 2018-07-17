@@ -70,9 +70,11 @@ public class AnswerRule implements Rule {
         answers.put("ctrl + v", s -> "Не самая лучша практика");
         answers.put("ctrl+v", s -> "Не самая лучша практика");
         answers.put("ctrl+c", s -> "Не самая лучша практика");
+        answers.put("было бы не плохо", s -> "заведи экшин айтем");
+        answers.put("не плохо", s -> "");
+        answers.put("очень плохо", s -> "хуже некуда");
         answers.put("плохо", s -> "бывает и хуже");
         commonRegAnswers.put("куда хуже .*?", s -> "есть куда...");
-//        answers.put("очень плохо", s -> "бывает и хуже");
         answers.put("домой", s -> "не рановато ли?");
         answers.put("кушать", s -> "пару минут, мне тут надо до перепроверить");
 //        answers.put("курить", s -> "здоровью вредить");
@@ -163,8 +165,6 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что у %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
-//        commonAnswers.put("* ETS *", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
-//        commonRegAnswers.put("\\*+ ?ets ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://timeserver.i.sigmaukraine.com/timereports.ets");
         commonRegAnswers.put("\\*+ ?ets ?\\*+", MessageSupplier.getAs(ParseMode.HTML, s -> EtsClarityChecker.getMessage(bot)));
         commonRegAnswers.put("\\*+ ?clarity ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://clarity.gtk.gtech.com:8043/niku/nu#action:npt.overview");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
@@ -176,8 +176,6 @@ public class AnswerRule implements Rule {
         commonAnswers.put("поц", s -> "Попрошу не выражаться.");
         commonAnswers.put("придур", s -> "Попрошу не выражаться.");
         commonAnswers.put("дура", s -> "Попрошу не выражаться.");
-//        commonAnswers.put("фак ", s -> "Попрошу не выражаться.");
-//        commonAnswers.put(" фак", s -> "Попрошу не выражаться.");
         commonAnswers.put("гавн", s -> "Попрошу не выражаться.");
         commonAnswers.put("говн", s -> "Попрошу не выражаться.");
         commonAnswers.put("тупая", s -> "Попрошу не выражаться.");
@@ -289,6 +287,9 @@ public class AnswerRule implements Rule {
         }
         if (!BIG_GENERAL_GROUP_IDS.contains(message.chat().id())) {
             for (Map.Entry<String, Function<String, String>> entry : answers.entrySet()) {
+                if(entry.getKey().isEmpty()){
+                    break;
+                }
                 if (text.toLowerCase().contains(entry.getKey().toLowerCase())) {
                     SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(text))
                         .parseMode(ParseMode.Markdown)
@@ -296,6 +297,7 @@ public class AnswerRule implements Rule {
                         .disableNotification(true)
                         .replyToMessageId(message.messageId());
                     bot.execute(request);
+                    break;
                 }
             }
         }
