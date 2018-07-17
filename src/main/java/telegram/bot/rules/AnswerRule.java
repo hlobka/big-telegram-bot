@@ -3,6 +3,7 @@ package telegram.bot.rules;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -281,7 +282,8 @@ public class AnswerRule implements Rule {
         if (text.toLowerCase().matches(".*(nikola|никола|николы|николой).*")) {
             runNikolaFeedBack(chatId);
         }
-        if (message.newChatMembers().length > 0) {
+        User[] newChatMembers = message.newChatMembers();
+        if (newChatMembers != null && newChatMembers.length > 0) {
             sendSticker(chatId, "CAADAgADiwAD8MPADg9RUg3DhE-TAg");
         }
         for (Map.Entry<String, Function<Message, String>> entry : actions.entrySet()) {
