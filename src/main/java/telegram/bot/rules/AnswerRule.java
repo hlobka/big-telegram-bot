@@ -4,9 +4,13 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
 import helper.string.StringHelper;
+import helper.time.TimeHelper;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.ActionItemsHelper;
@@ -14,6 +18,7 @@ import telegram.bot.helper.StringMath;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
@@ -118,7 +123,8 @@ public class AnswerRule implements Rule {
             int nextInt = new Random().nextInt(100);
             if (nextInt > 90) {
                 return "одобряю";
-            } if (nextInt > 10 && nextInt < 20) {
+            }
+            if (nextInt > 10 && nextInt < 20) {
                 return "ржунемагу";
             } else if (nextInt < 10) {
                 return "ну такое";
@@ -259,25 +265,32 @@ public class AnswerRule implements Rule {
         if (message.from().isBot()) {
             return;
         }
+        Long chatId = message.chat().id();
         if (message.replyToMessage() != null) {
             if (message.replyToMessage().from().isBot()) {
                 Collections.shuffle(popularBotAnswers);
                 String answer = popularBotAnswers.get(0);
-                SendMessage request = new SendMessage(message.chat().id(), answer)
+                SendMessage request = new SendMessage(chatId, answer)
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
                     .replyToMessageId(message.messageId());
                 bot.execute(request);
             }
+        }
+        if (text.toLowerCase().matches(".*(nikola|никола|николы|николой).*")) {
+            runNikolaFeedBack(chatId);
+        }
+        if (message.newChatMembers().length > 0) {
+            sendSticker(chatId, "CAADAgADiwAD8MPADg9RUg3DhE-TAg");
         }
         for (Map.Entry<String, Function<Message, String>> entry : actions.entrySet()) {
             if (text.toLowerCase().contains(entry.getKey().toLowerCase())) {
                 String messageFroAction = entry.getValue().apply(message);
-                if(messageFroAction.isEmpty()){
+                if (messageFroAction.isEmpty()) {
                     continue;
                 }
-                SendMessage request = new SendMessage(message.chat().id(), messageFroAction)
+                SendMessage request = new SendMessage(chatId, messageFroAction)
                     .parseMode(ParseMode.HTML)
                     .disableWebPagePreview(true)
                     .disableNotification(true)
@@ -285,13 +298,13 @@ public class AnswerRule implements Rule {
                 bot.execute(request);
             }
         }
-        if (!BIG_GENERAL_GROUP_IDS.contains(message.chat().id())) {
+        if (!BIG_GENERAL_GROUP_IDS.contains(chatId)) {
             for (Map.Entry<String, Function<String, String>> entry : answers.entrySet()) {
-                if(entry.getKey().isEmpty()){
+                if (entry.getKey().isEmpty()) {
                     break;
                 }
                 if (text.toLowerCase().contains(entry.getKey().toLowerCase())) {
-                    SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(text))
+                    SendMessage request = new SendMessage(chatId, entry.getValue().apply(text))
                         .parseMode(ParseMode.Markdown)
                         .disableWebPagePreview(false)
                         .disableNotification(true)
@@ -303,7 +316,7 @@ public class AnswerRule implements Rule {
         }
         for (Map.Entry<String, Function<String, String>> entry : commonAnswers.entrySet()) {
             if (text.toLowerCase().contains(entry.getKey().toLowerCase())) {
-                SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(text))
+                SendMessage request = new SendMessage(chatId, entry.getValue().apply(text))
                     .parseMode(ParseMode.Markdown)
                     .disableWebPagePreview(false)
                     .disableNotification(true)
@@ -314,7 +327,7 @@ public class AnswerRule implements Rule {
         }
         for (Map.Entry<String, MessageSupplier<String>> entry : commonRegAnswers.entrySet()) {
             if (text.toLowerCase().matches(entry.getKey())) {
-                SendMessage request = new SendMessage(message.chat().id(), entry.getValue().apply(text))
+                SendMessage request = new SendMessage(chatId, entry.getValue().apply(text))
                     .parseMode(entry.getValue().getParseMode())
                     .disableWebPagePreview(false)
                     .disableNotification(true)
@@ -323,6 +336,25 @@ public class AnswerRule implements Rule {
                 return;
             }
         }
+    }
+
+    private void runNikolaFeedBack(Long chatId) {
+        new Thread(() -> {
+            sendTemporarySticker(chatId, "CAADAgADDQADq3NqEqHyL5dZSXw6Ag");
+            sendTemporarySticker(chatId, "CAADAgADDgADq3NqEufGSaMoFpp6Ag");
+            sendTemporarySticker(chatId, "CAADAgADDwADq3NqEiR-KIzRQKwHAg");
+        }).start();
+    }
+
+    private void sendTemporarySticker(Long chatId, String stickerId) {
+        SendResponse sendResponse;
+        sendResponse = sendSticker(chatId, stickerId);
+        TimeHelper.waitTime(1, TimeUnit.SECONDS);
+        bot.execute(new DeleteMessage(chatId, sendResponse.message().messageId()));
+    }
+
+    private SendResponse sendSticker(Long chatId, String stickerId) {
+        return bot.execute(new SendSticker(chatId, stickerId).disableNotification(true));
     }
 
     private interface MessageSupplier<T> extends Function<T, String> {
