@@ -33,4 +33,12 @@ public class TimeHelper {
     protected static boolean checkDaysAreSame(DayOfWeek dayOfWeek1, DayOfWeek dayOfWeek2) {
         return dayOfWeek1 == dayOfWeek2;
     }
+
+    public static void waitTime(int timeout, TimeUnit timeUnit) {
+        try {
+            timeUnit.sleep(timeout);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
