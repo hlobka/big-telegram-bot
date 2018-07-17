@@ -199,8 +199,8 @@ public class AnswerRule implements Rule {
             String query = StringHelper.getRegString(s, "что такое ([a-zA-Zа-яА-Я ]+)\\??", 1);
             return Common.GOOGLE.getFirstResult(query);
         });
-        commonAnswers.put("кто такой ", s -> {
-            String query = StringHelper.getRegString(s, "кто такой ([a-zA-Zа-яА-Я ]+)\\??", 1);
+        commonRegAnswers.put("кто так(ой|ая),? .*", s -> {
+            String query = StringHelper.getRegString(s, "кто так(ой|ая),? ([a-zA-Zа-яА-Я ]+)\\??", 1);
             return Common.GOOGLE.getFirstResult(query);
         });
 
