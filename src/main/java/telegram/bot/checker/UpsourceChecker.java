@@ -131,7 +131,7 @@ public class UpsourceChecker extends Thread {
             .withState(ReviewState.OPEN)
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
             .withReviewersCount(0, CountCondition.MORE_THAN)
-            .getReviews().stream().sorted(Comparator.comparing(Review::createdBy)).collect(Collectors.toList());
+            .getReviews().stream().sorted(Comparator.comparing((review)-> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
         String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
         if (reviews.size() > 0) {
             message += "\n * " + upsourceId + " *";
@@ -142,7 +142,7 @@ public class UpsourceChecker extends Thread {
         }
         JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA);
         for (Review review : reviews) {
-            String createdBy = Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
+            String createdBy = getMappedReviewerName(review);
             String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
             String completedRate = review.completionRate().completedCount + "/" + review.completionRate().reviewersCount;
             boolean status = !review.discussionCounter().hasUnresolved;
@@ -156,6 +156,10 @@ public class UpsourceChecker extends Thread {
             message += "\n```";
         }
         return message;
+    }
+
+    private static String getMappedReviewerName(Review review) {
+        return Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
     }
 
     private static String getReviewerId(JiraHelper jiraHelper, String issueId) {
