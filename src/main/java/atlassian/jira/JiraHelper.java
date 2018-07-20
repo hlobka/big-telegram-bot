@@ -2,6 +2,7 @@ package atlassian.jira;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.atlassian.util.concurrent.Promise;
@@ -45,6 +46,14 @@ public class JiraHelper {
 
     public void resetCache() {
         cacheOfIssues = new HashMap<>();
+    }
+
+    public Boolean hasIssue(String issueKey) {
+        try {
+            return getIssue(issueKey) != null;
+        } catch (RestClientException e) {
+            return false;
+        }
     }
 
     public Issue getIssue(String issueKey) {
