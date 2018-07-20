@@ -2,7 +2,9 @@ package telegram.bot.checker;
 
 import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Status;
 import com.atlassian.jira.rest.client.api.domain.User;
+import com.atlassian.jira.rest.client.api.domain.Version;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
@@ -29,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static helper.logger.ConsoleLogger.log;
 
 public class UpsourceChecker extends Thread {
     private TelegramBot bot;
@@ -98,7 +102,7 @@ public class UpsourceChecker extends Thread {
     }
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
-        System.out.println("UpsourceChecker::check:" + chatData.getUpsourceIds());
+        log(chatData.getUpsourceIds().toString());
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
             String message = getUpsourceViewResult(upsourceApi, upsourceId);
@@ -107,7 +111,7 @@ public class UpsourceChecker extends Thread {
             }
         }
         sendMessagesWithViewResult(chatData, messages);
-        System.out.println("UpsourceChecker::check:end");
+        log("UpsourceChecker::check:end");
     }
 
     private void sendMessagesWithViewResult(ChatData chatData, List<Pair<String, String>> messages) {
@@ -124,23 +128,42 @@ public class UpsourceChecker extends Thread {
     }
 
     private static String getUpsourceViewResult(UpsourceApi upsourceApi, String upsourceId) throws IOException {
-        String message = "";
         List<Review> reviews = upsourceApi.getProject(upsourceId)
             .getReviewsProvider(true)
 //            .withDuration(TimeUnit.DAYS.toMillis(1))
             .withState(ReviewState.OPEN)
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
             .withReviewersCount(0, CountCondition.MORE_THAN)
-            .getReviews().stream().sorted(Comparator.comparing((review)-> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
+            .getReviews().stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
+
+        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
+        List<Review> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
+        List<Review> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
+        String reviewsStatusTable = getReviewsStatusTable(upsourceId, reviews, jiraHelper);
+        if(unVersionReviews.size() > 0){
+            reviewsStatusTable += getReviewsStatusTable(upsourceId, unVersionReviews, jiraHelper, "  Данные ревью не содержат фикс версии:");
+        }
+        if (abnormalReviews.size() > 0) {
+            reviewsStatusTable += getReviewsStatusTable(upsourceId, abnormalReviews, jiraHelper, "  С данными ревью что то не так:");
+        }
+        return reviewsStatusTable;
+    }
+
+    private static String getReviewsStatusTable(String upsourceId, List<Review> reviews, JiraHelper jiraHelper) {
+        return getReviewsStatusTable(upsourceId, reviews, jiraHelper, "");
+    }
+
+    private static String getReviewsStatusTable(String upsourceId, List<Review> reviews, JiraHelper jiraHelper, String title) {
+        String message = title;
         String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
         if (reviews.size() > 0) {
-            message += "\n * " + upsourceId + " *";
+            message += "\n* " + upsourceId + " *";
             message += "\n```";
             message += "\n------------------------------------------------------";
             message += String.format(format, "Содевелопер", "Задача", "Ревьювер", "РИД", "Готов", "Стс");
             message += "\n------------------------------------------------------";
         }
-        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA);
+
         for (Review review : reviews) {
             String createdBy = getMappedReviewerName(review);
             String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
@@ -156,6 +179,44 @@ public class UpsourceChecker extends Thread {
             message += "\n```";
         }
         return message;
+    }
+
+    private static List<Review> extractUnVersionReviews(List<Review> reviews, JiraHelper jiraHelper) {
+        List<Review> result = new ArrayList<>();
+        for (Review review : reviews) {
+            String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
+            Issue issue = jiraHelper.getIssue(issueId);
+            Iterable<Version> fixVersions = issue.getFixVersions();
+
+            boolean fixVersionsIsEmpty = fixVersions == null || !fixVersions.iterator().hasNext();
+            if (issue.getAssignee() != null && fixVersionsIsEmpty) {
+                result.add(review);
+            }
+        }
+        for (Review abnormalReview : result) {
+            reviews.remove(abnormalReview);
+        }
+
+        return result;
+    }
+
+    private static List<Review> extractAbnormalReviews(List<Review> reviews, JiraHelper jiraHelper) {
+        List<Review> result = new ArrayList<>();
+        for (Review review : reviews) {
+            String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
+            Issue issue = jiraHelper.getIssue(issueId);
+            Status status = issue.getStatus();
+
+            boolean isInReview = status.getName().matches("Awaiting Review|In Review|Resolved");
+            if (issue.getAssignee() != null && !isInReview) {
+                result.add(review);
+            }
+        }
+        for (Review abnormalReview : result) {
+            reviews.remove(abnormalReview);
+        }
+
+        return result;
     }
 
     private static String getMappedReviewerName(Review review) {
