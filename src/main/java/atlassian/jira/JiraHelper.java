@@ -9,12 +9,17 @@ import telegram.bot.data.LoginData;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.*;
 
 public class JiraHelper {
 
     private final JiraRestClient client;
+    private final Boolean useCache;
+    private Map<String, Issue> cacheOfIssues;
 
-    private JiraHelper(LoginData loginData) {
+    private JiraHelper(LoginData loginData, Boolean useCache) {
+        this.useCache = useCache;
+        cacheOfIssues = new HashMap<>();
         try {
             JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
             URI uri = new URI(loginData.url);
@@ -26,11 +31,26 @@ public class JiraHelper {
     }
 
     public static JiraHelper getClient(LoginData loginData) {
-        return new JiraHelper(loginData);
+        return getClient(loginData, false);
+    }
+
+    public static JiraHelper getClient(LoginData loginData, Boolean useCache) {
+        return new JiraHelper(loginData, useCache);
+    }
+
+    public void resetCache() {
+        cacheOfIssues = new HashMap<>();
     }
 
     public Issue getIssue(String issueKey) {
+        if (useCache && cacheOfIssues.containsKey(issueKey)) {
+            return cacheOfIssues.get(issueKey);
+        }
         Promise<Issue> promise = client.getIssueClient().getIssue(issueKey);
-        return promise.claim();
+        Issue issue = promise.claim();
+        if (useCache) {
+            cacheOfIssues.put(issueKey, issue);
+        }
+        return issue;
     }
 }
