@@ -58,15 +58,15 @@ public class JiraChecker extends Thread {
     }
 
     public void check(ChatData chatData) {
-        log("JiraChecker::check:" + chatData.getChatId());
         for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
+            log("JiraChecker::check:" + projectJiraId);
             Integer lastCreatedIssueId = getIssueId(projectJiraId);
             String message = getAllCreatedIssuesMessage(projectJiraId, lastCreatedIssueId + 1);
             sendMessage(chatData, message);
             statuses.put(projectJiraId, getLastJiraIssueId(projectJiraId, lastCreatedIssueId));
             SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
+            log("JiraChecker::check:"+projectJiraId+":end");
         }
-        log("JiraChecker::check:end");
     }
 
     private String getAllCreatedIssuesMessage(String projectJiraId, Integer lastCreatedIssueId) {
