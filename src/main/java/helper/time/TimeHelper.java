@@ -1,8 +1,10 @@
 package helper.time;
 
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class TimeHelper {
@@ -40,5 +42,13 @@ public class TimeHelper {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getCurrentTimeStamp() {
+        return getCurrentTimeStamp("yyyy-MM-dd HH:mm:ss.SSS");
+    }
+
+    public static String getCurrentTimeStamp(String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date());
     }
 }
