@@ -17,17 +17,10 @@ public class JiraHelper {
     private final Boolean useCache;
     private Map<String, Issue> cacheOfIssues;
 
-    private JiraHelper(LoginData loginData, Boolean useCache) {
+    private JiraHelper(JiraRestClient client, Boolean useCache) {
+        this.client = client;
         this.useCache = useCache;
         cacheOfIssues = new HashMap<>();
-        try {
-            JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-            URI uri = new URI(loginData.url);
-            client = factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass);
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException(ex);
-        }
     }
 
     public static JiraHelper getClient(LoginData loginData) {
@@ -35,7 +28,19 @@ public class JiraHelper {
     }
 
     public static JiraHelper getClient(LoginData loginData, Boolean useCache) {
-        return new JiraHelper(loginData, useCache);
+        try {
+            JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+            URI uri = new URI(loginData.url);
+            JiraRestClient client = factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass);
+            return getClient(client, useCache);
+        } catch (URISyntaxException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static JiraHelper getClient(JiraRestClient client, Boolean useCache) {
+        return new JiraHelper(client, useCache);
     }
 
     public void resetCache() {
