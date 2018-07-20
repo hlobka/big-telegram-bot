@@ -10,6 +10,7 @@ import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import okhttp3.OkHttpClient;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.checker.JenkinsChecker;
+import telegram.bot.checker.JiraChecker;
 import telegram.bot.checker.UpsourceChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
@@ -67,6 +68,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         rules.registerRule(commandExecutorRule);
+        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(10)).start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
         new UpsourceChecker(bot).start();
