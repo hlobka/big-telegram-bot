@@ -70,6 +70,7 @@ public class Common {
     }
 
     public static final List<ChatData> BIG_GENERAL_GROUPS = Arrays.asList(
+        new ChatData(BIG_GENERAL_CHAT_ID, Collections.emptyList(), Collections.emptyList(), Collections.singletonList("BIGIP")),
         new ChatData(OLLIE_BALLOONIES_CHAT_ID, Collections.singletonList("ballooniesIXF"), Collections.singletonList("BIXF_NEW"), Collections.emptyList()),
         new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury"), Collections.singletonList("wildfury"), Collections.singletonList("WILDFU")),
         new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF"), Collections.singletonList("electrictigerixf"), Collections.emptyList()),
