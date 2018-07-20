@@ -17,6 +17,7 @@ public class Common {
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
     public static final String JOKE_ITEMS = "/tmp/jokeItems.ser";
     public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
+    public static final String JIRA_CHECKER_STATUSES = "/tmp/jiraCheckerStatuses.ser";
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";
     private static final Properties PROPERTIES = System.getProperties();
     public static final Common data = new Common();
@@ -69,13 +70,13 @@ public class Common {
     }
 
     public static final List<ChatData> BIG_GENERAL_GROUPS = Arrays.asList(
-        new ChatData(OLLIE_BALLOONIES_CHAT_ID, Collections.singletonList("ballooniesIXF"), Collections.singletonList("BIXF_NEW")),
-        new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury"), Collections.singletonList("wildfury")),
-        new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF"), Collections.singletonList("electrictigerixf")),
-        new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/),
-//        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW")),
-        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList()),
-        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList())
+        new ChatData(OLLIE_BALLOONIES_CHAT_ID, Collections.singletonList("ballooniesIXF"), Collections.singletonList("BIXF_NEW"), Collections.emptyList()),
+        new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury"), Collections.singletonList("wildfury"), Collections.singletonList("WILDFU")),
+        new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF"), Collections.singletonList("electrictigerixf"), Collections.emptyList()),
+        new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/, Collections.emptyList()),
+//        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW"), Collections.emptyList()),
+        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList()),
+        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList())
 //        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("BIXF_NEW", "wildfury", "actionjack", "electrictigerixf"))
     );
 }

@@ -9,4 +9,6 @@ public class ChatData {
     private final long chatId;
     private final List<String> jenkinsIds;
     private final List<String> upsourceIds;
+    private final List<String> jiraProjectKeyIds;
+
 }
