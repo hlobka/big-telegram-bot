@@ -140,7 +140,7 @@ public class UpsourceChecker extends Thread {
         List<Review> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
         List<Review> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
         String reviewsStatusTable = getReviewsStatusTable(upsourceId, reviews, jiraHelper);
-        if(unVersionReviews.size() > 0){
+        if (unVersionReviews.size() > 0) {
             reviewsStatusTable += getReviewsStatusTable(upsourceId, unVersionReviews, jiraHelper, "  Данные ревью не содержат фикс версии:");
         }
         if (abnormalReviews.size() > 0) {
@@ -206,9 +206,11 @@ public class UpsourceChecker extends Thread {
             String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
             Issue issue = jiraHelper.getIssue(issueId);
             Status status = issue.getStatus();
+            String reviewId = StringHelper.getRegString(review.reviewId(), "\\w+-(\\d+)");
 
             boolean isInReview = status.getName().matches("Awaiting Review|In Review|Resolved");
-            if (issue.getAssignee() != null && !isInReview) {
+            User assignee = issue.getAssignee();
+            if ((assignee != null && !isInReview) || (assignee != null && assignee.getName().equals(reviewId))) {
                 result.add(review);
             }
         }
