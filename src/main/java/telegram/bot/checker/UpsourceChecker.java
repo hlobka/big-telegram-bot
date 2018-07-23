@@ -206,11 +206,10 @@ public class UpsourceChecker extends Thread {
             String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
             Issue issue = jiraHelper.getIssue(issueId);
             Status status = issue.getStatus();
-            String reviewId = StringHelper.getRegString(review.reviewId(), "\\w+-(\\d+)");
-
+            String createdBy = getMappedReviewerName(review);
             boolean isInReview = status.getName().matches("Awaiting Review|In Review|Resolved");
             User assignee = issue.getAssignee();
-            if ((assignee != null && !isInReview) || (assignee != null && assignee.getName().equals(reviewId))) {
+            if ((assignee != null && !isInReview) || (assignee != null && assignee.getName().equals(createdBy))) {
                 result.add(review);
             }
         }
