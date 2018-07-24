@@ -89,7 +89,8 @@ public class JiraChecker extends Thread {
         String assignee = getName(issue.getAssignee());
         String summary = issue.getSummary();
         Object priority = issue.getPriority() == null ? "Low" : issue.getPriority().getName();
-        return String.format("%n%n *[%s]* as: ```%s``` Created by: *%s*,%n Assignee on: *%s* with Priority: * %s *", issueKey, summary, reporter, assignee, priority);
+        String linkedIssueKey = String.format("[%1$s](%2$s/browse/%1$s)", issueKey, Common.JIRA.url);
+        return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: *%s* with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
     }
 
     private String getName(User user) {
