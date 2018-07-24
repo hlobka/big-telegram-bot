@@ -68,7 +68,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         rules.registerRule(commandExecutorRule);
-        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(10)).start();
+        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
         new UpsourceChecker(bot).start();
