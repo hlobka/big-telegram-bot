@@ -49,6 +49,9 @@ public class JiraHelper {
     }
 
     public Boolean hasIssue(String issueKey) {
+        if (useCache && cacheOfIssues.containsKey(issueKey)) {
+            return true;
+        }
         try {
             return getIssue(issueKey) != null;
         } catch (RestClientException e) {
