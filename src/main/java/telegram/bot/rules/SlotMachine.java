@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
+
 public class SlotMachine implements Rule {
     private TelegramBot bot;
     private List<String> reelTemplate;// = Arrays.asList("🐶", "🐱", "🐭", "🐹", "🐰");
@@ -44,9 +46,11 @@ public class SlotMachine implements Rule {
     @Override
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
-
+        Long chatId = message.chat().id();
+        if (BIG_GENERAL_GROUP_IDS.contains(chatId)) {
+            return;
+        }
         if (message.text().contains("спин")) {
-            Long chatId = message.chat().id();
             if (!isActive){
                 sendMessage(chatId, "Простите, слот машина пока занята");
                 return;
