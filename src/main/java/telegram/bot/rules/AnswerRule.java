@@ -155,7 +155,7 @@ public class AnswerRule implements Rule {
         commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
         commonAnswers.put("Пятница", s -> "Какие наркотики");
         commonRegAnswers.put(".*(среду|пятницу).*", s -> Math.random() > 0.5 ? "не лучший день" : "лучше на пиво в этот день");
-        commonRegAnswers.put(".*(срал|срать|дерьмо|говно|воня|понос)*.", s -> {
+        commonRegAnswers.put(".*(срал|срать|дерьмо|говно|воня|понос).*", s -> {
             if (TimeHelper.checkToDayIs(DayOfWeek.TUESDAY)) {
                 return "Как ни как Вторник";
             }
