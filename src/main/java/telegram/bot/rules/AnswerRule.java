@@ -18,6 +18,7 @@ import telegram.bot.helper.ActionItemsHelper;
 import telegram.bot.helper.StringMath;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -154,6 +155,12 @@ public class AnswerRule implements Rule {
         commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
         commonAnswers.put("Пятница", s -> "Какие наркотики");
         commonRegAnswers.put(".*(среду|пятницу).*", s -> Math.random() > 0.5 ? "не лучший день" : "лучше на пиво в этот день");
+        commonRegAnswers.put(".*(срал|срать|дерьмо|говно|воня|понос)*.", s -> {
+            if (TimeHelper.checkToDayIs(DayOfWeek.TUESDAY)) {
+                return "Как ни как Вторник";
+            }
+            return "Сегодня ж не вторник";
+        });
         commonRegAnswers.put("бот, дай пять.*", s -> "✋️");
         commonRegAnswers.put("бот, дай один.*", s -> "🖕");
         commonRegAnswers.put("бот, дай два.*", s -> "🖕🖕");
