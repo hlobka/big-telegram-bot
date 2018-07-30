@@ -88,7 +88,7 @@ public class UpsourceReviewsProvider {
         params.put("limit", limit);
         Object responseObject = rpmExecutor.doRequestJson("getReviews", params);
         LinkedHashMap responseResult = (LinkedHashMap) ((LinkedHashMap) responseObject).get("result");
-        List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.get("reviews");
+        List<LinkedHashMap> reviews = (List<LinkedHashMap>) responseResult.getOrDefault("reviews", Collections.emptyList());
         List<Review> result = collectResults(reviews);
         if (useCache) {
             cachedResult = result;
