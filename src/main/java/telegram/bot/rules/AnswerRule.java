@@ -190,8 +190,6 @@ public class AnswerRule implements Rule {
         commonAnswers.put("поц", s -> "Попрошу не выражаться.");
         commonAnswers.put("придур", s -> "Попрошу не выражаться.");
         commonAnswers.put("дура", s -> "Попрошу не выражаться.");
-        commonAnswers.put("гавн", s -> "Попрошу не выражаться.");
-        commonAnswers.put("говн", s -> "Попрошу не выражаться.");
         commonAnswers.put("тупая", s -> "Попрошу не выражаться.");
         commonAnswers.put("тупой", s -> "Попрошу не выражаться.");
         commonRegAnswers.put("^[a-zа-я]{21,}$", s -> "Ну очень длинное слово");
