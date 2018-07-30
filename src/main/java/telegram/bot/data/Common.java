@@ -77,7 +77,7 @@ public class Common {
         new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury"), Collections.singletonList("wildfury"), Collections.singletonList("WILDFU")),
         new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF"), Collections.singletonList("electrictigerixf"), Collections.emptyList()),
         new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/, Collections.singletonList("ACTJA")),
-        new ChatData(OLLIE_CRAZY_WIZARD_CHAT_ID, Collections.singletonList("crazyWizard"), Collections.emptyList(), Collections.singletonList("CRZWZRD")),
+        new ChatData(OLLIE_CRAZY_WIZARD_CHAT_ID, Collections.singletonList("crazyWizard"), Collections.singletonList("crazywizard"), Collections.singletonList("CRZWZRD")),
 //        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW"), Collections.emptyList()),
         new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("crazyWizard", "ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList()),
         new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("crazyWizard", "ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Collections.singletonList("crazywizard"), Collections.singletonList("CRZWZRD"))
