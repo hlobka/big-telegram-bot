@@ -3,6 +3,8 @@ package helper.string;
 import helper.file.FileHelper;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,5 +84,15 @@ public class StringHelper {
 
     public static String getIssueIdFromSvnRevisionComment(String comment) {
         return getRegString(comment, "(\\w+-\\d+).*", 1);
+    }
+
+    public static List<String> getIssueIdsFromSvnRevisionComment(String comment) {
+        List<String> result = new ArrayList<>();
+        while (hasRegString(comment, "(\\w+-\\d+).*", 1)){
+            String issueId = getIssueIdFromSvnRevisionComment(comment);
+            comment = comment.replace(issueId, "");
+            result.add(issueId);
+        }
+        return result;
     }
 }

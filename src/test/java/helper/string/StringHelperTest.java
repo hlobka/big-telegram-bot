@@ -46,4 +46,10 @@ public class StringHelperTest {
         assertThat(StringHelper.getIssueIdFromSvnRevisionComment("WILDFU-104 WILDFU-38 | Picker : Added helper for wheel rotation"))
             .isEqualTo("WILDFU-104");
     }
+
+    @Test
+    public void testGetIssueIdsFromSvnRevisionComment() {
+        assertThat(StringHelper.getIssueIdsFromSvnRevisionComment("WILDFU-120, WILDFU-38 | stopping picker wheel according to server respone"))
+            .hasSize(2).contains("WILDFU-120", "WILDFU-38");
+    }
 }

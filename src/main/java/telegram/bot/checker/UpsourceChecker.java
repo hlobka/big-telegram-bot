@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static helper.logger.ConsoleLogger.log;
@@ -128,17 +129,17 @@ public class UpsourceChecker extends Thread {
     }
 
     private static String getUpsourceViewResult(UpsourceApi upsourceApi, String upsourceId) throws IOException {
-        List<Review> reviews = upsourceApi.getProject(upsourceId)
+        List<Review> upsourceReviews = upsourceApi.getProject(upsourceId)
             .getReviewsProvider(true)
 //            .withDuration(TimeUnit.DAYS.toMillis(1))
             .withState(ReviewState.OPEN)
             .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
             .withReviewersCount(0, CountCondition.MORE_THAN)
             .getReviews().stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
-
-        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
-        List<Review> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
-        List<Review> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
+        List<JiraUpsourceReview> reviews = convertToJiraReviews(upsourceReviews).stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review.upsourceReview).toLowerCase() + review.issueId)).collect(Collectors.toList());
+            JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
+        List<JiraUpsourceReview> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
+        List<JiraUpsourceReview> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
         String reviewsStatusTable = getReviewsStatusTable(upsourceId, reviews, jiraHelper);
         if (unVersionReviews.size() > 0) {
             reviewsStatusTable += getReviewsStatusTable(upsourceId, unVersionReviews, jiraHelper, "  Данные ревью не содержат фикс версии:");
@@ -149,13 +150,23 @@ public class UpsourceChecker extends Thread {
         return reviewsStatusTable;
     }
 
-    private static String getReviewsStatusTable(String upsourceId, List<Review> reviews, JiraHelper jiraHelper) {
+    private static List<JiraUpsourceReview> convertToJiraReviews(List<Review> upsourceReviews) {
+        List<JiraUpsourceReview> result = new ArrayList<>();
+        for (Review upsourceReview : upsourceReviews) {
+            for (String issueId : StringHelper.getIssueIdsFromSvnRevisionComment(upsourceReview.title())) {
+                result.add(new JiraUpsourceReview(issueId, upsourceReview));
+            }
+        }
+        return result;
+    }
+
+    private static String getReviewsStatusTable(String upsourceId, List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
         return getReviewsStatusTable(upsourceId, reviews, jiraHelper, "");
     }
 
-    private static String getReviewsStatusTable(String upsourceId, List<Review> reviews, JiraHelper jiraHelper, String title) {
+    private static String getReviewsStatusTable(String upsourceId, List<JiraUpsourceReview> reviews, JiraHelper jiraHelper, String title) {
         String message = title;
-        String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
+        final String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
         if (reviews.size() > 0) {
             message += "\n* " + upsourceId + " *";
             message += "\n```";
@@ -163,16 +174,16 @@ public class UpsourceChecker extends Thread {
             message += String.format(format, "Содевелопер", "Задача", "Ревьювер", "РИД", "Готов", "Стс");
             message += "\n------------------------------------------------------";
         }
-
-        for (Review review : reviews) {
-            String createdBy = getMappedReviewerName(review);
-            String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
-            String completedRate = review.completionRate().completedCount + "/" + review.completionRate().reviewersCount;
-            boolean status = !review.discussionCounter().hasUnresolved;
-            String reviewId = StringHelper.getRegString(review.reviewId(), "\\w+-(\\d+)");
-            String reviewer = getReviewerId(jiraHelper, issueId);
-            message += String.format(format, createdBy, issueId, reviewer, reviewId, status, completedRate);
-            review.title();
+        Function<JiraUpsourceReview, String> reviewStringFunction = review -> {
+            String createdBy = getMappedReviewerName(review.upsourceReview);
+            String completedRate = review.upsourceReview.completionRate().completedCount + "/" + review.upsourceReview.completionRate().reviewersCount;
+            boolean status = !review.upsourceReview.discussionCounter().hasUnresolved;
+            String reviewId = StringHelper.getRegString(review.upsourceReview.reviewId(), "\\w+-(\\d+)");
+            String reviewer = getReviewerId(jiraHelper, review.issueId);
+            return String.format(format, createdBy, review.issueId, reviewer, reviewId, status, completedRate);
+        };
+        for (JiraUpsourceReview review : reviews) {
+            message += reviewStringFunction.apply(review);
         }
         if (reviews.size() > 0) {
             message += "\n------------------------------------------------------";
@@ -181,10 +192,10 @@ public class UpsourceChecker extends Thread {
         return message;
     }
 
-    private static List<Review> extractUnVersionReviews(List<Review> reviews, JiraHelper jiraHelper) {
-        List<Review> result = new ArrayList<>();
-        for (Review review : reviews) {
-            String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
+    private static List<JiraUpsourceReview> extractUnVersionReviews(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
+        List<JiraUpsourceReview> result = new ArrayList<>();
+        for (JiraUpsourceReview review : reviews) {
+            String issueId = review.issueId;
             Issue issue = jiraHelper.getIssue(issueId);
             Iterable<Version> fixVersions = issue.getFixVersions();
 
@@ -193,27 +204,27 @@ public class UpsourceChecker extends Thread {
                 result.add(review);
             }
         }
-        for (Review abnormalReview : result) {
+        for (JiraUpsourceReview abnormalReview : result) {
             reviews.remove(abnormalReview);
         }
 
         return result;
     }
 
-    private static List<Review> extractAbnormalReviews(List<Review> reviews, JiraHelper jiraHelper) {
-        List<Review> result = new ArrayList<>();
-        for (Review review : reviews) {
-            String issueId = StringHelper.getIssueIdFromSvnRevisionComment(review.title());
+    private static List<JiraUpsourceReview> extractAbnormalReviews(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
+        List<JiraUpsourceReview> result = new ArrayList<>();
+        for (JiraUpsourceReview review : reviews) {
+            String issueId = review.issueId;
             Issue issue = jiraHelper.getIssue(issueId);
             Status status = issue.getStatus();
-            String createdBy = getMappedReviewerName(review);
+            String createdBy = getMappedReviewerName(review.upsourceReview);
             boolean isInReview = status.getName().matches("Awaiting Review|In Review|Resolved");
             User assignee = issue.getAssignee();
             if ((assignee != null && !isInReview) || (assignee != null && assignee.getName().equals(createdBy))) {
                 result.add(review);
             }
         }
-        for (Review abnormalReview : result) {
+        for (JiraUpsourceReview abnormalReview : result) {
             reviews.remove(abnormalReview);
         }
 
@@ -273,5 +284,15 @@ public class UpsourceChecker extends Thread {
             new InlineKeyboardButton("Подробнее")
                 .callbackData("show_upsource_checker_tabs_description")
         });
+    }
+
+    private static class JiraUpsourceReview {
+        protected final String issueId;
+        protected final Review upsourceReview;
+
+        public JiraUpsourceReview(String issueId, Review upsourceReview) {
+            this.issueId = issueId;
+            this.upsourceReview = upsourceReview;
+        }
     }
 }
