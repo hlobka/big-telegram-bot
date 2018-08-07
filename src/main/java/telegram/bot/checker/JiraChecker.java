@@ -10,7 +10,6 @@ import helper.file.SharedObject;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +17,7 @@ import static helper.logger.ConsoleLogger.log;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
 public class JiraChecker extends Thread {
+    public static final int MAX_ISSUES_ON_ONE_POST = 10;
     private TelegramBot bot;
     private long millis;
     private final JiraHelper jiraHelper;
@@ -60,18 +60,29 @@ public class JiraChecker extends Thread {
     public void check(ChatData chatData) {
         for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
             log("JiraChecker::check:" + projectJiraId);
-            Integer lastCreatedIssueId = getIssueId(projectJiraId);
+            Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
+            sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
+            Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
+            statuses.put(projectJiraId, lastJiraIssueId);
+            SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
+            log("JiraChecker::check:posted"+projectJiraId+": issues id from: " + lastCreatedOrPostedIssueId + " to: " + lastJiraIssueId);
+            log("JiraChecker::check:"+projectJiraId+":end");
+        }
+    }
+
+    public void sendAllMessages(ChatData chatData, String projectJiraId, Integer lastCreatedIssueId) {
+        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
             String message = getAllCreatedIssuesMessage(projectJiraId, lastCreatedIssueId + 1);
             sendMessage(chatData, message);
-            statuses.put(projectJiraId, getLastJiraIssueId(projectJiraId, lastCreatedIssueId));
-            SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
-            log("JiraChecker::check:"+projectJiraId+":end");
+            lastCreatedIssueId += MAX_ISSUES_ON_ONE_POST;
         }
     }
 
     private String getAllCreatedIssuesMessage(String projectJiraId, Integer lastCreatedIssueId) {
         String message = "";
-        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
+        int i = 0;
+        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId)) && i < MAX_ISSUES_ON_ONE_POST) {
+            i++;
             String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
             String issueDescription = getIssueDescription(issueKey);
             message += issueDescription;
@@ -101,7 +112,7 @@ public class JiraChecker extends Thread {
         return projectJiraId + "-" + lastCreatedIssueId;
     }
 
-    public Integer getIssueId(String projectJiraId) {
+    private Integer getIssueId(String projectJiraId) {
         Integer issueId;
         if (!statuses.containsKey(projectJiraId)) {
             issueId = getLastJiraIssueId(projectJiraId);
