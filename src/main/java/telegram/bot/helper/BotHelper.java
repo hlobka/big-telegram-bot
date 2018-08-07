@@ -2,7 +2,9 @@ package telegram.bot.helper;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import telegram.bot.data.TelegramCriteria;
 
@@ -27,5 +29,12 @@ public class BotHelper {
             message = message.substring(0, TelegramCriteria.MAX_MESSAGE_LENGTH - notification.length())+notification;
         }
         return message;
+    }
+
+    public static BaseResponse alert(TelegramBot bot, String callbackQueryId, String text) {
+        return bot.execute(new AnswerCallbackQuery(callbackQueryId)
+            .text(text)
+            .showAlert(true)
+        );
     }
 }

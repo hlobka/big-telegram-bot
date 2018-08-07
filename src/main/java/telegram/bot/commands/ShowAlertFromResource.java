@@ -4,10 +4,10 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.response.BaseResponse;
 import helper.string.StringHelper;
 import javafx.util.Pair;
+import telegram.bot.helper.BotHelper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -36,10 +36,7 @@ public class ShowAlertFromResource implements Command {
             e.printStackTrace();
             return new Pair<>(ParseMode.HTML, Collections.singletonList("Fail: " + e.getMessage()));
         }
-        BaseResponse response = bot.execute(new AnswerCallbackQuery(callbackQuery.id())
-            .text(text)
-            .showAlert(true)
-        );
+        BaseResponse response = BotHelper.alert(bot, callbackQuery.id(), text);
         if(!response.isOk()){
             throw new RuntimeException(String.format("req:[%s], res: [%s]", callbackQuery.data(), response.description()));
         }
