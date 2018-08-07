@@ -1,4 +1,4 @@
-package telegram.bot.rules;
+package telegram.bot.rules.like;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
@@ -10,16 +10,16 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
-import helper.string.StringHelper;
+import helper.file.SharedObject;
+import telegram.bot.data.Common;
+import telegram.bot.rules.Rule;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class LikeAnswerRule implements Rule {
     private TelegramBot bot;
-    private Map<Integer, Integer> listOfLikes;
+    private HashMap<Integer, Like> listOfLikes;
 
     public LikeAnswerRule(TelegramBot bot) {
         this.bot = bot;
@@ -33,7 +33,7 @@ public class LikeAnswerRule implements Rule {
         if (message.from().isBot()) {
             return;
         }
-        if(text.toLowerCase().contains("#like")){
+        if (text.toLowerCase().contains("#like")) {
             removeMessage(message);
             sendMessage(message);
         }
@@ -41,7 +41,7 @@ public class LikeAnswerRule implements Rule {
 
     private void removeMessage(Message message) {
         DeleteMessage request = new DeleteMessage(message.chat().id(), message.messageId());
-        BaseResponse execute = bot.execute(request);
+        bot.execute(request);
     }
 
     private void sendMessage(Message message) {
@@ -50,19 +50,21 @@ public class LikeAnswerRule implements Rule {
             .disableWebPagePreview(false)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                new InlineKeyboardButton("Like 👍🏻").callbackData("like_0")
+                new InlineKeyboardButton("Like 👍🏻").callbackData("like_0"),
+                new InlineKeyboardButton("DisLike 👎🏻").callbackData("dislike_0")
             }));
         SendResponse execute = bot.execute(request);
-        listOfLikes.put(execute.message().messageId(), 0);
+        listOfLikes.put(execute.message().messageId(), new Like());
     }
 
-    private void updateMessage(Message message, Integer numberOfLikes) {
+    private void updateMessage(Message message, Integer numberOfLikes, Integer numberOfDisLikes) {
         try {
             EditMessageText request = new EditMessageText(message.chat().id(), message.messageId(), message.text())
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(false)
                 .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                    new InlineKeyboardButton(String.format("Like %d 👍🏻", numberOfLikes)).callbackData("like_"+numberOfLikes)
+                    new InlineKeyboardButton(String.format("Like %d 👍🏻", numberOfLikes)).callbackData("like_" + numberOfLikes),
+                    new InlineKeyboardButton(String.format("DisLike %d 👎🏻", numberOfDisLikes)).callbackData("dislike_" + numberOfDisLikes)
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
@@ -74,17 +76,28 @@ public class LikeAnswerRule implements Rule {
     public void callback(CallbackQuery callbackQuery) {
         boolean isDataPresent = callbackQuery.from() != null && callbackQuery.data() != null;
 
-        if (isDataPresent){
+        if (isDataPresent) {
             Message message = callbackQuery.message();
-            if(message != null) {
+            if (message != null) {
                 String data = callbackQuery.data();
                 if (data.contains("like_")) {
-                    String numberOfLikesAsString = StringHelper.getRegString(data, "like_(\\d+)");
-                    int numberOfLikesFromString = Integer.parseInt(numberOfLikesAsString);
-                    int numberOfLikes = listOfLikes.getOrDefault(message.messageId(), numberOfLikesFromString) + 1;
-                    numberOfLikes = Math.max(numberOfLikes, numberOfLikesFromString);
-                    listOfLikes.put(message.messageId(), numberOfLikes);
-                    updateMessage(message, numberOfLikes);
+                    Like like = listOfLikes.getOrDefault(message.messageId(), new Like());
+                    Integer whoId = message.from().id();
+                    if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
+                        like.usersWhoDisLiked.add(whoId);
+                        like.usersWhoLiked.remove(whoId);
+                    } else if (!like.usersWhoLiked.contains(whoId)) {
+                        like.usersWhoLiked.add(whoId);
+                        like.usersWhoDisLiked.remove(whoId);
+                    } else {
+                        like.usersWhoDisLiked.add(whoId);
+                        like.usersWhoLiked.remove(whoId);
+                    }
+                    int numberOfLikes = like.usersWhoLiked.size();
+                    int numberOfDisLikes = like.usersWhoDisLiked.size();
+                    listOfLikes.put(message.messageId(), like);
+                    SharedObject.save(Common.LIKED_POSTS, listOfLikes);
+                    updateMessage(message, numberOfLikes, numberOfDisLikes);
                 }
             }
         }

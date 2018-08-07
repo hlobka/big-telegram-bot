@@ -19,6 +19,7 @@ public class Common {
     public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
     public static final String JIRA_CHECKER_STATUSES = "/tmp/jiraCheckerStatuses.ser";
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";
+    public static final String LIKED_POSTS = "/tmp/likedPosts.ser";
     private static final Properties PROPERTIES = System.getProperties();
     public static final Common data = new Common();
     public static final LoginData JIRA = new LoginData(PROPERTIES, "atlassian.jira");

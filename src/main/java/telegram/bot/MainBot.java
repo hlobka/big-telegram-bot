@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import okhttp3.OkHttpClient;
@@ -15,14 +14,14 @@ import telegram.bot.checker.UpsourceChecker;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.rules.*;
+import telegram.bot.rules.like.LikeAnswerRule;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainBot {
-    public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException {
         OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
@@ -77,11 +76,6 @@ public class MainBot {
                 System.out.println("onResponse: " + updatess.toString());
             }
             rules.handle(updatess);
-            /*try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
