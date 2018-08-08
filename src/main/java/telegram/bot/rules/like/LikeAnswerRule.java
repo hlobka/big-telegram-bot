@@ -87,7 +87,7 @@ public class LikeAnswerRule implements Rule {
                     if(!listOfLikes.containsKey(messageId)){
                         listOfLikes.put(messageId, like);
                     }
-                    Integer whoId = message.from().id();
+                    Integer whoId = callbackQuery.from().id();
                     if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
                         like.usersWhoDisLiked.add(whoId);
                         like.usersWhoLiked.remove(whoId);
