@@ -82,9 +82,10 @@ public class LikeAnswerRule implements Rule {
             if (message != null) {
                 String data = callbackQuery.data();
                 if (data.contains("like_")) {
-                    Like like = listOfLikes.getOrDefault(message.messageId(), new Like());
-                    if(!listOfLikes.containsKey(message.messageId())){
-                        listOfLikes.put(message.messageId(), like);
+                    Integer messageId = message.messageId();
+                    Like like = listOfLikes.getOrDefault(messageId, new Like());
+                    if(!listOfLikes.containsKey(messageId)){
+                        listOfLikes.put(messageId, like);
                     }
                     Integer whoId = message.from().id();
                     if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
@@ -99,7 +100,7 @@ public class LikeAnswerRule implements Rule {
                     }
                     int numberOfLikes = like.usersWhoLiked.size();
                     int numberOfDisLikes = like.usersWhoDisLiked.size();
-                    listOfLikes.put(message.messageId(), like);
+                    listOfLikes.put(messageId, like);
                     SharedObject.save(Common.LIKED_POSTS, listOfLikes);
                     updateMessage(message, numberOfLikes, numberOfDisLikes);
                 }
