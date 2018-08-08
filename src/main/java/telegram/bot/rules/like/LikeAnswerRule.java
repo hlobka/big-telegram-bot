@@ -23,7 +23,7 @@ public class LikeAnswerRule implements Rule {
 
     public LikeAnswerRule(TelegramBot bot) {
         this.bot = bot;
-        listOfLikes = new HashMap<>();
+        listOfLikes = SharedObject.loadMap(Common.LIKED_POSTS, new HashMap<>());
     }
 
     @Override
