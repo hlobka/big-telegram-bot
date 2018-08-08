@@ -55,6 +55,7 @@ public class LikeAnswerRule implements Rule {
             }));
         SendResponse execute = bot.execute(request);
         listOfLikes.put(execute.message().messageId(), new Like());
+        SharedObject.save(Common.LIKED_POSTS, listOfLikes);
     }
 
     private void updateMessage(Message message, Integer numberOfLikes, Integer numberOfDisLikes) {
@@ -82,6 +83,9 @@ public class LikeAnswerRule implements Rule {
                 String data = callbackQuery.data();
                 if (data.contains("like_")) {
                     Like like = listOfLikes.getOrDefault(message.messageId(), new Like());
+                    if(!listOfLikes.containsKey(message.messageId())){
+                        listOfLikes.put(message.messageId(), like);
+                    }
                     Integer whoId = message.from().id();
                     if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
                         like.usersWhoDisLiked.add(whoId);
