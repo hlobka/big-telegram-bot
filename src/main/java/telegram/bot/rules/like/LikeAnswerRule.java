@@ -54,8 +54,12 @@ public class LikeAnswerRule implements Rule {
                 new InlineKeyboardButton("DisLike 👎🏻").callbackData("dislike_0")
             }));
         SendResponse execute = bot.execute(request);
-        listOfLikes.put(execute.message().messageId(), new Like());
+        listOfLikes.put(getLikeKey(execute.message()), new Like());
         SharedObject.save(Common.LIKED_POSTS, listOfLikes);
+    }
+
+    private int getLikeKey(Message message) {
+        return (message.chat().id() + "_" + message.messageId()).hashCode();
     }
 
     private void updateMessage(Message message, Integer numberOfLikes, Integer numberOfDisLikes) {
@@ -82,10 +86,10 @@ public class LikeAnswerRule implements Rule {
             if (message != null) {
                 String data = callbackQuery.data();
                 if (data.contains("like_")) {
-                    Integer messageId = message.messageId();
-                    Like like = listOfLikes.getOrDefault(messageId, new Like());
-                    if(!listOfLikes.containsKey(messageId)){
-                        listOfLikes.put(messageId, like);
+                    Integer uniqueMessageId = getLikeKey(callbackQuery.message());
+                    Like like = listOfLikes.getOrDefault(uniqueMessageId, new Like());
+                    if(!listOfLikes.containsKey(uniqueMessageId)){
+                        listOfLikes.put(uniqueMessageId, like);
                     }
                     Integer whoId = callbackQuery.from().id();
                     if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
@@ -100,7 +104,7 @@ public class LikeAnswerRule implements Rule {
                     }
                     int numberOfLikes = like.usersWhoLiked.size();
                     int numberOfDisLikes = like.usersWhoDisLiked.size();
-                    listOfLikes.put(messageId, like);
+                    listOfLikes.put(uniqueMessageId, like);
                     SharedObject.save(Common.LIKED_POSTS, listOfLikes);
                     updateMessage(message, numberOfLikes, numberOfDisLikes);
                 }
