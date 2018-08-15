@@ -137,7 +137,7 @@ public class UpsourceChecker extends Thread {
             .withReviewersCount(0, CountCondition.MORE_THAN)
             .getReviews().stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
         List<JiraUpsourceReview> reviews = convertToJiraReviews(upsourceReviews).stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review.upsourceReview).toLowerCase() + review.issueId)).collect(Collectors.toList());
-            JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
+        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
         List<JiraUpsourceReview> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
         List<JiraUpsourceReview> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
         String reviewsStatusTable = getReviewsStatusTable(upsourceId, reviews, jiraHelper);
@@ -217,8 +217,9 @@ public class UpsourceChecker extends Thread {
             String issueId = review.issueId;
             Issue issue = jiraHelper.getIssue(issueId);
             Status status = issue.getStatus();
+            String summary = issue.getSummary();
             String createdBy = getMappedReviewerName(review.upsourceReview);
-            boolean isInReview = status.getName().matches("Awaiting Review|In Review|Resolved");
+            boolean isInReview = summary.contains("IN REVIEW") || status.getName().matches("Awaiting Review|In Review|Resolved");
             User assignee = issue.getAssignee();
             if ((assignee != null && !isInReview) || (assignee != null && assignee.getName().equals(createdBy))) {
                 result.add(review);
