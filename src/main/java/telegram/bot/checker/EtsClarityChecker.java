@@ -80,7 +80,7 @@ public class EtsClarityChecker extends Thread {
             Calendar calendar = Calendar.getInstance();
             int currentTimeInHours = calendar.get(Calendar.HOUR_OF_DAY);
             int currentTimeInMinutes = calendar.get(Calendar.MINUTE);
-            if (currentTimeInHours >= 10 && currentTimeInHours < 20) {
+            if (currentTimeInHours >= 10 && currentTimeInHours < 23) {
                 int timeout = getTimeout();
                 if (timeout > 0) {
                     sleep(timeout, TimeUnit.MINUTES);
