@@ -46,8 +46,10 @@ public class CommandExecutorRule implements Rule {
         }
         String values = getRegString(text, "(\\/\\D\\w+)__(\\w+)@?.*", 2);
         Pair<ParseMode, List<String>> result = getCommandResult(command, update, values);
-        for (String messageStr : result.getValue()) {
-            sendMessage(message, new Pair<>(result.getKey(), messageStr));
+        if(result != null) {
+            for (String messageStr : result.getValue()) {
+                sendMessage(message, new Pair<>(result.getKey(), messageStr));
+            }
         }
     }
 
