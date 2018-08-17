@@ -22,6 +22,7 @@ import telegram.bot.helper.BotHelper;
 import upsource.ReviewState;
 import upsource.UpsourceApi;
 import upsource.dto.Review;
+import upsource.dto.UpsourceUser;
 import upsource.filter.CountCondition;
 
 import java.io.IOException;
@@ -233,7 +234,16 @@ public class UpsourceChecker extends Thread {
     }
 
     private static String getMappedReviewerName(Review review) {
-        return Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
+        String createdBy = Common.UPSOURCE.userIdOnNameMap.get(review.createdBy());
+        if (createdBy == null) {
+            for (UpsourceUser participant : review.participants()) {
+                if (participant.role == 1) {
+                    createdBy = Common.UPSOURCE.userIdOnNameMap.get(participant.userId);
+                    break;
+                }
+            }
+        }
+        return createdBy;
     }
 
     private static String getReviewerId(JiraHelper jiraHelper, String issueId) {
