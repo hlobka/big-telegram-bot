@@ -65,27 +65,36 @@ public class JiraChecker extends Thread {
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
             statuses.put(projectJiraId, lastJiraIssueId);
             SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
-            log("JiraChecker::check:posted"+projectJiraId+": issues id from: " + lastCreatedOrPostedIssueId + " to: " + lastJiraIssueId);
-            log("JiraChecker::check:"+projectJiraId+":end");
+            log("JiraChecker::check:posted" + projectJiraId + ": issues id from: " + lastCreatedOrPostedIssueId + " to: " + lastJiraIssueId);
+            log("JiraChecker::check:" + projectJiraId + ":end");
         }
     }
 
-    public void sendAllMessages(ChatData chatData, String projectJiraId, Integer lastCreatedIssueId) {
-        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
-            String message = getAllCreatedIssuesMessage(projectJiraId, lastCreatedIssueId + 1);
+    public void sendAllMessages(ChatData chatData, String projectJiraId, Integer lastPostedIssueId) {
+        while (hasIssuesInDiapason(projectJiraId, lastPostedIssueId, lastPostedIssueId + MAX_ISSUES_ON_ONE_POST)) {
+            String message = getAllCreatedIssuesMessage(projectJiraId, lastPostedIssueId + 1);
             sendMessage(chatData, message);
-            lastCreatedIssueId += MAX_ISSUES_ON_ONE_POST;
+            lastPostedIssueId += MAX_ISSUES_ON_ONE_POST;
         }
+    }
+
+    private Boolean hasIssuesInDiapason(String projectJiraId, Integer issueIdFrom, Integer issueIdTo) {
+        for (int i = issueIdFrom; i < issueIdTo; i++) {
+            if (jiraHelper.hasIssue(getIssueKey(projectJiraId, i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getAllCreatedIssuesMessage(String projectJiraId, Integer lastCreatedIssueId) {
         String message = "";
-        int i = 0;
-        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId)) && i < MAX_ISSUES_ON_ONE_POST) {
-            i++;
-            String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
-            String issueDescription = getIssueDescription(issueKey);
-            message += issueDescription;
+        for (int i = 0; i < MAX_ISSUES_ON_ONE_POST; i++) {
+            if (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
+                String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
+                String issueDescription = getIssueDescription(issueKey);
+                message += issueDescription;
+            }
             lastCreatedIssueId++;
         }
         if (message.length() > 0) {
@@ -119,6 +128,9 @@ public class JiraChecker extends Thread {
         } else {
             issueId = statuses.get(projectJiraId);
         }
+        if (issueId < 0) {
+            issueId = 95;
+        }
         return issueId;
     }
 
@@ -136,11 +148,12 @@ public class JiraChecker extends Thread {
         return result;
     }
 
-    private int getMaxIssueIdByStep(String projectJiraId, Integer result, int step) {
-        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, result))) {
+    private int getMaxIssueIdByStep(String projectJiraId, Integer issueNumber, int step) {
+        Integer result = issueNumber;
+        while (jiraHelper.hasIssue(getIssueKey(projectJiraId, result + step))) {
             result += step;
         }
-        return result - step;
+        return result;
     }
 
     private void sendMessage(ChatData chatData, String msg) {
