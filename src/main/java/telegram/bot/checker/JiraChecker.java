@@ -128,9 +128,7 @@ public class JiraChecker extends Thread {
         } else {
             issueId = statuses.get(projectJiraId);
         }
-        if (issueId < 0) {
-            issueId = 95;
-        }
+        issueId = Math.max(0, issueId);
         return issueId;
     }
 
