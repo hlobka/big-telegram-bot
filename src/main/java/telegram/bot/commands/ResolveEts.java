@@ -75,7 +75,9 @@ public class ResolveEts implements Command {
 
     public static void resolveUser(User user, TelegramBot bot) {
         HashMap<User, Boolean> users = EtsHelper.getUsers();
-        users.put(user, true);
+        if(!users.containsKey(user)){
+            users.put(user, true);
+        }
         EtsHelper.clearFromDuplicates(users);
         returnUserFromVocation(user, bot);
         EtsHelper.saveUsers(users);
