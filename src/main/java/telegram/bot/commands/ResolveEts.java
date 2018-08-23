@@ -5,17 +5,16 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.helper.EtsHelper;
 
-import java.util.*;
-
-import static telegram.bot.data.Common.ETS_USERS;
-import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ResolveEts implements Command {
     private TelegramBot bot;
@@ -43,15 +42,15 @@ public class ResolveEts implements Command {
     }
 
     private static void updateUserInVocationList(User user, TelegramBot bot, boolean addUserInVocationList) {
-        HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
+        HashMap<User, Boolean> users = EtsHelper.getUsers();
         for (Map.Entry<User, Boolean> entry : users.entrySet()) {
             User entryUser = entry.getKey();
             if (entryUser.id().equals(user.id())) {
-                ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<User>());
+                ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
                 if (addUserInVocationList) {
                     if (!usersInVacation.contains(user)) {
                         usersInVacation.add(user);
-                        SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
+                        EtsHelper.saveUsersWhichInVacation(usersInVacation);
                     }
                     EtsClarityChecker.updateLastMessage(bot);
                     String message = String.format("user %s sent on vacation", user.firstName());
@@ -63,7 +62,7 @@ public class ResolveEts implements Command {
                         isContains = true;
                     }
                     if (isContains) {
-                        SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
+                        EtsHelper.saveUsersWhichInVacation(usersInVacation);
                         EtsClarityChecker.updateLastMessage(bot);
                         String message = String.format("user %s returns from vacation", user.firstName());
                         BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, message, ParseMode.Markdown);
@@ -75,11 +74,11 @@ public class ResolveEts implements Command {
     }
 
     public static void resolveUser(User user, TelegramBot bot) {
-        HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<User, Boolean>());
+        HashMap<User, Boolean> users = EtsHelper.getUsers();
         users.put(user, true);
         EtsHelper.clearFromDuplicates(users);
         returnUserFromVocation(user, bot);
-        SharedObject.save(ETS_USERS, users);
+        EtsHelper.saveUsers(users);
         EtsClarityChecker.updateLastMessage(bot);
         if (EtsClarityChecker.checkIsResolvedToDay(bot)) {
             BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, "EtsClarity resolved today!!!", ParseMode.Markdown);

@@ -5,17 +5,14 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import helper.file.SharedObject;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
+import telegram.bot.helper.EtsHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import static telegram.bot.data.Common.ETS_USERS;
-import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
 
 public class RemoveUserFromEtsListByReplyCommand implements Command {
 
@@ -27,16 +24,16 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        HashMap<User, Boolean> users = SharedObject.loadMap(ETS_USERS, new HashMap<>());
-        ArrayList<User> usersInVacation = SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<>());
+        HashMap<User, Boolean> users = EtsHelper.getUsers();
+        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
 
         Message replyToMessage = update.message().replyToMessage();
         if(replyToMessage != null) {
             User replyUser = replyToMessage.from();
             users.remove(replyUser);
             usersInVacation.remove(replyUser);
-            SharedObject.save(ETS_USERS_IN_VACATION, usersInVacation);
-            SharedObject.save(ETS_USERS, users);
+            EtsHelper.saveUsersWhichInVacation(usersInVacation);
+            EtsHelper.saveUsers(users);
             EtsClarityChecker.updateLastMessage(bot);
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s was removed from ETS list", replyUser.firstName())));
         }
