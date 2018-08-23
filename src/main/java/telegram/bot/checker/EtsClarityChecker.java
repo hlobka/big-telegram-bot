@@ -23,6 +23,7 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static helper.logger.ConsoleLogger.log;
 import static telegram.bot.data.Common.COMMON_INT_DATA;
 import static telegram.bot.data.Common.ETS_USERS;
 import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
@@ -46,21 +47,16 @@ public class EtsClarityChecker extends Thread {
 
     @Override
     public void run() {
+        log("EtsClarityChecker::start");
         super.run();
         while (true) {
-            try {
-                long timeout = TimeUnit.MINUTES.toMillis(getTimeout());
-                long oneMinuteInMilliseconds = TimeUnit.MINUTES.toMillis(1);
-                long min = Math.max(oneMinuteInMilliseconds, Math.min(millis, timeout));
-                if (min > 0) {
-                    TimeUnit.MILLISECONDS.sleep(min);
-                }
-                check();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.interrupted();
-                return;
+            long timeout = TimeUnit.MINUTES.toMillis(getTimeout());
+            long oneMinuteInMilliseconds = TimeUnit.MINUTES.toMillis(1);
+            long min = Math.max(oneMinuteInMilliseconds, Math.min(millis, timeout));
+            if (min > 0) {
+                sleep(min, TimeUnit.MILLISECONDS);
             }
+            check();
         }
     }
 
@@ -277,7 +273,8 @@ public class EtsClarityChecker extends Thread {
         return message;
     }
 
-    private void sleep(int timeout, TimeUnit timeUnit) {
+    private void sleep(long timeout, TimeUnit timeUnit) {
+        log("EtsClarityChecker::will be wait: " + timeout + " " + timeUnit.name());
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {
