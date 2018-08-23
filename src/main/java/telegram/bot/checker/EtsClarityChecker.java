@@ -20,7 +20,6 @@ import telegram.bot.data.Common;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -34,10 +33,12 @@ public class EtsClarityChecker extends Thread {
     private static boolean isResolvedToday = false;
     private static Integer LAST_MESSAGE_ID = -1;
     private static long LAST_MESSAGE_CHAT_ID = -1;
+    private static DayOfWeek DAY_TO_CHECK;
 
-    public EtsClarityChecker(TelegramBot bot, long millis) {
+    public EtsClarityChecker(TelegramBot bot, long millis, DayOfWeek dayToCheck) {
         this.bot = bot;
         this.millis = millis;
+        EtsClarityChecker.DAY_TO_CHECK = dayToCheck;
         HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
         LAST_MESSAGE_CHAT_ID = commonData.getOrDefault("LAST_MESSAGE_CHAT_ID", 2472).longValue();
         LAST_MESSAGE_ID = commonData.getOrDefault("LAST_MESSAGE_ID", Common.BIG_GENERAL_CHAT_ID).intValue();
@@ -59,16 +60,13 @@ public class EtsClarityChecker extends Thread {
                 e.printStackTrace();
                 Thread.interrupted();
                 return;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
             }
         }
     }
 
-    private void check() throws IOException {
+    private void check() {
         System.out.println("EtsClarityChecker::check");
-        if (checkIsFriday()) {
+        if (TimeHelper.checkToDayIs(DAY_TO_CHECK)) {
             checkIsAllUsersPresentsOnThisChat(bot);
             if (checkIsResolvedToDay(bot)) {
                 if(!isResolvedToday){
@@ -91,10 +89,6 @@ public class EtsClarityChecker extends Thread {
         } else {
             unResolveAll();
         }
-    }
-
-    private static boolean checkIsFriday() {
-        return TimeHelper.checkToDayIs(DayOfWeek.FRIDAY);
     }
 
     private int getTimeout() {
@@ -127,7 +121,7 @@ public class EtsClarityChecker extends Thread {
             System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
             return;
         }
-        if(!checkIsFriday()){
+        if(!TimeHelper.checkToDayIs(DAY_TO_CHECK)){
             unResolveAll();
         }
         try {
@@ -270,7 +264,7 @@ public class EtsClarityChecker extends Thread {
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
         int count = response.count();
         int expectedCount = count - 1 - usersInVacation.size();
-        return checkIsFriday() && resolvedCount >= expectedCount;
+        return TimeHelper.checkToDayIs(DAY_TO_CHECK) && resolvedCount >= expectedCount;
     }
 
     private static String getMessageFromFile() {

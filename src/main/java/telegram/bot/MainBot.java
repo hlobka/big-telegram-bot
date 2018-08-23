@@ -17,6 +17,7 @@ import telegram.bot.rules.*;
 import telegram.bot.rules.like.LikeAnswerRule;
 
 import java.net.URISyntaxException;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +71,8 @@ public class MainBot {
         rules.registerRule(commandExecutorRule);
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
-        new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58)).start();
+        //todo: move day to config file
+        new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.THURSDAY).start();
         new UpsourceChecker(bot).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
