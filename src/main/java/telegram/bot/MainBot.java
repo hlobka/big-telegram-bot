@@ -7,10 +7,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import okhttp3.OkHttpClient;
-import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.checker.JenkinsChecker;
-import telegram.bot.checker.JiraChecker;
-import telegram.bot.checker.UpsourceChecker;
+import telegram.bot.checker.*;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.rules.*;
@@ -74,6 +71,7 @@ public class MainBot {
         //todo: move day to config file
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.WEDNESDAY).start();
         new UpsourceChecker(bot).start();
+        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30)).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
