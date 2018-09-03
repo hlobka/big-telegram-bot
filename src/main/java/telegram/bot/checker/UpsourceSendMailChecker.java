@@ -77,17 +77,17 @@ public class UpsourceSendMailChecker extends Thread {
     public void run() {
         super.run();
         while (true) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(timeout);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             if (isWorkDay()) {
                 try {
                     check();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+            try {
+                TimeUnit.MILLISECONDS.sleep(timeout);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
