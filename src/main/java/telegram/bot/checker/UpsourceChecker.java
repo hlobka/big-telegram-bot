@@ -37,96 +37,15 @@ import java.util.stream.Collectors;
 import static helper.logger.ConsoleLogger.log;
 
 public class UpsourceChecker extends Thread {
-    private TelegramBot bot;
     public static final String TITLE = "Господа, ваши содевелоперы, ожидают фидбэка по ревью, Будьте бдительны, Не заставляйте их ждать!!!";
+    private TelegramBot bot;
 
     public UpsourceChecker(TelegramBot bot) {
         this.bot = bot;
     }
 
-    @Override
-    public void run() {
-        super.run();
-        while (true) {
-            try {
-                if (!sleepToNextCheck()) {
-                    continue;
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.interrupted();
-                return;
-            }
-            try {
-                check();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-        }
-    }
-
-    private boolean sleepToNextCheck() throws InterruptedException {
-        Long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
-        TimeUnit.MINUTES.sleep(minutesUntilTargetHour);
-        if (isWeekends()) {
-            TimeUnit.MINUTES.sleep(1);
-            return false;
-        }
-        return true;
-
-    }
-
-    private boolean isWeekends() {
-        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
-    }
-
-    private Long getMinutesUntilNextTargetHour() {
-        Long minutesUntilTargetHourForFirstPartOfDay = TimeHelper.getMinutesUntilTargetHour(10);
-        Long minutesUntilTargetHourForSecondPartOfDay = TimeHelper.getMinutesUntilTargetHour(18);
-        return Math.min(minutesUntilTargetHourForFirstPartOfDay, minutesUntilTargetHourForSecondPartOfDay);
-    }
-
-    public void check() throws IOException {
-        UpsourceApi upsourceApi = getUpsourceApi();
-        for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
-            check(upsourceApi, chatData);
-        }
-    }
-
-    public void check(ChatData chatData) throws IOException {
-        UpsourceApi upsourceApi = getUpsourceApi();
-        check(upsourceApi, chatData);
-    }
-
     private static UpsourceApi getUpsourceApi() {
         return new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
-    }
-
-    public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
-        log(chatData.getUpsourceIds().toString());
-        List<Pair<String, String>> messages = new ArrayList<>();
-        for (String upsourceId : chatData.getUpsourceIds()) {
-            String message = getUpsourceViewResult(upsourceApi, upsourceId);
-            if (message.length() > 0) {
-                messages.add(new Pair<>(upsourceId, message));
-            }
-        }
-        sendMessagesWithViewResult(chatData, messages);
-        log("UpsourceChecker::check:end");
-    }
-
-    private void sendMessagesWithViewResult(ChatData chatData, List<Pair<String, String>> messages) {
-        if (messages.size() == 1) {
-            Pair<String, String> projectIdOnMessagePair = messages.get(0);
-            sendMessageWithInlineBtns(chatData, TITLE + projectIdOnMessagePair.getValue(), projectIdOnMessagePair.getKey());
-        } else if (messages.size() > 0) {
-            BotHelper.sendMessage(bot, chatData.getChatId(), TITLE, ParseMode.Markdown);
-            for (Pair<String, String> message : messages) {
-                sendMessageWithInlineBtns(chatData, message.getValue(), message.getKey());
-            }
-
-        }
     }
 
     private static String getUpsourceViewResult(UpsourceApi upsourceApi, String upsourceId) throws IOException {
@@ -252,18 +171,9 @@ public class UpsourceChecker extends Thread {
         return assignee == null ? "unassigned" : assignee.getName();
     }
 
-    private void sendMessageWithInlineBtns(ChatData chatData, String message, String upsourceProjectId) {
-        SendMessage request = new SendMessage(chatData.getChatId(), message)
-            .parseMode(ParseMode.Markdown)
-            .disableWebPagePreview(false)
-            .disableNotification(false)
-            .replyMarkup(getReplyMarkup(upsourceProjectId));
-        SendResponse execute = bot.execute(request);
-    }
-
     public static void updateMessage(TelegramBot bot, String upsourceProjectId, Message message) {
         UpsourceApi upsourceApi = getUpsourceApi();
-        String upsourceViewResult = null;
+        String upsourceViewResult;
         try {
             upsourceViewResult = getUpsourceViewResult(upsourceApi, upsourceProjectId);
         } catch (IOException e) {
@@ -297,13 +207,93 @@ public class UpsourceChecker extends Thread {
         });
     }
 
-    private static class JiraUpsourceReview {
-        protected final String issueId;
-        protected final Review upsourceReview;
-
-        public JiraUpsourceReview(String issueId, Review upsourceReview) {
-            this.issueId = issueId;
-            this.upsourceReview = upsourceReview;
+    @Override
+    public void run() {
+        super.run();
+        while (true) {
+            try {
+                if (!sleepToNextCheck()) {
+                    continue;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.interrupted();
+                return;
+            }
+            try {
+                check();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
         }
+    }
+
+    private boolean sleepToNextCheck() throws InterruptedException {
+        Long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
+        TimeUnit.MINUTES.sleep(minutesUntilTargetHour);
+        if (isWeekends()) {
+            TimeUnit.MINUTES.sleep(1);
+            return false;
+        }
+        return true;
+
+    }
+
+    private boolean isWeekends() {
+        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
+    }
+
+    private Long getMinutesUntilNextTargetHour() {
+        Long minutesUntilTargetHourForFirstPartOfDay = TimeHelper.getMinutesUntilTargetHour(10);
+        Long minutesUntilTargetHourForSecondPartOfDay = TimeHelper.getMinutesUntilTargetHour(18);
+        return Math.min(minutesUntilTargetHourForFirstPartOfDay, minutesUntilTargetHourForSecondPartOfDay);
+    }
+
+    public void check() throws IOException {
+        UpsourceApi upsourceApi = getUpsourceApi();
+        for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
+            check(upsourceApi, chatData);
+        }
+    }
+
+    public void check(ChatData chatData) throws IOException {
+        UpsourceApi upsourceApi = getUpsourceApi();
+        check(upsourceApi, chatData);
+    }
+
+    public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
+        log(chatData.getUpsourceIds().toString());
+        List<Pair<String, String>> messages = new ArrayList<>();
+        for (String upsourceId : chatData.getUpsourceIds()) {
+            String message = getUpsourceViewResult(upsourceApi, upsourceId);
+            if (message.length() > 0) {
+                messages.add(new Pair<>(upsourceId, message));
+            }
+        }
+        sendMessagesWithViewResult(chatData, messages);
+        log("UpsourceChecker::check:end");
+    }
+
+    private void sendMessagesWithViewResult(ChatData chatData, List<Pair<String, String>> messages) {
+        if (messages.size() == 1) {
+            Pair<String, String> projectIdOnMessagePair = messages.get(0);
+            sendMessageWithInlineBtns(chatData, TITLE + projectIdOnMessagePair.getValue(), projectIdOnMessagePair.getKey());
+        } else if (messages.size() > 0) {
+            BotHelper.sendMessage(bot, chatData.getChatId(), TITLE, ParseMode.Markdown);
+            for (Pair<String, String> message : messages) {
+                sendMessageWithInlineBtns(chatData, message.getValue(), message.getKey());
+            }
+
+        }
+    }
+
+    private void sendMessageWithInlineBtns(ChatData chatData, String message, String upsourceProjectId) {
+        SendMessage request = new SendMessage(chatData.getChatId(), message)
+            .parseMode(ParseMode.Markdown)
+            .disableWebPagePreview(false)
+            .disableNotification(false)
+            .replyMarkup(getReplyMarkup(upsourceProjectId));
+        SendResponse execute = bot.execute(request);
     }
 }
