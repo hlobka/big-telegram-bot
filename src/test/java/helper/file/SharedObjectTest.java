@@ -1,21 +1,25 @@
 package helper.file;
 
+import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class SharedObjectTest {
 
-    private String testFileUrl = "tmp/test/testFile.ser";
+    private String testRootUrl = "/tmp/test/";
+    private String testFileUrl = testRootUrl + "testFile.ser";
 
     @AfterMethod
-    public void tearDown() {
-        new File(testFileUrl).delete();
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(testRootUrl));
+        SharedObject.remove(this, "test");
     }
 
     @Test
@@ -39,6 +43,41 @@ public class SharedObjectTest {
         Assertions
             .assertThat(SharedObject.load(testFileUrl, Integer.class))
             .isEqualTo(1);
+    }
+
+    @Test
+    public void testSaveAndLoadByInstanceName() {
+        SharedObject.save(this, "test", 1);
+
+        Assertions
+            .assertThat(SharedObject.load(this, "test", Integer.class))
+            .isEqualTo(1);
+    }
+
+    @Test
+    public void testSaveAndLoadByInstanceNameWithDefaultValue() {
+        SharedObject.save(this, "test", 1);
+
+        Assertions
+            .assertThat(SharedObject.load(this, "test", Integer.class, 2))
+            .isEqualTo(1);
+
+        Assertions
+            .assertThat(SharedObject.load(this, "test2", Integer.class, 2))
+            .isEqualTo(2);
+    }
+
+    @Test
+    public void testSaveAndLoadByInstanceNameWithNotNullDefaultValue() {
+        Assertions
+            .assertThat(SharedObject.load(this, "test", 2))
+            .isEqualTo(2);
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
+    public void testSaveAndLoadByInstanceNameWithNotDefaultValue() {
+        Integer defaultValue = null;
+        SharedObject.load(this, "test", defaultValue);
     }
 
     @Test

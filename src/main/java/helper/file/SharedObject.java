@@ -1,5 +1,7 @@
 package helper.file;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,8 +58,19 @@ public class SharedObject {
 
     private static void removeFile(String url) {
         if (new File(url).exists()) {
-            new File(url).delete();
+            if(!new File(url).delete()){
+                try {
+                    FileUtils.deleteDirectory(new File(url));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+    }
+
+    public static void remove(Object instance, String sharedObjectName) {
+        String classUrl = getClassUrl(instance.getClass(), sharedObjectName);
+        remove(classUrl);
     }
 
     public static void remove(String url) {
@@ -65,16 +78,20 @@ public class SharedObject {
     }
 
     public static <T> T load(String url, Class<T> eClass) {
+        return loadOrDefault(url, eClass, null);
+    }
+
+    public static <T> T loadOrDefault(String url, Class<T> eClass, T defaultValue) {
         T result;
         if (!checkIsExist(url)) {
-            return null;
+            return defaultValue;
         }
         createNewFile(url);
         try (FileInputStream fileIn = new FileInputStream(url); ObjectInputStream in = new ObjectInputStream(fileIn)) {
             result = (T) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
+            return defaultValue;
         }
         return result;
     }
@@ -86,5 +103,57 @@ public class SharedObject {
     public static <E> ArrayList<E> loadList(String url, ArrayList<E> defaultValue) {
         ArrayList result = load(url, ArrayList.class);
         return result == null ? defaultValue : result;
+    }
+
+    public static void save(Object instance, String sharedObjectName, Serializable data) {
+        save(instance.getClass(), sharedObjectName, data);
+    }
+
+    public static void save(Class<?> instanceClass, String sharedObjectName, Serializable data) {
+        String url = getClassUrl(instanceClass, sharedObjectName);
+        save(url, data);
+    }
+
+    public static <T> T load(Object instance, String sharedObjectName, Class<T> eClass, T defaultValue) {
+        return load(instance.getClass(), sharedObjectName, eClass, defaultValue);
+    }
+
+    public static <T> T load(Object instance, String sharedObjectName, Class<T> eClass) {
+        return load(instance.getClass(), sharedObjectName, eClass);
+    }
+
+    public static <T> T load(Class<?> instanceClass, String sharedObjectName, Class<T> eClass) {
+        return load(instanceClass, sharedObjectName, eClass, null);
+    }
+
+    public static <T> T load(Class<?> instanceClass, String sharedObjectName, Class<T> eClass, T defaultValue) {
+        String url = getClassUrl(instanceClass, sharedObjectName);
+        return loadOrDefault(url, eClass, defaultValue);
+    }
+
+    /**
+     * @param defaultValue should not be null
+     * @throws NullPointerException when default value is null
+     */
+    public static <T> T load(Object instance, String sharedObjectName, T defaultValue) {
+        return load(instance.getClass(), sharedObjectName, defaultValue);
+    }
+
+    /**
+     * @param defaultValue should not be null
+     * @throws NullPointerException when default value is null
+     */
+    public static <T> T load(Class<?> instanceClass, String sharedObjectName, T defaultValue) {
+        String url = getClassUrl(instanceClass, sharedObjectName);
+        if(defaultValue == null) {
+            throw new NullPointerException("default value should be not null");
+        }
+        Class<T> aClass = (Class<T>) defaultValue.getClass();
+        return loadOrDefault(url, aClass, defaultValue);
+    }
+
+    public static String getClassUrl(Class<?> instanceClass, String sharedObjectName) {
+        String simpleName = instanceClass.getSimpleName();
+        return "/tmp/" + simpleName + "/" + sharedObjectName + ".ser";
     }
 }
