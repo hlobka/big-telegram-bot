@@ -28,7 +28,7 @@ import static telegram.bot.data.Common.BIG_GENERAL_GROUPS;
 
 public class UpsourceSendMailChecker extends Thread {
 
-    private static final String SHARED_OBJECT_URL = "/tmp/" + UpsourceSendMailChecker.class.getSimpleName() + ".ser";
+    private static final String JIRA_ASSIGN_ON = "jiraAssignOn";
     private final long timeout;
 
     public UpsourceSendMailChecker(long timeout) {
@@ -109,7 +109,7 @@ public class UpsourceSendMailChecker extends Thread {
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
         log("UpsourceReadyForReviewChecker::check:" + chatData.getUpsourceIds().toString());
-        HashMap<String, String> jiraAssignOn = SharedObject.loadMap(SHARED_OBJECT_URL, new HashMap<>());
+        HashMap<String, String> jiraAssignOn = SharedObject.load(this, JIRA_ASSIGN_ON, new HashMap<>());
         JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
         Map<String, List<String>> userMessages = new HashMap<>();
         Map<String, List<String>> userAbortedMessages = new HashMap<>();
@@ -143,7 +143,7 @@ public class UpsourceSendMailChecker extends Thread {
                     userMessages.get(to).add(message);
                 }
                 jiraAssignOn.put(issueKey, to);
-                SharedObject.save(SHARED_OBJECT_URL, jiraAssignOn);
+                SharedObject.save(this, JIRA_ASSIGN_ON, jiraAssignOn);
             }
             String title = "[" + upsourceId + "] Possible review was assigned to you";
             sendMail(userMessages, title, title);
