@@ -1,7 +1,5 @@
 package telegram.bot.data;
 
-import helper.string.StringHelper;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -11,6 +9,7 @@ public class UpsourceData {
     public final String login;
     public final String pass;
     public final Map<String, String> userIdOnNameMap;
+    public final Map<String, String> userLoginOnMailMap;
     public String checkerHelpLink;
 
     public UpsourceData(Properties properties) {
@@ -20,11 +19,17 @@ public class UpsourceData {
         login = loginData.login;
         pass = loginData.pass;
         userIdOnNameMap = new HashMap<>();
-        String userIdsMap = properties.getProperty("upsource.userIdsMap");
+        userLoginOnMailMap = new HashMap<>();
+        collectMapValues(properties, "upsource.userIdsMap", userIdOnNameMap);
+        collectMapValues(properties, "upsource.userLoginOnMailMap", userLoginOnMailMap);
+
+    }
+
+    public void collectMapValues(Properties properties, String key, Map<String, String> map) {
+        String userIdsMap = properties.getProperty(key);
         for (String userIdsOnName : userIdsMap.split(",")) {
             String[] values = userIdsOnName.split(":");
-            userIdOnNameMap.put(values[0], values[1]);
+            map.put(values[0], values[1]);
         }
-
     }
 }

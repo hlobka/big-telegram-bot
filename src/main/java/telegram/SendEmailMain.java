@@ -12,7 +12,7 @@ import java.util.Properties;
 public class SendEmailMain {
     public static void main(String [] args) throws MessagingException {
         // Recipient's email ID needs to be mentioned.
-        String to = "test@test.com";
+        String to = Common.UPSOURCE.userLoginOnMailMap.get("admin");
 
         // Sender's email ID needs to be mentioned
         final String username = Common.EMAIL.login;
