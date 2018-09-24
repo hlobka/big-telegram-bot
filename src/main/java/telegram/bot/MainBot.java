@@ -69,7 +69,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_reviews", new ShowUpsourceReviewCommand(bot));
         rules.registerRule(commandExecutorRule);
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
-//        new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
+        new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         //todo: move day to config file
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.FRIDAY).start();
         new UpsourceChecker(bot).start();
@@ -78,9 +78,11 @@ public class MainBot {
         })).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
+                System.out.println("onResponse: " + updatess.toString());
             }
-            System.out.println("onResponse: " + updatess.toString());
-            rules.handle(updatess);
+            new Thread(() -> {
+                rules.handle(updatess);
+            }).start();
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
