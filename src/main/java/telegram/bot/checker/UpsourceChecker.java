@@ -19,6 +19,7 @@ import javafx.util.Pair;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.rules.ReLoginRule;
 import upsource.ReviewState;
 import upsource.UpsourceApi;
 import upsource.dto.Review;
@@ -48,7 +49,13 @@ public class UpsourceChecker extends Thread {
         return new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
     }
 
-    private static String getUpsourceViewResult(UpsourceApi upsourceApi, String upsourceId) throws IOException {
+    private static String getUpsourceViewResult(TelegramBot bot, UpsourceApi upsourceApi, String upsourceId) throws IOException {
+        JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
+            ReLoginRule.tryToRelogin(bot, e);
+        });
+        return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
+    }
+    private static String getUpsourceViewResult(JiraHelper jiraHelper, UpsourceApi upsourceApi, String upsourceId) throws IOException {
         List<Review> upsourceReviews = upsourceApi.getProject(upsourceId)
             .getReviewsProvider(true)
 //            .withDuration(TimeUnit.DAYS.toMillis(1))
@@ -57,7 +64,7 @@ public class UpsourceChecker extends Thread {
             .withReviewersCount(0, CountCondition.MORE_THAN)
             .getReviews().stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review).toLowerCase())).collect(Collectors.toList());
         List<JiraUpsourceReview> reviews = convertToJiraReviews(upsourceReviews).stream().sorted(Comparator.comparing((review) -> getMappedReviewerName(review.upsourceReview).toLowerCase() + review.issueId)).collect(Collectors.toList());
-        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
+
         List<JiraUpsourceReview> unVersionReviews = extractUnVersionReviews(reviews, jiraHelper);
         List<JiraUpsourceReview> abnormalReviews = extractAbnormalReviews(reviews, jiraHelper);
         String reviewsStatusTable = getReviewsStatusTable(upsourceId, reviews, jiraHelper);
@@ -175,7 +182,7 @@ public class UpsourceChecker extends Thread {
         UpsourceApi upsourceApi = getUpsourceApi();
         String upsourceViewResult;
         try {
-            upsourceViewResult = getUpsourceViewResult(upsourceApi, upsourceProjectId);
+            upsourceViewResult = getUpsourceViewResult(bot, upsourceApi, upsourceProjectId);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -266,7 +273,7 @@ public class UpsourceChecker extends Thread {
         log(chatData.getUpsourceIds().toString());
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
-            String message = getUpsourceViewResult(upsourceApi, upsourceId);
+            String message = getUpsourceViewResult(bot, upsourceApi, upsourceId);
             if (message.length() > 0) {
                 messages.add(new Pair<>(upsourceId, message));
             }

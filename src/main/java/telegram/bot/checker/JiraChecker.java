@@ -9,6 +9,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.rules.ReLoginRule;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +28,9 @@ public class JiraChecker extends Thread {
     public JiraChecker(TelegramBot bot, long millis) {
         this.bot = bot;
         this.millis = millis;
-        jiraHelper = JiraHelper.getClient(Common.JIRA);
+        jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, false, e -> {
+            ReLoginRule.tryToRelogin(bot, e);
+        });
         statuses = SharedObject.loadMap(JIRA_CHECKER_STATUSES, new HashMap<>());
     }
 

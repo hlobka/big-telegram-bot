@@ -22,7 +22,7 @@ public class BotHelper {
         return bot.execute(request);
     }
 
-    protected static String getCuttedMessage(String message) {
+    public static String getCuttedMessage(String message) {
         int length = message.length();
         if (length >= TelegramCriteria.MAX_MESSAGE_LENGTH) {
             String notification = String.format("%nПревышина максимальная длина сообщения. %nТекущая %d из допустимых %d", length, TelegramCriteria.MAX_MESSAGE_LENGTH);

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static helper.logger.ConsoleLogger.log;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUPS;
@@ -30,14 +31,11 @@ public class UpsourceSendMailChecker extends Thread {
 
     private static final String JIRA_ASSIGN_ON = "jiraAssignOn";
     private final long timeout;
+    private final Supplier<JiraHelper> jiraHelperProvider;
 
-    public UpsourceSendMailChecker(long timeout) {
+    public UpsourceSendMailChecker(long timeout, Supplier<JiraHelper> jiraHelperProvider) {
         this.timeout = timeout;
-    }
-
-    public static void main(String[] args) throws IOException {
-        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(1))
-            .check(getUpsourceApi(), BIG_GENERAL_GROUPS.get(BIG_GENERAL_GROUPS.size() - 1));
+        this.jiraHelperProvider = jiraHelperProvider;
     }
 
     private static String getReviewerId(JiraHelper jiraHelper, String issueId) {
@@ -110,7 +108,7 @@ public class UpsourceSendMailChecker extends Thread {
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
         log("UpsourceReadyForReviewChecker::check:" + chatData.getUpsourceIds().toString());
         HashMap<String, String> jiraAssignOn = SharedObject.load(this, JIRA_ASSIGN_ON, new HashMap<>());
-        JiraHelper jiraHelper = JiraHelper.getClient(Common.JIRA, true);
+        JiraHelper jiraHelper = jiraHelperProvider.get();
         Map<String, List<String>> userMessages = new HashMap<>();
         Map<String, List<String>> userAbortedMessages = new HashMap<>();
         for (String upsourceId : chatData.getUpsourceIds()) {

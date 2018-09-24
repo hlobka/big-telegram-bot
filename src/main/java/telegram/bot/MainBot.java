@@ -1,5 +1,6 @@
 package telegram.bot;
 
+import atlassian.jira.JiraHelper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -37,6 +38,7 @@ public class MainBot {
         rules.registerRule(new EtsAnswerRule(bot));
         rules.registerRule(new LikeAnswerRule(bot));
         rules.registerRule(new BotSayAnswerRule(bot));
+        rules.registerRule(new ReLoginRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCallBackCommand("update_upsource_checker_view_result_for", new UpdateUpsourceViewResult(bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
@@ -71,7 +73,9 @@ public class MainBot {
         //todo: move day to config file
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.FRIDAY).start();
         new UpsourceChecker(bot).start();
-        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30)).start();
+        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
+            ReLoginRule.tryToRelogin(bot, e);
+        })).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());

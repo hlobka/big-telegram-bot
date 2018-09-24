@@ -19,6 +19,7 @@ public class JiraHelper {
     private final JiraRestClient client;
     private final Boolean useCache;
     private Map<String, Issue> cacheOfIssues;
+    private Consumer<RestClientException> errorHandler;
 
     private JiraHelper(JiraRestClient client, Boolean useCache) {
         this.client = client;
@@ -36,6 +37,7 @@ public class JiraHelper {
                 URI uri = new URI(loginData.url);
                 JiraRestClient client = factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass);
                 JiraHelper clientHelper = getClient(client, useCache);
+                clientHelper.useErrorHandler(errorHandler);
                 return clientHelper;
             } catch (RestClientException e) {
                 e.printStackTrace();
@@ -45,6 +47,10 @@ public class JiraHelper {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void useErrorHandler(Consumer<RestClientException> errorHandler) {
+        this.errorHandler = errorHandler;
     }
 
     public static JiraHelper getClient(LoginData loginData) {
@@ -76,18 +82,33 @@ public class JiraHelper {
             return true;
         }
         try {
-            return getIssue(issueKey) != null;
+            return getIssue(issueKey, false) != null;
         } catch (RestClientException e) {
             return false;
         }
     }
 
     public Issue getIssue(String issueKey) {
+        return getIssue(issueKey, true);
+    }
+
+    public Issue getIssue(String issueKey, boolean checkRelogin) {
         if (useCache && cacheOfIssues.containsKey(issueKey)) {
             return cacheOfIssues.get(issueKey);
         }
         Promise<Issue> promise = client.getIssueClient().getIssue(issueKey);
-        Issue issue = promise.claim();
+        Issue issue;
+        try {
+            issue = promise.claim();
+        } catch (RestClientException e){
+            if(errorHandler != null && checkRelogin){
+                errorHandler.accept(e);
+                promise = client.getIssueClient().getIssue(issueKey);
+                issue = promise.claim();
+            } else {
+                throw e;
+            }
+        }
         if (useCache) {
             cacheOfIssues.put(issueKey, issue);
         }
