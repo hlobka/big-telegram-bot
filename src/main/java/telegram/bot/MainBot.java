@@ -78,8 +78,8 @@ public class MainBot {
         })).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
-                System.out.println("onResponse: " + updatess.toString());
             }
+            System.out.println("onResponse: " + updatess.toString());
             rules.handle(updatess);
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
