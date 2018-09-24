@@ -46,7 +46,7 @@ public class ReLoginRule implements Rule {
             .disableWebPagePreview(false)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                new InlineKeyboardButton("Open jira").url(Common.JENKINS_URL),
+                new InlineKeyboardButton("Open jira").url(Common.JIRA.url),
                 new InlineKeyboardButton("Try again").callbackData(calbackId)
             }));
         SendResponse execute = bot.execute(request);
