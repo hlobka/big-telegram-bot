@@ -9,6 +9,12 @@ public class LoginData {
     public final String login;
     public final String pass;
 
+    public LoginData(String url, String login, String pass) {
+        this.url = url;
+        this.login = login;
+        this.pass = pass;
+    }
+
     public LoginData(Properties properties, final String type) {
         url = properties.getProperty(type + ".url");
         login = properties.getProperty(type + ".auth.login");

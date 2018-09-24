@@ -2,11 +2,18 @@ package atlassian.jira;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.util.concurrent.Promise;
 import org.assertj.core.api.Assertions;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
+import telegram.bot.data.LoginData;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.function.Consumer;
 
 import static org.testng.Assert.*;
 
@@ -96,5 +103,30 @@ public class JiraHelperTest {
         Mockito.verify(issueRestClientMock, Mockito.times(1)).getIssue("testKey");
         Mockito.verify(issuePromiseMock, Mockito.times(1)).claim();
 
+    }
+
+    @Test
+    public void tryToGetClient() {
+        LoginData loginData = new LoginData("testUrl", "testLogin", "testPass");
+        Consumer<RestClientException> errorHandler = Mockito.mock(Consumer.class);
+        JiraRestClientFactory factory = Mockito.mock(JiraRestClientFactory.class);
+        JiraHelper.tryToGetClient(loginData, false, errorHandler, factory);
+    }
+
+    @Test
+    public void tryToGetClientWithErrorHandling() throws URISyntaxException {
+        LoginData loginData = new LoginData("testUrl", "testLogin", "testPass");
+
+        JiraRestClientFactory factory = Mockito.mock(JiraRestClientFactory.class);
+        URI uri = new URI(loginData.url);
+        Mockito.when(factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass))
+            .thenThrow(RestClientException.class);
+        JiraRestClient client = Mockito.mock(JiraRestClient.class);
+        Consumer<RestClientException> errorHandler = e -> {
+            Mockito.reset(factory);
+            Mockito.when(factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass))
+                .thenReturn(client);
+        };
+        JiraHelper.tryToGetClient(loginData, false, errorHandler, factory);
     }
 }

@@ -10,7 +10,9 @@ import telegram.bot.data.LoginData;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class JiraHelper {
 
@@ -22,6 +24,27 @@ public class JiraHelper {
         this.client = client;
         this.useCache = useCache;
         cacheOfIssues = new HashMap<>();
+    }
+
+    public static JiraHelper tryToGetClient(LoginData loginData, Boolean useCache, Consumer<RestClientException> errorHandler) {
+        return tryToGetClient(loginData, useCache, errorHandler, new AsynchronousJiraRestClientFactory());
+    }
+
+    public static JiraHelper tryToGetClient(LoginData loginData, Boolean useCache, Consumer<RestClientException> errorHandler, JiraRestClientFactory factory) {
+        while (true) {
+            try {
+                URI uri = new URI(loginData.url);
+                JiraRestClient client = factory.createWithBasicHttpAuthentication(uri, loginData.login, loginData.pass);
+                JiraHelper clientHelper = getClient(client, useCache);
+                return clientHelper;
+            } catch (RestClientException e) {
+                e.printStackTrace();
+                errorHandler.accept(e);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static JiraHelper getClient(LoginData loginData) {
