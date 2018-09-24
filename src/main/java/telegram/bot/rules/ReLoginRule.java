@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
+
 public class ReLoginRule implements Rule {
     public static final String TRY_TO_RE_LOGIN = "try_to_re_login_";
     private TelegramBot bot;
@@ -34,9 +37,11 @@ public class ReLoginRule implements Rule {
         String callbackId = TRY_TO_RE_LOGIN + e.hashCode();
         statuses.put(callbackId, false);
         sendMessage(bot, groupId, message, callbackId);
+        logFor(ReLoginRule.class, "await for:" + callbackId);
         while (!statuses.get(callbackId)){
             TimeHelper.waitTime(10, TimeUnit.SECONDS);
         }
+        logFor(ReLoginRule.class, "await for:" + callbackId + " End");
     }
 
     private static void sendMessage(TelegramBot bot, long groupId, String message, String calbackId) {
