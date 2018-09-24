@@ -37,8 +37,8 @@ public class ReLoginRule implements Rule {
         String callbackId = TRY_TO_RE_LOGIN + e.hashCode();
         statuses.put(callbackId, false);
         sendMessage(bot, groupId, message, callbackId);
-        logFor(ReLoginRule.class, "await for:" + callbackId);
         while (!statuses.get(callbackId)){
+            logFor(ReLoginRule.class, "await 10 seconds for:" + callbackId);
             TimeHelper.waitTime(10, TimeUnit.SECONDS);
         }
         logFor(ReLoginRule.class, "await for:" + callbackId + " End");
