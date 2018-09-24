@@ -78,7 +78,7 @@ public class Review {
         result.projectId = (String) reviewId.get("projectId");
         result.reviewId = (String) reviewId.get("reviewId");
         result.title = (String) review.get("title");
-        result.participants = getParticipants((List<LinkedHashMap>) review.get("participants"));
+        result.participants = getParticipants((List<LinkedHashMap>) review.getOrDefault("participants", new ArrayList<>()));
         result.state = (Integer) review.get("state");
         result.isUnread = (Boolean) review.get("isUnread");
         result.priority = (Integer) review.get("priority");
