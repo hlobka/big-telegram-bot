@@ -73,9 +73,9 @@ public class MainBot {
         //todo: move day to config file
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.WEDNESDAY).start();
         new UpsourceChecker(bot).start();
-        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
+        /*new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
             ReLoginRule.tryToRelogin(bot, e);
-        })).start();
+        })).start();*/
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
