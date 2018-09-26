@@ -71,8 +71,8 @@ public class ReLoginRule implements Rule {
             if (data.contains(TRY_TO_RE_LOGIN)) {
                 statuses.put(data, true);
                 logFor(ReLoginRule.class, "await for:" + data + " approved");
+                bot.execute(new DeleteMessage(message.chat().id(), message.messageId()));
             }
-            bot.execute(new DeleteMessage(message.chat().id(), message.messageId()));
         }
     }
 }
