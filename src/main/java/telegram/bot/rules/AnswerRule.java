@@ -9,9 +9,9 @@ import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.response.SendResponse;
-import helper.file.SharedObject;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
+import joke.JokesProvider;
 import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.ActionItemsHelper;
@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
-import static telegram.bot.data.Common.JOKE_ITEMS;
 
 public class AnswerRule implements Rule {
     private final TelegramBot bot;
@@ -48,11 +47,7 @@ public class AnswerRule implements Rule {
             List<String> strings = Arrays.asList("Аф, Аф!!", "Миаууу", "Пффф...", "ква-ква", "кря-кря", "Квооо-ко-ко-к-ко", "и-О-а-Аа Эи эи эии", "ква-ква", "Ым Ым", "ЫЫ-ЫЫ", "пых-пых", "ту-ту", "пи-пи-пи", "Ня-ня-ня");
             return strings.get((int) Math.round(Math.random() * (strings.size() - 1)));
         });
-        commonRegAnswers.put("бот,?.* анекдот\\??", s -> {
-            ArrayList<String> popularBotJokes = SharedObject.loadList(JOKE_ITEMS);
-            Collections.shuffle(popularBotJokes);
-            return popularBotJokes.get(0);
-        });
+        commonRegAnswers.put("бот,?.* анекдот\\??", s -> new JokesProvider().provideNextUniqueJoke(100));
         answers.put("как дела?", s -> "Да не плохо!\ncам как?");
         answers.put("это кто?", s -> "Я тот кто может тебе многое рассказать. \nЖми сюда /help");
         answers.put("кто это?", s -> "Я тот кто может тебе многое рассказать. \nЖми сюда /help");
@@ -243,24 +238,6 @@ public class AnswerRule implements Rule {
                 i++;
             }
             return result.toString();
-        });
-        Function<Message, String> jokesSaver = message -> {
-            String text = message.text() == null ? "" : message.text();
-            ArrayList<String> popularBotJokes = SharedObject.loadList(JOKE_ITEMS);
-            for (String joke : text.split("#(анекдот|joke) ")) {
-                if (joke.isEmpty()) {
-                    continue;
-                }
-                popularBotJokes.add(joke);
-            }
-            SharedObject.save(JOKE_ITEMS, popularBotJokes);
-            return "Jokes saved";
-        };
-        actions.put("#анекдот", jokesSaver);
-        actions.put("#joke", jokesSaver);
-        actions.put("#clearJokes", message -> {
-            SharedObject.save(JOKE_ITEMS, new ArrayList<String>());
-            return "jokes cleared";
         });
     }
 

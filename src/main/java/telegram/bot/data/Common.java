@@ -15,7 +15,6 @@ public class Common {
     public static final String ETS_USERS_IN_VACATION = "/tmp/ets_users_in_vacation.ser";
     public static final String COMMON_INT_DATA = "/tmp/common.ser";
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
-    public static final String JOKE_ITEMS = "/tmp/jokeItems.ser";
     public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
     public static final String JIRA_CHECKER_STATUSES = "/tmp/jiraCheckerStatuses.ser";
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";
@@ -35,6 +34,7 @@ public class Common {
     public static final long OLLIE_CRAZY_WIZARD_CHAT_ID;
     public static final long OLLIE_FIRE_BURNER_CHAT_ID;
     public static final long TEST_FOR_BOT_GROUP_ID;
+    public static final List<Long> SPAM_CHATS;
     public static final List<Long> BIG_GENERAL_GROUP_IDS;
     public static final String HELP_LINK;
     public static final String HELP_LINKS;
@@ -54,6 +54,8 @@ public class Common {
         TEST_FOR_BOT_GROUP_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.TEST_FOR_BOT_GROUP_ID"));
         List<String> bigGeneralGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_GROUP_IDS").split(","));
         BIG_GENERAL_GROUP_IDS = bigGeneralGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
+        List<String> spamGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat.SPAM_CHATS").split(","));
+        SPAM_CHATS = spamGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
