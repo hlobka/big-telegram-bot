@@ -55,7 +55,7 @@ public class JokesSender extends Thread {
 
     public void check() {
         String joke = new JokesProvider().provideNextUniqueJoke(100);
-        joke = joke.replaceAll("&quot;", "&").replaceAll("<br ?/>", "");
+        joke = BotHelper.clearForHtmlMessages(joke);
         for (Long spamChat : Common.SPAM_CHATS) {
             BotHelper.sendMessage(bot, spamChat, joke, ParseMode.HTML);
         }

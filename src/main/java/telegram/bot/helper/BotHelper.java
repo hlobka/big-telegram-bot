@@ -37,4 +37,10 @@ public class BotHelper {
             .showAlert(true)
         );
     }
+
+    public static String clearForHtmlMessages(String message) {
+        return message
+            .replaceAll("&quot;", "&")
+            .replaceAll("<br ?/>", "");
+    }
 }
