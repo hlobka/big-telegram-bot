@@ -29,9 +29,7 @@ public class JiraChecker extends Thread {
     public JiraChecker(TelegramBot bot, long millis) {
         this.bot = bot;
         this.millis = millis;
-        jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, false, e -> {
-            ReLoginRule.tryToRelogin(bot, e);
-        });
+        jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
         statuses = SharedObject.loadMap(JIRA_CHECKER_STATUSES, new HashMap<>());
     }
 
@@ -65,6 +63,9 @@ public class JiraChecker extends Thread {
         for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
             log("JiraChecker::check:" + projectJiraId);
             Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
+            if (lastCreatedOrPostedIssueId > 0) {
+                jiraHelper.getIssue(getIssueKey(projectJiraId, lastCreatedOrPostedIssueId));
+            }
             sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
             statuses.put(projectJiraId, lastJiraIssueId);
@@ -160,9 +161,9 @@ public class JiraChecker extends Thread {
 
     private void sendMessage(ChatData chatData, String msg) {
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
-            .parseMode(ParseMode.Markdown)
-            .disableWebPagePreview(true)
-            .disableNotification(false);
+                .parseMode(ParseMode.Markdown)
+                .disableWebPagePreview(true)
+                .disableNotification(false);
         bot.execute(request);
     }
 }
