@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
 
 public class UpsourceChecker extends Thread {
     public static final String TITLE = "Господа, ваши содевелоперы, ожидают фидбэка по ревью, Будьте бдительны, Не заставляйте их ждать!!!";
@@ -237,7 +238,8 @@ public class UpsourceChecker extends Thread {
     }
 
     private boolean sleepToNextCheck() throws InterruptedException {
-        Long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
+        long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
+        logFor(this, "sleepToNextCheck: " + minutesUntilTargetHour + " minutes");
         TimeUnit.MINUTES.sleep(minutesUntilTargetHour);
         if (isWeekends()) {
             TimeUnit.MINUTES.sleep(1);
@@ -270,6 +272,7 @@ public class UpsourceChecker extends Thread {
     }
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
+        logFor(this, "check:start: " + chatData.getUpsourceIds().toString());
         log(chatData.getUpsourceIds().toString());
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
@@ -279,7 +282,7 @@ public class UpsourceChecker extends Thread {
             }
         }
         sendMessagesWithViewResult(chatData, messages);
-        log("UpsourceChecker::check:end");
+        logFor(this, "check:end");
     }
 
     private void sendMessagesWithViewResult(ChatData chatData, List<Pair<String, String>> messages) {
