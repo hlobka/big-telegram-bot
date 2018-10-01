@@ -51,9 +51,7 @@ public class UpsourceChecker extends Thread {
     }
 
     private static String getUpsourceViewResult(TelegramBot bot, UpsourceApi upsourceApi, String upsourceId) throws IOException {
-        JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
-            ReLoginRule.tryToRelogin(bot, e);
-        });
+        JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
         return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
     }
     private static String getUpsourceViewResult(JiraHelper jiraHelper, UpsourceApi upsourceApi, String upsourceId) throws IOException {

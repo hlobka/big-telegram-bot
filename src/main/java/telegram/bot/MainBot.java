@@ -72,7 +72,7 @@ public class MainBot {
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         //todo: move day to config file
-        new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.THURSDAY).start();
+        new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.FRIDAY).start();
         new UpsourceChecker(bot).start();
         /*new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
             ReLoginRule.tryToRelogin(bot, e);
