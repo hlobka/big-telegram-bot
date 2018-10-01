@@ -8,10 +8,13 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
+import helper.time.TimeHelper;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.rules.ReLoginRule;
 
+import java.time.DayOfWeek;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -38,9 +41,9 @@ public class JiraChecker extends Thread {
         super.run();
         while (true) {
             try {
-                long millis = isFirstTime ? 1 : this.millis;
-                isFirstTime = false;
-                TimeUnit.MILLISECONDS.sleep(millis);
+                if (!sleepToNextCheck()) {
+                    continue;
+                }
                 check();
             } catch (InterruptedException e) {
                 ConsoleLogger.logErrorFor(JiraChecker.class, e);
@@ -48,6 +51,27 @@ public class JiraChecker extends Thread {
                 return;
             }
         }
+    }
+
+    public boolean sleepToNextCheck() throws InterruptedException {
+        long millis = isFirstTime ? 1 : this.millis;
+        isFirstTime = false;
+        TimeUnit.MILLISECONDS.sleep(millis);
+        if (isWeekends() || isNight()) {
+            TimeUnit.MINUTES.sleep(10);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isNight() {
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        return !(hours > 8 && hours < 20);
+    }
+
+    private boolean isWeekends() {
+        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
     }
 
     public void check() {
