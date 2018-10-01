@@ -13,7 +13,7 @@ public class ConsoleLogger {
     };
 
     public static void logFor(Object o, String message) {
-        log(o.getClass() + "::" + message);
+        logFor(o.getClass(), message);
     }
 
     public static void logFor(Class<?> clazz, String message) {
