@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import http.GetExecuter;
 import telegram.bot.data.Common;
@@ -48,11 +49,11 @@ public class JenkinsChecker extends Thread {
                 TimeUnit.MILLISECONDS.sleep(millis);
                 check();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
                 Thread.interrupted();
                 return;
             } catch (IOException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
                 return;
             }
         }
@@ -212,7 +213,7 @@ public class JenkinsChecker extends Thread {
         try {
             shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
         }
         return shortUrl;
     }

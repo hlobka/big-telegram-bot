@@ -10,6 +10,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.internal.async.*;
 import com.atlassian.util.concurrent.Promise;
+import helper.logger.ConsoleLogger;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import telegram.bot.data.LoginData;
 
@@ -46,10 +47,10 @@ public class JiraHelper {
                 clientHelper.useErrorHandler(errorHandler);
                 return clientHelper;
             } catch (RestClientException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(JiraHelper.class, e);
                 errorHandler.accept(e);
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(JiraHelper.class, e);
                 throw new RuntimeException(e);
             }
         }
@@ -69,7 +70,7 @@ public class JiraHelper {
             JiraRestClient client = getJiraRestClient(uri, loginData.login, loginData.pass);
             return getClient(client, useCache);
         } catch (URISyntaxException ex) {
-            ex.printStackTrace();
+            ConsoleLogger.logErrorFor(JiraHelper.class, ex);
             throw new RuntimeException(ex);
         }
     }
@@ -82,7 +83,7 @@ public class JiraHelper {
             ApacheAsyncHttpClient httpClient1 = (ApacheAsyncHttpClient) FieldUtils.readField(atlassianHttpClientDecorator, "httpClient", true);
             ((HttpClientOptions) FieldUtils.readField(httpClient1, "httpClientOptions", true)).setSocketTimeout(2, TimeUnit.MINUTES);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(JiraHelper.class, e);
         }
         return new AsynchronousJiraRestClient(serverUri, httpClient);
     }

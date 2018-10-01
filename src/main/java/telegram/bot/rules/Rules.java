@@ -1,6 +1,7 @@
 package telegram.bot.rules;
 
 import com.pengrad.telegrambot.model.Update;
+import helper.logger.ConsoleLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class Rules {
                         rule.run(update);
                     }
                 } catch (Exception e){
-                    e.printStackTrace();
+                    ConsoleLogger.logErrorFor(this, e);
                 }
             }
         }

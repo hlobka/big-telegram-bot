@@ -3,6 +3,7 @@ package joke;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import http.GetExecuter;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class JokesProvider {
         try {
             jsonJokesArray = GetExecuter.getAsJsonArray(JokesUrlProvider.getURL(limit));
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
             return jokes;
         }
         jokes = IntStream.range(0, jsonJokesArray.size())

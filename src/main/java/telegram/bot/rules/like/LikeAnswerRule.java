@@ -12,6 +12,7 @@ import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
 import telegram.bot.rules.Rule;
 
@@ -73,7 +74,7 @@ public class LikeAnswerRule implements Rule {
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
         }
     }
 

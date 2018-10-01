@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.rules.ReLoginRule;
@@ -44,7 +45,7 @@ public class JiraChecker extends Thread {
                 TimeUnit.MILLISECONDS.sleep(millis);
                 check();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(JiraChecker.class, e);
                 Thread.interrupted();
                 return;
             }

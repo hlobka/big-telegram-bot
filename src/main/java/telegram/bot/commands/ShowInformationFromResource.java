@@ -2,6 +2,7 @@ package telegram.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import javafx.util.Pair;
 
@@ -27,7 +28,7 @@ public class ShowInformationFromResource implements Command {
         try {
             return new Pair<>(parseMode, Collections.singletonList(StringHelper.getFileAsString(filePathSupplier.apply(update))));
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
         }
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Big bot is a telegram bot to help organize work in team"));
     }

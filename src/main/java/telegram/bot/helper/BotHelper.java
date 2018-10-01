@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
+import telegram.bot.data.Common;
 import telegram.bot.data.TelegramCriteria;
 
 public class BotHelper {
@@ -42,5 +43,9 @@ public class BotHelper {
         return message
             .replaceAll("&quot;", "&")
             .replaceAll("<br ?/>", "");
+    }
+
+    public static void logError(TelegramBot bot, String message) {
+        sendMessage(bot, Common.TEST_FOR_BOT_GROUP_ID, message, ParseMode.Markdown);
     }
 }

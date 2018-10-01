@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.logger.ConsoleLogger;
 import javafx.util.Pair;
 import telegram.bot.checker.UpsourceChecker;
 import telegram.bot.data.Common;
@@ -36,7 +37,7 @@ public class ShowUpsourceReviewCommand implements Command {
         try {
             new UpsourceChecker(bot).check(chatData);
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
         }
     }
 }

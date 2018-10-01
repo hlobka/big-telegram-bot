@@ -13,6 +13,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import javafx.util.Pair;
@@ -183,7 +184,7 @@ public class UpsourceChecker extends Thread {
         try {
             upsourceViewResult = getUpsourceViewResult(bot, upsourceApi, upsourceProjectId);
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(UpsourceChecker.class, e);
             return;
         }
         updateMessage(bot, upsourceProjectId, message, upsourceViewResult);
@@ -200,7 +201,7 @@ public class UpsourceChecker extends Thread {
                 .replyMarkup(getReplyMarkup(upsourceProjectId));
             bot.execute(request);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(UpsourceChecker.class, e);
         }
     }
 
@@ -222,14 +223,14 @@ public class UpsourceChecker extends Thread {
                     continue;
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(this, e);
                 Thread.interrupted();
                 return;
             }
             try {
                 check();
             } catch (IOException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(this, e);
                 return;
             }
         }

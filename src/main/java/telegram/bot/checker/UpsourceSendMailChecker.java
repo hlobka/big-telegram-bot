@@ -4,6 +4,7 @@ import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import helper.mail.MailHelper;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
@@ -79,13 +80,13 @@ public class UpsourceSendMailChecker extends Thread {
                 try {
                     check();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    ConsoleLogger.logErrorFor(this, e);
                 }
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(timeout);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(this, e);
             }
         }
     }

@@ -1,6 +1,7 @@
 package telegram.bot.data;
 
 import com.google.gson.JsonObject;
+import helper.logger.ConsoleLogger;
 import http.GetExecuter;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class GoogleData {
         try {
             encodedQuery = URLEncoder.encode(query, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
             return String.format(QUERY, key, cx, query);
         }
         return String.format(QUERY, key, cx, encodedQuery);
@@ -35,11 +36,11 @@ public class GoogleData {
         try {
             response = GetExecuter.getAsJson(getUrl(query));
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
             try {
                 return "https://www.google.com.ua/search?q=" + URLEncoder.encode(query, "UTF-8");
             } catch (UnsupportedEncodingException e2) {
-                e2.printStackTrace();
+                ConsoleLogger.logErrorFor(this, e);
                 return "Попробуй поискать в гугле https://www.google.com.ua/search?q=" + query;
             }
         }

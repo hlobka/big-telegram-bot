@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.response.BaseResponse;
+import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import javafx.util.Pair;
 import telegram.bot.helper.BotHelper;
@@ -33,7 +34,7 @@ public class ShowAlertFromResource implements Command {
         try {
             text = StringHelper.getFileAsString(filePathSupplier.apply(update));
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
             return new Pair<>(ParseMode.HTML, Collections.singletonList("Fail: " + e.getMessage()));
         }
         BaseResponse response = BotHelper.alert(bot, callbackQuery.id(), text);

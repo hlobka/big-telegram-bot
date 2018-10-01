@@ -2,6 +2,7 @@ package telegram.bot.checker;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.logger.ConsoleLogger;
 import helper.time.TimeHelper;
 import joke.JokesProvider;
 import telegram.bot.data.Common;
@@ -31,7 +32,7 @@ public class JokesSender extends Thread {
                     continue;
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ConsoleLogger.logErrorFor(this, e);
                 Thread.interrupted();
                 return;
             }

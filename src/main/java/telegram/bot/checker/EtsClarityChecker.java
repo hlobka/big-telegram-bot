@@ -14,6 +14,7 @@ import com.pengrad.telegrambot.response.GetChatMemberResponse;
 import com.pengrad.telegrambot.response.GetChatMembersCountResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import telegram.bot.data.Common;
@@ -129,7 +130,7 @@ public class EtsClarityChecker extends Thread {
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(EtsClarityChecker.class, e);
         }
     }
 
@@ -267,7 +268,7 @@ public class EtsClarityChecker extends Thread {
         try {
             message = StringHelper.getFileAsString("ets_clarity.html");
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(EtsClarityChecker.class, e);
         }
         return message;
     }
@@ -278,7 +279,7 @@ public class EtsClarityChecker extends Thread {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
         }
     }
 }

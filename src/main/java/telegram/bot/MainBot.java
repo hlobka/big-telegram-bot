@@ -1,16 +1,17 @@
 package telegram.bot;
 
-import atlassian.jira.JiraHelper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import helper.logger.ConsoleLogger;
 import okhttp3.OkHttpClient;
 import telegram.bot.checker.*;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
+import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.*;
 import telegram.bot.rules.like.LikeAnswerRule;
 
@@ -74,6 +75,9 @@ public class MainBot {
         //todo: move day to config file
         new EtsClarityChecker(bot, TimeUnit.MINUTES.toMillis(58), DayOfWeek.FRIDAY).start();
         new UpsourceChecker(bot).start();
+        ConsoleLogger.additionalErrorLogger = message -> {
+            BotHelper.logError(bot, message);
+        };
         /*new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
             ReLoginRule.tryToRelogin(bot, e);
         })).start();*/

@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import helper.logger.ConsoleLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +117,7 @@ public class SlotMachine implements Rule {
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
         }
     }
 
@@ -136,7 +137,7 @@ public class SlotMachine implements Rule {
                 .disableWebPagePreview(true);
             bot.execute(request);
         } catch (RuntimeException e){
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(this, e);
             sleep(1, TimeUnit.SECONDS);
         }
 

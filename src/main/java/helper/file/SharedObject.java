@@ -1,5 +1,6 @@
 package helper.file;
 
+import helper.logger.ConsoleLogger;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -15,7 +16,7 @@ public class SharedObject {
         try (FileInputStream fileIn = new FileInputStream(url); ObjectInputStream in = new ObjectInputStream(fileIn)) {
             result = (HashMap<K, V>) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(SharedObject.class, e);
             return defaultValue;
         }
         return result;
@@ -40,7 +41,7 @@ public class SharedObject {
         try {
             return new File(url).createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(SharedObject.class, e);
             return true;
         }
     }
@@ -50,7 +51,7 @@ public class SharedObject {
         try (FileOutputStream fileOut = new FileOutputStream(url); ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(SharedObject.class, e);
         } finally {
             System.out.println("Serialized data is saved in " + url);
         }
@@ -62,7 +63,7 @@ public class SharedObject {
                 try {
                     FileUtils.deleteDirectory(new File(url));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    ConsoleLogger.logErrorFor(SharedObject.class, e);
                 }
             }
         }
@@ -90,7 +91,7 @@ public class SharedObject {
         try (FileInputStream fileIn = new FileInputStream(url); ObjectInputStream in = new ObjectInputStream(fileIn)) {
             result = (T) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(SharedObject.class, e);
             return defaultValue;
         }
         return result;

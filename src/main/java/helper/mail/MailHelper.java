@@ -1,5 +1,7 @@
 package helper.mail;
 
+import helper.file.SharedObject;
+import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
 
 import javax.mail.*;
@@ -16,7 +18,7 @@ public class MailHelper {
         try {
             sendMail(to, title, messageContent, type);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            ConsoleLogger.logErrorFor(SharedObject.class, e);
         }
     }
 
