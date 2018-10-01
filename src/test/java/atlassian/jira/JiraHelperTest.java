@@ -129,4 +129,24 @@ public class JiraHelperTest {
         };
         JiraHelper.tryToGetClient(loginData, false, errorHandler, factory);
     }
+
+    @Test
+    public void testHasIssue() {
+        JiraRestClient jiraRestClientMock = Mockito.mock(JiraRestClient.class);
+        IssueRestClient issueRestClientMock = Mockito.mock(IssueRestClient.class);
+        Promise<Issue> issuePromiseMock = Mockito.mock(Promise.class);
+        Issue issueMock = Mockito.mock(Issue.class);
+        Mockito.when(jiraRestClientMock.getIssueClient()).thenReturn(issueRestClientMock);
+        Mockito.when(issueRestClientMock.getIssue("testKey")).thenReturn(issuePromiseMock);
+        Mockito.when(issuePromiseMock.claim()).thenReturn(issueMock);
+
+        JiraHelper helper = JiraHelper.getClient(jiraRestClientMock, false);
+
+        Assertions.assertThat(helper).isNotNull();
+        Assertions.assertThat(helper.hasIssue("testKey")).isTrue();
+
+        Mockito.verify(jiraRestClientMock).getIssueClient();
+        Mockito.verify(issueRestClientMock).getIssue("testKey");
+        Mockito.verify(issuePromiseMock).claim();
+    }
 }
