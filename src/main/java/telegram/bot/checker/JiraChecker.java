@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
 public class JiraChecker extends Thread {
@@ -56,8 +57,10 @@ public class JiraChecker extends Thread {
     public boolean sleepToNextCheck() throws InterruptedException {
         long millis = isFirstTime ? 1 : this.millis;
         isFirstTime = false;
+        logFor(this, "sleepToNextCheck: " + TimeUnit.MILLISECONDS.toMinutes(millis) + " minutes");
         TimeUnit.MILLISECONDS.sleep(millis);
         if (isWeekends() || isNight()) {
+            logFor(this, "sleepToNextCheck: 10 minutes");
             TimeUnit.MINUTES.sleep(10);
             return false;
         }
