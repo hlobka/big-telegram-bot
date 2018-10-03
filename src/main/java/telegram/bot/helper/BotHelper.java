@@ -46,6 +46,6 @@ public class BotHelper {
     }
 
     public static void logError(TelegramBot bot, String message) {
-        sendMessage(bot, Common.TEST_FOR_BOT_GROUP_ID, message, ParseMode.Markdown);
+        sendMessage(bot, Common.TEST_FOR_BOT_GROUP_ID, getCuttedMessage(clearForHtmlMessages(message)), ParseMode.Markdown);
     }
 }
