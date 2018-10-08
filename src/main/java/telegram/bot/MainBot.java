@@ -1,5 +1,6 @@
 package telegram.bot;
 
+import atlassian.jira.JiraHelper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -78,9 +79,9 @@ public class MainBot {
         ConsoleLogger.additionalErrorLogger = message -> {
             BotHelper.logError(bot, message);
         };
-        /*new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
+        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
             ReLoginRule.tryToRelogin(bot, e);
-        })).start();*/
+        })).start();
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
