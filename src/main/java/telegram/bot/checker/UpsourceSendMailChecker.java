@@ -131,14 +131,15 @@ public class UpsourceSendMailChecker extends Thread {
                     continue;
                 }
                 String linkedIssueKey = String.format("<a href=\"%2$s/browse/%1$s\">%1$s</a>", issueKey, Common.JIRA.url);
+                String linkedReviewKey = String.format("<a href=\"%2$s/%3$s/review/%1$s\">%1$s</a>", review.upsourceReview.reviewId(), Common.UPSOURCE.url, upsourceId);
                 if (!to.isEmpty() && createdBy.equals(reviewerName)) {
-                    String message = String.format("<b>[%s]</b> as '%s' Please, Pay Attention;<br>\n", linkedIssueKey, issue.getSummary());
+                    String message = String.format("<b>[%s]</b> as '%s' Please, Pay Attention; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
                     if (!userAbortedMessages.containsKey(to)) {
                         userAbortedMessages.put(to, new ArrayList<>());
                     }
                     userAbortedMessages.get(to).add(message);
                 } else if (!to.isEmpty() && !createdBy.equals(reviewerName)) {
-                    String message = String.format("<b>[%s]</b> as '%s' ready for review;<br>\n", linkedIssueKey, issue.getSummary());
+                    String message = String.format("<b>[%s]</b> as '%s' ready for review; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
                     if (!userMessages.containsKey(to)) {
                         userMessages.put(to, new ArrayList<>());
                     }
