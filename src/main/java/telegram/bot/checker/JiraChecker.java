@@ -1,6 +1,7 @@
 package telegram.bot.checker;
 
 import atlassian.jira.JiraHelper;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.TelegramBot;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logErrorFor;
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
@@ -91,7 +93,12 @@ public class JiraChecker extends Thread {
             log("JiraChecker::check:" + projectJiraId);
             Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
             if (lastCreatedOrPostedIssueId > 0) {
-                jiraHelper.getIssue(getIssueKey(projectJiraId, lastCreatedOrPostedIssueId));
+                try {
+                    jiraHelper.getIssue(getIssueKey(projectJiraId, lastCreatedOrPostedIssueId));
+                } catch (RestClientException e) {
+                    logErrorFor(this, e);
+                    lastCreatedOrPostedIssueId --;
+                }
             }
             sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
