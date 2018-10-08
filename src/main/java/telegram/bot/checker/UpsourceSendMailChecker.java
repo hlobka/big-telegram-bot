@@ -33,6 +33,7 @@ public class UpsourceSendMailChecker extends Thread {
     private static final String JIRA_ASSIGN_ON = "jiraAssignOn";
     private final long timeout;
     private final Supplier<JiraHelper> jiraHelperProvider;
+    private boolean isFirstTime = true;
 
     public UpsourceSendMailChecker(long timeout, Supplier<JiraHelper> jiraHelperProvider) {
         this.timeout = timeout;
@@ -84,6 +85,8 @@ public class UpsourceSendMailChecker extends Thread {
                 }
             }
             try {
+                long timeout = isFirstTime ? 1 : this.timeout;
+                isFirstTime = false;
                 TimeUnit.MILLISECONDS.sleep(timeout);
             } catch (InterruptedException e) {
                 ConsoleLogger.logErrorFor(this, e);
