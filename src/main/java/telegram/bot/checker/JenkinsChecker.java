@@ -213,11 +213,6 @@ public class JenkinsChecker extends Thread {
         try {
             shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
         } catch (IOException e) {
-            try {
-                shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
             ConsoleLogger.logErrorFor(this, e);
         }
         return shortUrl;
