@@ -49,11 +49,11 @@ public class JenkinsChecker extends Thread {
                 TimeUnit.MILLISECONDS.sleep(millis);
                 check();
             } catch (InterruptedException e) {
-                ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
+                ConsoleLogger.logErrorFor(this, e);
                 Thread.interrupted();
                 return;
             } catch (IOException e) {
-                ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
+                ConsoleLogger.logErrorFor(this, e);
                 return;
             }
         }
@@ -213,7 +213,7 @@ public class JenkinsChecker extends Thread {
         try {
             shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
         } catch (IOException e) {
-            ConsoleLogger.logErrorFor(JenkinsChecker.class, e);
+            ConsoleLogger.logErrorFor(this, e);
         }
         return shortUrl;
     }

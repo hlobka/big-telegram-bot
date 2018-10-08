@@ -278,8 +278,8 @@ public class EtsClarityChecker extends Thread {
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
             ConsoleLogger.logErrorFor(this, e);
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -47,7 +47,7 @@ public class JiraChecker extends Thread {
                 }
                 check();
             } catch (InterruptedException e) {
-                ConsoleLogger.logErrorFor(JiraChecker.class, e);
+                ConsoleLogger.logErrorFor(this, e);
                 Thread.interrupted();
                 return;
             }
