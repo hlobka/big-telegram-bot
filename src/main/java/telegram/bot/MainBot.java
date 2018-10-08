@@ -86,9 +86,7 @@ public class MainBot {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
             }
-            new Thread(() -> {
-                rules.handle(updatess);
-            }).start();
+            new Thread(() -> rules.handle(updatess)).start();
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
