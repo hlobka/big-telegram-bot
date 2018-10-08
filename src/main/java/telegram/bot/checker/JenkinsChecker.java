@@ -15,7 +15,7 @@ import telegram.bot.data.chat.ChatData;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,9 +137,9 @@ public class JenkinsChecker extends Thread {
 
     private void sendMessage(ChatData chatData, String msg) {
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
-            .parseMode(ParseMode.HTML)
-            .disableWebPagePreview(true)
-            .disableNotification(false);
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true)
+                .disableNotification(false);
         bot.execute(request);
     }
 
@@ -163,9 +163,9 @@ public class JenkinsChecker extends Thread {
             result = new StringBuilder("Last Changes: \n");
             for (BuildChangeSetItem buildChangeSetItem : changeSet.getItems()) {
                 result
-                    .append("<b>").append(buildChangeSetItem.getAuthor().getFullName()).append("</b>")
-                    .append(":").append(buildChangeSetItem.getMsg())
-                    .append("\n");
+                        .append("<b>").append(buildChangeSetItem.getAuthor().getFullName()).append("</b>")
+                        .append(":").append(buildChangeSetItem.getMsg())
+                        .append("\n");
             }
         }
         return result.toString();
@@ -213,13 +213,18 @@ public class JenkinsChecker extends Thread {
         try {
             shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
         } catch (IOException e) {
+            try {
+                shortUrl = String.format("<a href=\"%s\">%s</a>", getShortUrl(url), urlName);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             ConsoleLogger.logErrorFor(this, e);
         }
         return shortUrl;
     }
 
     private String getShortUrl(String url) throws IOException {
-        String requestToShortUrl = "https://clck.ru/--?json=on&url=" + URLDecoder.decode(url, "UTF-8");
+        String requestToShortUrl = "https://clck.ru/--?json=on&url=" + URLEncoder.encode(url, "UTF-8");
         return GetExecuter.getAsJsonArray(requestToShortUrl).get(0).getAsString();
     }
 
