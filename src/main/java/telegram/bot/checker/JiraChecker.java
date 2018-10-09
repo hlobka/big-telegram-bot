@@ -176,6 +176,8 @@ public class JiraChecker extends Thread {
         result = getMaxIssueIdByStep(projectJiraId, result, 50);
         result = getMaxIssueIdByStep(projectJiraId, result, 10);
         result = getMaxIssueIdByStep(projectJiraId, result, 5);
+        result = getMaxIssueIdByStep(projectJiraId, result, 3);
+        result = getMaxIssueIdByStep(projectJiraId, result, 2);
         result = getMaxIssueIdByStep(projectJiraId, result, 1);
         return result;
     }
