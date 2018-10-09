@@ -7,6 +7,7 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.util.ErrorCollection;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.internal.async.*;
 import com.atlassian.util.concurrent.Promise;
@@ -103,7 +104,12 @@ public class JiraHelper {
         try {
             return getIssue(issueKey, false) != null;
         } catch (RestClientException e) {
-            return false;
+            for (ErrorCollection errorCollection : e.getErrorCollections()) {
+                if(errorCollection.getErrorMessages().contains("Issue Does Not Exist")){
+                    return false;
+                }
+            }
+            return getIssue(issueKey, true) != null;
         }
     }
 
