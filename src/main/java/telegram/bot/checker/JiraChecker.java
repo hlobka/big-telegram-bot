@@ -92,9 +92,6 @@ public class JiraChecker extends Thread {
         for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
             log("JiraChecker::check:" + projectJiraId);
             Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
-            if (lastCreatedOrPostedIssueId > 0) {
-                jiraHelper.getIssue(getIssueKey(projectJiraId, lastCreatedOrPostedIssueId));
-            }
             sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
             statuses.put(projectJiraId, lastJiraIssueId);
