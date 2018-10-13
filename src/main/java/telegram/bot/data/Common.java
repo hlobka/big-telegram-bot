@@ -1,13 +1,9 @@
 package telegram.bot.data;
 
-import com.pengrad.telegrambot.TelegramBot;
 import telegram.bot.data.chat.ChatData;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Common {
@@ -43,19 +39,17 @@ public class Common {
     public static final String JENKINS_JOBS_URL;
 
     static {
-        BIG_GENERAL_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_CHAT_ID"));
-        OLLIE_BALLOONIES_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_BALLOONIES_CHAT_ID"));
-        DEV_TALKS_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.DEV_TALKS_CHAT_ID"));
-        OLLIE_ELECTRIC_TIGER_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_ELECTRIC_TIGER_CHAT_ID"));
-        OLLIE_WILD_FURY_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_WILD_FURY_CHAT_ID"));
-        OLLIE_ACTION_JACK_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_ACTION_JACK_CHAT_ID"));
-        OLLIE_CRAZY_WIZARD_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.OLLIE_CRAZY_WIZARD_CHAT_ID"));
-        OLLIE_FIRE_BURNER_CHAT_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.FIRE_BURNER_CHAT_ID"));
-        TEST_FOR_BOT_GROUP_ID = Long.parseLong(PROPERTIES.getProperty("telegram.chat.TEST_FOR_BOT_GROUP_ID"));
-        List<String> bigGeneralGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat.BIG_GENERAL_GROUP_IDS").split(","));
-        BIG_GENERAL_GROUP_IDS = bigGeneralGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
-        List<String> spamGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat.SPAM_CHATS").split(","));
-        SPAM_CHATS = spamGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
+        BIG_GENERAL_CHAT_ID = getChatId("BIG_GENERAL_CHAT_ID");
+        OLLIE_BALLOONIES_CHAT_ID = getChatId("OLLIE_BALLOONIES_CHAT_ID");
+        DEV_TALKS_CHAT_ID = getChatId("DEV_TALKS_CHAT_ID");
+        OLLIE_ELECTRIC_TIGER_CHAT_ID = getChatId("OLLIE_ELECTRIC_TIGER_CHAT_ID");
+        OLLIE_WILD_FURY_CHAT_ID = getChatId("OLLIE_WILD_FURY_CHAT_ID");
+        OLLIE_ACTION_JACK_CHAT_ID = getChatId("OLLIE_ACTION_JACK_CHAT_ID");
+        OLLIE_CRAZY_WIZARD_CHAT_ID = getChatId("OLLIE_CRAZY_WIZARD_CHAT_ID");
+        OLLIE_FIRE_BURNER_CHAT_ID = getChatId("FIRE_BURNER_CHAT_ID");
+        TEST_FOR_BOT_GROUP_ID = getChatId("TEST_FOR_BOT_GROUP_ID");
+        BIG_GENERAL_GROUP_IDS = getChatIdList("BIG_GENERAL_GROUP_IDS");
+        SPAM_CHATS = getChatIdList("SPAM_CHATS");
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
@@ -63,31 +57,44 @@ public class Common {
         JENKINS_JOBS_URL = PROPERTIES.getProperty("jenkins.jobs.url");
     }
 
+    public static List<Long> getChatIdList(String groupId) {
+        List<String> spamGroupIds = Arrays.asList(PROPERTIES.getProperty("telegram.chat." + groupId).split(","));
+        return spamGroupIds.stream().map(Long::parseLong).collect(Collectors.toList());
+    }
+
+    public static long getChatId(String groupId) {
+        return Long.parseLong(PROPERTIES.getProperty("telegram.chat." + groupId));
+    }
+
     public final String token;
 
 
     private Common() {
         String configFile = "/config.properties";
-        try {
-            PROPERTIES.load(Common.class.getResourceAsStream(configFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not loaded: " + configFile, e);
-        }
+        loadPropertiesFile(configFile, PROPERTIES);
         token = PROPERTIES.getProperty("telegram.bot.token");
     }
 
+    private static void loadPropertiesFile(String filePath, Properties properties) {
+        try {
+            properties.load(Common.class.getResourceAsStream(filePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not loaded: " + filePath, e);
+        }
+    }
+
     public static final List<ChatData> BIG_GENERAL_GROUPS = Arrays.asList(
-        new ChatData(BIG_GENERAL_CHAT_ID, Collections.emptyList(), Collections.emptyList(), Collections.singletonList("BIGIP")),
+            new ChatData(BIG_GENERAL_CHAT_ID, Collections.emptyList(), Collections.emptyList(), Collections.singletonList("BIGIP")),
 //        new ChatData(OLLIE_BALLOONIES_CHAT_ID, Collections.singletonList("ballooniesIXF"), Collections.singletonList("BIXF_NEW"), Collections.emptyList()),
 //        new ChatData(OLLIE_WILD_FURY_CHAT_ID, Collections.singletonList("wildFury"), Collections.singletonList("wildfury"), Collections.singletonList("WILDFU")),
 //        new ChatData(OLLIE_ELECTRIC_TIGER_CHAT_ID, Collections.singletonList("electricTigerIXF"), Collections.singletonList("electrictigerixf"), Collections.emptyList()),
-        new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/, Collections.singletonList("ACTJA")),
-        new ChatData(OLLIE_CRAZY_WIZARD_CHAT_ID, Collections.singletonList("crazyWizard"), Collections.singletonList("crazywizard"), Collections.singletonList("CRZWZRD")),
-        new ChatData(OLLIE_FIRE_BURNER_CHAT_ID, Collections.singletonList("fireBurner"), Collections.singletonList("fireBurner"), Collections.singletonList("FBIXF")),
+            new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/, Collections.singletonList("ACTJA")),
+            new ChatData(OLLIE_CRAZY_WIZARD_CHAT_ID, Collections.singletonList("crazyWizard"), Collections.singletonList("crazywizard"), Collections.singletonList("CRZWZRD")),
+            new ChatData(OLLIE_FIRE_BURNER_CHAT_ID, Collections.singletonList("fireBurner"), Collections.singletonList("fireBurner"), Collections.singletonList("FBIXF")),
 //        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW"), Collections.emptyList()),
-        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("crazyWizard", /*"ballooniesIXF", "electricTigerIXF",*/ "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList()),
-        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("crazyWizard"/*, "ballooniesIXF", "electricTigerIXF", "wildFury"*/, "actionJack", "fireBurner"), Arrays.asList("crazywizard", "actionjack", "fireBurner"), Collections.singletonList("FBIXF"))
+            new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("crazyWizard", /*"ballooniesIXF", "electricTigerIXF",*/ "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList()),
+            new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("crazyWizard"/*, "ballooniesIXF", "electricTigerIXF", "wildFury"*/, "actionJack", "fireBurner"), Arrays.asList("crazywizard", "actionjack", "fireBurner"), Collections.singletonList("FBIXF"))
 //        new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("BIXF_NEW", "wildfury", "actionjack", "electrictigerixf"))
     );
 }
