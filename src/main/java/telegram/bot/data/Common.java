@@ -1,5 +1,6 @@
 package telegram.bot.data;
 
+import external.ExternalJob;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.data.chat.ChatPropertiesReader;
 
@@ -28,12 +29,16 @@ public class Common {
     public static final String BIG_HELP_LINKS;
     public static final String JENKINS_URL;
     public static final String JENKINS_JOBS_URL;
+    public static final List<ExternalJob> EXTERNAL_JOBS;
+
     static {
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
         JENKINS_URL = PROPERTIES.getProperty("jenkins.url");
         JENKINS_JOBS_URL = PROPERTIES.getProperty("jenkins.jobs.url");
+        List<String> jobPropertiesFiles = Arrays.asList(PROPERTIES.getProperty("external.job.property.files").split(","));
+        EXTERNAL_JOBS = jobPropertiesFiles.stream().filter(s -> !s.isEmpty()).map(Common::buildExternalJob).collect(Collectors.toList());
     }
 
     public List<ChatData> getChatForReport() {
@@ -42,6 +47,26 @@ public class Common {
 
     public List<Long> getMainGeneralChatIds() {
         return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsMainGeneral).map(ChatData::getChatId).collect(Collectors.toList());
+    }
+
+    private static ExternalJob buildExternalJob(String filePath) {
+        Properties properties = System.getProperties();
+        loadPropertiesFile("/" + filePath, properties);
+
+        List<String> commandLines = new ArrayList<>();
+        commandLines.add(properties.getProperty("external.job.executable.commandLine"));
+        int i = 0;
+        while (properties.containsKey("external.job.executable.commandLine" + i)){
+            commandLines.add(properties.getProperty("external.job.executable.commandLine" + i));
+            i++;
+        }
+        return new ExternalJob(
+                properties.getProperty("external.job.executable.folder"),
+                properties.getProperty("external.job.executable.file"),
+                commandLines,
+                properties.getProperty("external.job.result.report"),
+                properties.getProperty("external.job.result.telegram.chat.ids.group")
+        );
     }
 
     public final String token;
