@@ -32,7 +32,7 @@ public class ExternalJob {
         traceLogs(System.out, process.getInputStream(), errorConsumer);
         traceLogs(System.err, process.getErrorStream(), errorConsumer);
 
-        process.waitFor(30, TimeUnit.SECONDS);
+        process.waitFor(120, TimeUnit.SECONDS);
     }
 
     private void traceLogs(PrintStream out, InputStream inputStream, Consumer<String> errorConsumer) throws IOException {
