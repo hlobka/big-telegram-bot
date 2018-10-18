@@ -188,6 +188,7 @@ public class AnswerRule implements Rule {
         commonAnswers.put("дура", s -> "Попрошу не выражаться.");
         commonAnswers.put("тупая", s -> "Попрошу не выражаться.");
         commonAnswers.put("тупой", s -> "Попрошу не выражаться.");
+        commonAnswers.put("охуенные", s -> "Лучше некуда!!!.");
         commonRegAnswers.put("^[a-zа-я]{21,}$", s -> "Ну очень длинное слово");
         commonRegAnswers.put("(.*(Ф|ф)а+к,? .*)|(^(Ф|ф)а+к!{0,})", s -> "Попрошу не выражаться.");
         commonRegAnswers.put("^(M|m)erde$", s -> "Pue");
