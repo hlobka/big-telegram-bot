@@ -49,7 +49,8 @@ public class MainBot {
         commandExecutorRule.addCommand("/remove_user_from_ets_list", new RemoveUserFromEtsListByReplyCommand(bot));
         commandExecutorRule.addCommand("/send_on_vacation_by_id", new AddUserByIdOnVacationListCommand(bot));
         commandExecutorRule.addCommand("/send_on_vacation", new SendUserOnVacationByReplyListCommand(bot));
-        commandExecutorRule.addCommand("/return_from_vacation", new RemoveUserByIdOnVacationListCommand(bot));
+        commandExecutorRule.addCommand("/return_from_vacation_by_id", new RemoveUserFromVacationListCommand(bot));
+        commandExecutorRule.addCommand("/return_from_vacation", new RemoveUserFromVacationListCommand(bot));
         commandExecutorRule.addCommand("/configureActionItems", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configure_Action_Items", new ConfigureActionItems(false));
         commandExecutorRule.addCommand("/configureAllActionItems", new ConfigureActionItems(true));
