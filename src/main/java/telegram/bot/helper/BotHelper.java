@@ -41,6 +41,8 @@ public class BotHelper {
 
     public static String clearForHtmlMessages(String message) {
         return message
+            .replaceAll("&laquo;", "«")
+            .replaceAll("&raquo;", "»")
             .replaceAll("&quot;", "&")
             .replaceAll("<br ?/>", "");
     }
