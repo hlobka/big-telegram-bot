@@ -43,7 +43,7 @@ public class BotHelper {
         return message
             .replaceAll("&laquo;", "«")
             .replaceAll("&raquo;", "»")
-            .replaceAll("&quot;", "&")
+            .replaceAll("&quot;", "\"")
             .replaceAll("<br ?/>", "");
     }
 
