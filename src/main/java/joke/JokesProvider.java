@@ -15,9 +15,21 @@ import java.util.stream.IntStream;
 
 public class JokesProvider {
 
+    private final String site;
+    private final String name;
+
+    public JokesProvider(String site, String name) {
+        this.site = site;
+        this.name = name;
+    }
 
     public static void main(String[] args) {
         new JokesProvider().provideNextUniqueJoke(100);
+    }
+
+    public JokesProvider() {
+        this.site = "bash.im";
+        this.name = "bash";
     }
 
     public String provideNextUniqueJoke(int limit) {
@@ -26,7 +38,7 @@ public class JokesProvider {
         Collections.reverse(jokes);
         for (String joke : jokes) {
             int hashCode = joke.hashCode();
-            if(!usedJokes.contains(hashCode)){
+            if (!usedJokes.contains(hashCode)) {
                 usedJokes.add(hashCode);
                 saveUsedJokes(usedJokes);
                 return joke;
@@ -39,7 +51,7 @@ public class JokesProvider {
         List<String> jokes = new ArrayList<>();
         JsonArray jsonJokesArray;
         try {
-            jsonJokesArray = GetExecuter.getAsJsonArray(JokesUrlProvider.getURL(limit));
+            jsonJokesArray = GetExecuter.getAsJsonArray(JokesUrlProvider.getURL(site, name, limit));
         } catch (IOException e) {
             ConsoleLogger.logErrorFor(this, e);
             return jokes;
