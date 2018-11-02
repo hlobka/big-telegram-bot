@@ -71,7 +71,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         commandExecutorRule.addCommand("/show_reviews", new ShowUpsourceReviewCommand(bot));
         rules.registerRule(commandExecutorRule);
-        new JokesSender(bot).start();
+//        new JokesSender(bot).start();
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
         //todo: move day to config file
