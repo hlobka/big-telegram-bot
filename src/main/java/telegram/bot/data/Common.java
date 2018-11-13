@@ -29,6 +29,7 @@ public class Common {
     public static final long OLLIE_ACTION_JACK_CHAT_ID;
     public static final long OLLIE_CRAZY_WIZARD_CHAT_ID;
     public static final long OLLIE_FIRE_BURNER_CHAT_ID;
+    public static final long OLLIE_TRIPLE_RED_7_CHAT_ID;
     public static final long TEST_FOR_BOT_GROUP_ID;
     public static final List<Long> SPAM_CHATS;
     public static final List<Long> BIG_GENERAL_GROUP_IDS;
@@ -47,6 +48,7 @@ public class Common {
         OLLIE_ACTION_JACK_CHAT_ID = getChatId("OLLIE_ACTION_JACK_CHAT_ID");
         OLLIE_CRAZY_WIZARD_CHAT_ID = getChatId("OLLIE_CRAZY_WIZARD_CHAT_ID");
         OLLIE_FIRE_BURNER_CHAT_ID = getChatId("FIRE_BURNER_CHAT_ID");
+        OLLIE_TRIPLE_RED_7_CHAT_ID = getChatId("RED_7_CHAT_ID");
         TEST_FOR_BOT_GROUP_ID = getChatId("TEST_FOR_BOT_GROUP_ID");
         BIG_GENERAL_GROUP_IDS = getChatIdList("BIG_GENERAL_GROUP_IDS");
         SPAM_CHATS = getChatIdList("SPAM_CHATS");
@@ -92,6 +94,7 @@ public class Common {
             new ChatData(OLLIE_ACTION_JACK_CHAT_ID, Collections.singletonList("actionJack"), Collections.emptyList()/*Collections.singletonList("actionjack")*/, Collections.singletonList("ACTJA")),
             new ChatData(OLLIE_CRAZY_WIZARD_CHAT_ID, Collections.singletonList("crazyWizard"), Collections.singletonList("crazywizard"), Collections.singletonList("CRZWZRD")),
             new ChatData(OLLIE_FIRE_BURNER_CHAT_ID, Collections.singletonList("fireBurner"), Collections.singletonList("fireBurner"), Collections.singletonList("FBIXF")),
+            new ChatData(OLLIE_TRIPLE_RED_7_CHAT_ID, Collections.singletonList("tripleRedHotSevensIXF"), Collections.emptyList(), Collections.singletonList("TRH")),
 //        new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("ballooniesIXF", "electricTigerIXF", "wildFury", "actionJack"), Arrays.asList("wildfury", "actionjack", "electrictigerixf", "BIXF_NEW"), Collections.emptyList()),
             new ChatData(DEV_TALKS_CHAT_ID, Arrays.asList("crazyWizard", /*"ballooniesIXF", "electricTigerIXF",*/ "wildFury", "actionJack"), Collections.emptyList(), Collections.emptyList()),
             new ChatData(TEST_FOR_BOT_GROUP_ID, Arrays.asList("crazyWizard"/*, "ballooniesIXF", "electricTigerIXF", "wildFury"*/, "actionJack", "fireBurner"), Arrays.asList("crazywizard", "actionjack", "fireBurner"), Collections.singletonList("FBIXF"))
