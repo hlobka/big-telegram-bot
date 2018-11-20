@@ -89,6 +89,26 @@ public class Common {
         );
     }
 
+    private static ExternalJob buildExternalJob(String filePath) {
+        Properties properties = System.getProperties();
+        loadPropertiesFile("/" + filePath, properties);
+
+        List<String> commandLines = new ArrayList<>();
+        commandLines.add(properties.getProperty("external.job.executable.commandLine"));
+        int i = 0;
+        while (properties.containsKey("external.job.executable.commandLine" + i)){
+            commandLines.add(properties.getProperty("external.job.executable.commandLine" + i));
+            i++;
+        }
+        return new ExternalJob(
+                properties.getProperty("external.job.executable.folder"),
+                properties.getProperty("external.job.executable.file"),
+                commandLines,
+                properties.getProperty("external.job.result.report"),
+                properties.getProperty("external.job.result.telegram.chat.ids.group")
+        );
+    }
+
     public final String token;
 
 
