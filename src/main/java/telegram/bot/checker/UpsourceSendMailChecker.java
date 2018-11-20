@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUPS;
 
 public class UpsourceSendMailChecker extends Thread {
@@ -110,7 +110,7 @@ public class UpsourceSendMailChecker extends Thread {
     }
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
-        log("UpsourceReadyForReviewChecker::check:" + chatData.getUpsourceIds().toString());
+        logFor(this, String.format("check:%s[%s]", chatData.getChatName(), chatData.getUpsourceIds().toString()));
         HashMap<String, String> jiraAssignOn = SharedObject.load(this, JIRA_ASSIGN_ON, new HashMap<>());
         JiraHelper jiraHelper = jiraHelperProvider.get();
         Map<String, List<String>> userMessages = new HashMap<>();
@@ -153,7 +153,7 @@ public class UpsourceSendMailChecker extends Thread {
             String abortedTitle = "[" + upsourceId + "] Possible review was back to you";
             sendMail(userAbortedMessages, title, abortedTitle);
         }
-        log("UpsourceReadyForReviewChecker::check:end");
+        logFor(this, "check:end");
 
     }
 

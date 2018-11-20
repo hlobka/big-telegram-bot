@@ -1,7 +1,6 @@
 package telegram.bot.checker;
 
 import atlassian.jira.JiraHelper;
-import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.TelegramBot;
@@ -19,8 +18,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static helper.logger.ConsoleLogger.log;
-import static helper.logger.ConsoleLogger.logErrorFor;
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
@@ -80,24 +77,24 @@ public class JiraChecker extends Thread {
     }
 
     public void check() {
-        log("JiraChecker::check:start");
+        logFor(this, "check:start");
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
             check(chatData);
         }
-        log("JiraChecker::check:end");
+        logFor(this, "check:end");
 
     }
 
     public void check(ChatData chatData) {
         for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
-            log("JiraChecker::check:" + projectJiraId);
+            logFor(this, String.format("check:%s[%s]", chatData.getChatId(), projectJiraId));
             Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
             sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
             statuses.put(projectJiraId, lastJiraIssueId);
             SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
-            log("JiraChecker::check:posted" + projectJiraId + ": issues id from: " + lastCreatedOrPostedIssueId + " to: " + lastJiraIssueId);
-            log("JiraChecker::check:" + projectJiraId + ":end");
+            logFor(this, String.format("check:posted %s: issues id from: %d to: %d", projectJiraId, lastCreatedOrPostedIssueId, lastJiraIssueId));
+            logFor(this, String.format("check:%s[%s]:end", chatData.getChatId(), projectJiraId));
         }
     }
 

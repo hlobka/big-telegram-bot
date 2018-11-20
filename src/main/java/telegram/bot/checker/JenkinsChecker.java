@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JENKINS_STATUSES;
 
 public class JenkinsChecker extends Thread {
@@ -60,7 +60,7 @@ public class JenkinsChecker extends Thread {
     }
 
     private void check() throws IOException {
-        log("JenkinsChecker::check:start");
+        logFor(this, "check:start");
         Map<String, Job> jobs = jenkins.getJobs();
         Map<String, Job> internalJobs = new HashMap<>();
         List<String> jenkinsIds = new ArrayList<>();
@@ -84,7 +84,7 @@ public class JenkinsChecker extends Thread {
             }
         }
         checkJobsStatus(internalJobs);
-        log("JenkinsChecker::check:end");
+        logFor(this, "check:end");
     }
 
     private void checkJobsStatus(Map<String, Job> jobs) throws IOException {
@@ -94,7 +94,7 @@ public class JenkinsChecker extends Thread {
                     String key = entry.getKey();
                     Job job = entry.getValue();
                     if (key.contains(jenkinsId)) {
-                        log("JenkinsChecker::checkJobsStatus:" + key + " for chat: " + chatData.getChatName() + "[" + chatData.getChatId() + "]");
+                        logFor(this, "checkJobsStatus:" + key + " for chat: " + chatData.getChatName() + "[" + chatData.getChatId() + "]");
                         checkJobStatus(chatData, key, job);
                     }
                 }
@@ -129,7 +129,7 @@ public class JenkinsChecker extends Thread {
             }
         }
         String msg = getBuildMessage(key, job, lastBuildDetails, allBuilds);
-        log(msg);
+        logFor(this, msg);
         sendMessage(chatData, msg);
         statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
         SharedObject.save(JENKINS_STATUSES, statuses);

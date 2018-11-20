@@ -24,7 +24,7 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static helper.logger.ConsoleLogger.log;
+import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.COMMON_INT_DATA;
 //todo: remake without static fields
 public class EtsClarityChecker extends Thread {
@@ -48,7 +48,7 @@ public class EtsClarityChecker extends Thread {
 
     @Override
     public void run() {
-        log("EtsClarityChecker::start");
+        logFor(this, "start");
         super.run();
         while (true) {
             long timeout = TimeUnit.MINUTES.toMillis(getTimeout());
@@ -275,7 +275,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     private void sleep(long timeout, TimeUnit timeUnit) {
-        log("EtsClarityChecker::will be wait: " + timeout + " " + timeUnit.name());
+        logFor(this, "will be wait: " + timeout + " " + timeUnit.name());
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {

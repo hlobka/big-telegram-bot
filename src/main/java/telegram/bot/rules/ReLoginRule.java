@@ -11,7 +11,6 @@ import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.time.TimeHelper;
-import telegram.bot.commands.ResolveEts;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
@@ -20,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static helper.logger.ConsoleLogger.log;
 import static helper.logger.ConsoleLogger.logFor;
 
 public class ReLoginRule implements Rule {

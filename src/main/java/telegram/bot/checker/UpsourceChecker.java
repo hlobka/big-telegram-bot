@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static helper.logger.ConsoleLogger.log;
 import static helper.logger.ConsoleLogger.logFor;
 
 public class UpsourceChecker extends Thread {
@@ -272,7 +271,6 @@ public class UpsourceChecker extends Thread {
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
         logFor(this, String.format("check:start: %s(%s)", chatData.getChatName(), chatData.getUpsourceIds().toString()));
-        log(chatData.getUpsourceIds().toString());
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
             String message = getUpsourceViewResult(bot, upsourceApi, upsourceId);
