@@ -36,7 +36,7 @@ public class AddUserByIdOnVacationListCommand implements Command {
                     usersInVacation.add(user);
                 }
                 EtsHelper.saveUsersWhichInVacation(usersInVacation);
-                EtsClarityChecker.updateLastMessage(bot);
+                EtsClarityChecker.updateLastMessage(bot, update.message().chat().id());
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", user.firstName())));
             }
         }

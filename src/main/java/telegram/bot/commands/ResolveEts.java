@@ -29,19 +29,19 @@ public class ResolveEts implements Command {
         ArrayList<String> strings = new ArrayList<>();
         User user = message.from();
         strings.add("Ets resolved for: " + user.firstName());
-        resolveUser(user, bot);
+        resolveUser(user, bot, message.chat().id());
         return new Pair<>(ParseMode.HTML, strings);
     }
 
-    public static void returnUserFromVocation(User user, TelegramBot bot) {
-        updateUserInVocationList(user, bot, false);
+    private static void returnUserFromVocation(User user, TelegramBot bot, long chatId) {
+        updateUserInVocationList(user, bot, false, chatId);
     }
 
-    public static void sendUserOnVocation(User user, TelegramBot bot) {
-        updateUserInVocationList(user, bot, true);
+    public static void sendUserOnVocation(User user, TelegramBot bot, long chatId) {
+        updateUserInVocationList(user, bot, true, chatId);
     }
 
-    private static void updateUserInVocationList(User user, TelegramBot bot, boolean addUserInVocationList) {
+    private static void updateUserInVocationList(User user, TelegramBot bot, boolean addUserInVocationList, long chatId) {
         HashMap<User, Boolean> users = EtsHelper.getUsers();
         for (Map.Entry<User, Boolean> entry : users.entrySet()) {
             User entryUser = entry.getKey();
@@ -52,9 +52,12 @@ public class ResolveEts implements Command {
                         usersInVacation.add(user);
                         EtsHelper.saveUsersWhichInVacation(usersInVacation);
                     }
-                    EtsClarityChecker.updateLastMessage(bot);
+                    EtsClarityChecker.updateLastMessage(bot, chatId);
                     String message = String.format("user %s sent on vacation", user.firstName());
-                    BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, message, ParseMode.Markdown);
+                    for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
+                        BotHelper.sendMessage(bot, mainGeneralChatId, message, ParseMode.Markdown);
+                    }
+
                 } else {
                     Boolean isContains = false;
                     while (usersInVacation.contains(user)) {
@@ -63,9 +66,12 @@ public class ResolveEts implements Command {
                     }
                     if (isContains) {
                         EtsHelper.saveUsersWhichInVacation(usersInVacation);
-                        EtsClarityChecker.updateLastMessage(bot);
+                        EtsClarityChecker.updateLastMessage(bot, chatId);
                         String message = String.format("user %s returns from vacation", user.firstName());
-                        BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, message, ParseMode.Markdown);
+                        for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
+                            BotHelper.sendMessage(bot, mainGeneralChatId, message, ParseMode.Markdown);
+                        }
+
                     }
                 }
 
@@ -73,7 +79,7 @@ public class ResolveEts implements Command {
         }
     }
 
-    public static void resolveUser(User user, TelegramBot bot) {
+    public static void resolveUser(User user, TelegramBot bot, long chatId) {
         HashMap<User, Boolean> users = EtsHelper.getUsers();
         ArrayList<User> usersToRemove = new ArrayList<>();
         for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
@@ -86,11 +92,13 @@ public class ResolveEts implements Command {
         }
         users.put(user, true);
         EtsHelper.clearFromDuplicates(users);
-        returnUserFromVocation(user, bot);
+        returnUserFromVocation(user, bot, chatId);
         EtsHelper.saveUsers(users);
-        EtsClarityChecker.updateLastMessage(bot);
-        if (EtsClarityChecker.checkIsResolvedToDay(bot)) {
-            BotHelper.sendMessage(bot, Common.BIG_GENERAL_CHAT_ID, "EtsClarity resolved today!!!", ParseMode.Markdown);
+        EtsClarityChecker.updateLastMessage(bot, chatId);
+        if (EtsClarityChecker.checkIsResolvedToDay(bot, chatId)) {
+            for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
+                BotHelper.sendMessage(bot, mainGeneralChatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
+            }
         }
     }
 }

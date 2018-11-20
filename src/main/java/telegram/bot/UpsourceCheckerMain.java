@@ -15,7 +15,7 @@ public class UpsourceCheckerMain {
 
     public static void main(String[] args) throws IOException {
         TelegramBot bot = new TelegramBot(Common.data.token);
-        ChatData chatData = new ChatData(Common.TEST_FOR_BOT_GROUP_ID, null, Collections.singletonList("wildfury"), Collections.emptyList());
+        ChatData chatData = Common.data.getChatData("REPORT");
         new UpsourceChecker(bot).check(chatData);
     }
 }

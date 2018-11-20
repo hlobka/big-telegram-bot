@@ -12,7 +12,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import joke.JokesProvider;
-import telegram.bot.checker.EtsClarityChecker;
 import telegram.bot.data.Common;
 import telegram.bot.helper.ActionItemsHelper;
 import telegram.bot.helper.BotHelper;
@@ -23,8 +22,6 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
-import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 
 public class AnswerRule implements Rule {
     private final TelegramBot bot;
@@ -176,8 +173,6 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что у %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
-        commonRegAnswers.put("\\*+ ?ets ?\\*+", MessageSupplier.getAs(ParseMode.HTML, s -> EtsClarityChecker.getMessage(bot)));
-        commonRegAnswers.put("\\*+ ?clarity ?\\*+", s -> "Все просто, заходим и заполняем\nhttps://clarity.gtk.gtech.com:8043/niku/nu#action:npt.overview");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкаться.");
         commonAnswers.put("ебат", s -> "Попрошу не матюкаться.");
@@ -285,7 +280,7 @@ public class AnswerRule implements Rule {
                 bot.execute(request);
             }
         }
-        if (!BIG_GENERAL_GROUP_IDS.contains(chatId)) {
+        if (!Common.data.isGeneralChat(chatId)) {
             for (Map.Entry<String, Function<String, String>> entry : answers.entrySet()) {
                 if (entry.getKey().isEmpty()) {
                     break;

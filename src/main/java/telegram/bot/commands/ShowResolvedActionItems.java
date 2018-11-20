@@ -4,14 +4,13 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
+import telegram.bot.data.Common;
 import telegram.bot.dto.ActionItemDto;
 import telegram.bot.helper.ActionItemsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 
 public class ShowResolvedActionItems implements Command {
 
@@ -29,13 +28,13 @@ public class ShowResolvedActionItems implements Command {
         messages.add(s.toString());
         Message message = update.message() == null ? update.editedMessage() : update.message();
         Long chatId = message.chat().id();
-        boolean isBigGroup = BIG_GENERAL_GROUP_IDS.contains(chatId);
+        boolean isBigGroup = Common.data.isGeneralChat(chatId);
         for (Map.Entry<Integer, ActionItemDto> entry : actionItems.entrySet()) {
             ActionItemDto actionItemDto = entry.getValue();
             if (!showAll) {
                 long actionItemChatId = actionItemDto.getChatId();
                 if(isBigGroup){
-                    if(!BIG_GENERAL_GROUP_IDS.contains(actionItemChatId)){
+                    if(!Common.data.isGeneralChat(actionItemChatId)){
                         continue;
                     }
                 } else if (actionItemChatId != chatId) {

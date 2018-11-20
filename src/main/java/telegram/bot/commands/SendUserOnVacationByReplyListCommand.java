@@ -39,7 +39,7 @@ public class SendUserOnVacationByReplyListCommand implements Command {
             EtsHelper.clearFromDuplicates(users);
             EtsHelper.saveUsersWhichInVacation(usersInVacation);
             EtsHelper.saveUsers(users);
-            EtsClarityChecker.updateLastMessage(bot);
+            EtsClarityChecker.updateLastMessage(bot, replyToMessage.chat().id());
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", replyUser.firstName())));
         }
         return new Pair<>(ParseMode.Markdown, Collections.singletonList("Please, use this command with reply from who would go to vacation"));

@@ -13,6 +13,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import helper.time.TimeHelper;
 import telegram.bot.commands.ResolveEts;
 import telegram.bot.data.Common;
+import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 
 import java.util.HashMap;
@@ -25,19 +26,20 @@ import static helper.logger.ConsoleLogger.logFor;
 public class ReLoginRule implements Rule {
     public static final String TRY_TO_RE_LOGIN = "try_to_re_login_";
     private TelegramBot bot;
-    private static Map<String,Boolean> statuses = new HashMap<>();
+    private static Map<String, Boolean> statuses = new HashMap<>();
 
     public ReLoginRule(TelegramBot bot) {
         this.bot = bot;
     }
 
     public static void tryToRelogin(TelegramBot bot, Throwable e) {
-        String message = "Possible Jira Errors: ```" + e.getClass().getSimpleName()+"```";
-        long groupId = Common.TEST_FOR_BOT_GROUP_ID;
+        String message = "Possible Jira Errors: ```" + e.getClass().getSimpleName() + "```";
         String callbackId = TRY_TO_RE_LOGIN + e.hashCode();
         statuses.put(callbackId, false);
-        sendMessage(bot, groupId, message, callbackId);
-        while (!statuses.get(callbackId)){
+        for (ChatData chatData : Common.data.getChatForReport()) {
+            sendMessage(bot, chatData.getChatId(), message, callbackId);
+        }
+        while (!statuses.get(callbackId)) {
             logFor(ReLoginRule.class, "await 10 seconds for:" + callbackId);
             TimeHelper.waitTime(10, TimeUnit.SECONDS);
         }

@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import telegram.bot.data.Common;
 import telegram.bot.data.TelegramCriteria;
+import telegram.bot.data.chat.ChatData;
 
 public class BotHelper {
     public static SendResponse sendMessage(TelegramBot bot, long chatId, String message, ParseMode parseMode){
@@ -48,6 +49,9 @@ public class BotHelper {
     }
 
     public static void logError(TelegramBot bot, String message) {
-        sendMessage(bot, Common.TEST_FOR_BOT_GROUP_ID, getCuttedMessage(clearForHtmlMessages(message)), ParseMode.Markdown);
+        for (ChatData chatData : Common.data.getChatForReport()) {
+            sendMessage(bot, chatData.getChatId(), getCuttedMessage(clearForHtmlMessages(message)), ParseMode.Markdown);
+        }
+
     }
 }

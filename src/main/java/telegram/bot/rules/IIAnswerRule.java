@@ -25,7 +25,7 @@ public class IIAnswerRule implements Rule {
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         String text = message.text() == null ? "" : message.text();
-        if (message.chat().id() == Common.TEST_FOR_BOT_GROUP_ID && !message.from().isBot()) {
+        if (message.chat().id() == Common.data.getChatForReport().get(0).getChatId() && !message.from().isBot()) {
             if(true) return;
             Keyboard replyKeyboardMarkup = new ReplyKeyboardMarkup(
                 new String[]{"first row button1", "first row button2"},

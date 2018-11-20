@@ -6,6 +6,7 @@ import helper.logger.ConsoleLogger;
 import helper.time.TimeHelper;
 import joke.JokesProvider;
 import telegram.bot.data.Common;
+import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 
 import java.util.concurrent.TimeUnit;
@@ -57,8 +58,8 @@ public class JokesSender extends Thread {
     public void check() {
         String joke = new JokesProvider("anekdot.ru", "new%20anekdot").provideNextUniqueJoke(100);
         joke = BotHelper.clearForHtmlMessages(joke);
-        for (Long spamChat : Common.SPAM_CHATS) {
-            BotHelper.sendMessage(bot, spamChat, joke, ParseMode.HTML);
+        for (ChatData spamChat : Common.data.getChatsFotSpam()) {
+            BotHelper.sendMessage(bot, spamChat.getChatId(), joke, ParseMode.HTML);
         }
     }
 

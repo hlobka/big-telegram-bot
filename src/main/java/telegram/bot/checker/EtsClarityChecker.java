@@ -17,7 +17,6 @@ import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
-import telegram.bot.data.Common;
 import telegram.bot.helper.EtsHelper;
 
 import java.io.IOException;
@@ -27,22 +26,24 @@ import java.util.concurrent.TimeUnit;
 
 import static helper.logger.ConsoleLogger.log;
 import static telegram.bot.data.Common.COMMON_INT_DATA;
-
+//todo: remake without static fields
 public class EtsClarityChecker extends Thread {
     private TelegramBot bot;
+    private final long chatId;
     private long millis;
     private static boolean isResolvedToday = false;
     private static Integer LAST_MESSAGE_ID = -1;
     private static long LAST_MESSAGE_CHAT_ID = -1;
     private static DayOfWeek DAY_TO_CHECK;
 
-    public EtsClarityChecker(TelegramBot bot, long millis, DayOfWeek dayToCheck) {
+    public EtsClarityChecker(TelegramBot bot, long chatId, long millis, DayOfWeek dayToCheck) {
         this.bot = bot;
+        this.chatId = chatId;
         this.millis = millis;
         EtsClarityChecker.DAY_TO_CHECK = dayToCheck;
         HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
-        LAST_MESSAGE_CHAT_ID = commonData.getOrDefault("LAST_MESSAGE_CHAT_ID", 2472).longValue();
-        LAST_MESSAGE_ID = commonData.getOrDefault("LAST_MESSAGE_ID", Common.BIG_GENERAL_CHAT_ID).intValue();
+        LAST_MESSAGE_CHAT_ID = commonData.getOrDefault("LAST_MESSAGE_CHAT_ID", chatId).longValue();
+        LAST_MESSAGE_ID = commonData.getOrDefault("LAST_MESSAGE_ID", 2472).intValue();
     }
 
     @Override
@@ -63,8 +64,8 @@ public class EtsClarityChecker extends Thread {
     private void check() {
         System.out.println("EtsClarityChecker::check");
         if (TimeHelper.checkToDayIs(DAY_TO_CHECK)) {
-            checkIsAllUsersPresentsOnThisChat(bot);
-            if (checkIsResolvedToDay(bot)) {
+            checkIsAllUsersPresentsOnThisChat(bot, chatId);
+            if (checkIsResolvedToDay(bot, chatId)) {
                 if(!isResolvedToday){
                     isResolvedToday = true;
 
@@ -79,7 +80,7 @@ public class EtsClarityChecker extends Thread {
                 if (timeout > 0) {
                     sleep(timeout, TimeUnit.MINUTES);
                 }
-                sendNotification(Common.BIG_GENERAL_CHAT_ID);
+                sendNotification(chatId);
                 System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
             }
         } else {
@@ -94,7 +95,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     private void sendNotification(long chatId) {
-        String message = getMessage(bot);
+        String message = getMessage(bot, chatId);
         SendMessage request = new SendMessage(chatId, message)
             .parseMode(ParseMode.HTML)
             .disableWebPagePreview(true)
@@ -112,7 +113,7 @@ public class EtsClarityChecker extends Thread {
         SharedObject.save(COMMON_INT_DATA, commonData);
     }
 
-    public static void updateLastMessage(TelegramBot bot) {
+    public static void updateLastMessage(TelegramBot bot, long chatId) {
         if (LAST_MESSAGE_ID == -1 || LAST_MESSAGE_CHAT_ID == -1) {
             System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
             return;
@@ -121,7 +122,7 @@ public class EtsClarityChecker extends Thread {
             unResolveAll();
         }
         try {
-            EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot))
+            EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot, chatId))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
                 .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
@@ -149,16 +150,16 @@ public class EtsClarityChecker extends Thread {
         SharedObject.save(COMMON_INT_DATA, commonData);
     }
 
-    public static String getMessage(TelegramBot bot) {
+    public static String getMessage(TelegramBot bot, long chatId) {
         String message = getMessageFromFile();
-        String users = getUsers(bot);
+        String users = getUsers(bot, chatId);
         message = message + users;
         return message;
     }
 
-    private static String getUsers(TelegramBot bot) {
+    private static String getUsers(TelegramBot bot, long chatId) {
         HashMap<User, Boolean> users = EtsHelper.getUsers();
-        GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
+        GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(chatId));
         int count = response.count();
         StringBuilder resolvedUsers = new StringBuilder();
         int resolvedCount = 0;
@@ -186,7 +187,7 @@ public class EtsClarityChecker extends Thread {
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
     }
 
-    public static void checkIsAllUsersPresentsOnThisChat(TelegramBot bot) {
+    public static void checkIsAllUsersPresentsOnThisChat(TelegramBot bot, long chatId) {
         HashMap<User, Boolean> users = EtsHelper.getUsers();
         ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
         List<Integer> allUsersId = new ArrayList<>();
@@ -204,7 +205,7 @@ public class EtsClarityChecker extends Thread {
             }
         }
         for (Integer userId : allUsersId) {
-            GetChatMemberResponse response = bot.execute(new GetChatMember(Common.BIG_GENERAL_CHAT_ID, userId));
+            GetChatMemberResponse response = bot.execute(new GetChatMember(chatId, userId));
             ChatMember chatMember = response.chatMember();
             if(chatMember ==null || chatMember.status().equals(ChatMember.Status.left)) {
                 for (User user : users.keySet()) {
@@ -241,7 +242,7 @@ public class EtsClarityChecker extends Thread {
         }
     }
 
-    public static Boolean checkIsResolvedToDay(TelegramBot bot) {
+    public static Boolean checkIsResolvedToDay(TelegramBot bot, long chatId) {
         int resolvedCount = 0;
         HashMap<User, Boolean> users = EtsHelper.getUsers();
         ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
@@ -257,7 +258,7 @@ public class EtsClarityChecker extends Thread {
                 }
             }
         }
-        GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(Common.BIG_GENERAL_CHAT_ID));
+        GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(chatId));
         int count = response.count();
         int expectedCount = count - 1 - usersInVacation.size();
         return TimeHelper.checkToDayIs(DAY_TO_CHECK) && resolvedCount >= expectedCount;

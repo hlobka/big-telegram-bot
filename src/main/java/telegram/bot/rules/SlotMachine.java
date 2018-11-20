@@ -9,13 +9,12 @@ import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.logger.ConsoleLogger;
+import telegram.bot.data.Common;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import static telegram.bot.data.Common.BIG_GENERAL_GROUP_IDS;
 
 public class SlotMachine implements Rule {
     private TelegramBot bot;
@@ -48,7 +47,7 @@ public class SlotMachine implements Rule {
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         Long chatId = message.chat().id();
-        if (BIG_GENERAL_GROUP_IDS.contains(chatId)) {
+        if (!Common.data.isSpamChat(chatId)) {
             return;
         }
         if (message.text().contains("спин")) {

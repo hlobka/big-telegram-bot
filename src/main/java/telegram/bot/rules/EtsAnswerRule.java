@@ -22,10 +22,11 @@ public class EtsAnswerRule implements Rule {
         boolean isDataPresent = callbackQuery.from() != null && callbackQuery.data() != null;
         if (isDataPresent){
             String data = callbackQuery.data();
+            Long chatId = callbackQuery.message().chat().id();
             if(data.equals("ets_resolved")){
-                ResolveEts.resolveUser(callbackQuery.from(), bot);
+                ResolveEts.resolveUser(callbackQuery.from(), bot, chatId);
             } else if(data.equals("ets_on_vacation")){
-                ResolveEts.sendUserOnVocation(callbackQuery.from(), bot);
+                ResolveEts.sendUserOnVocation(callbackQuery.from(), bot, chatId);
             }
         }
     }

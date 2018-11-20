@@ -34,7 +34,7 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
             usersInVacation.remove(replyUser);
             EtsHelper.saveUsersWhichInVacation(usersInVacation);
             EtsHelper.saveUsers(users);
-            EtsClarityChecker.updateLastMessage(bot);
+            EtsClarityChecker.updateLastMessage(bot, update.message().chat().id());
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s was removed from ETS list", replyUser.firstName())));
         }
         return new Pair<>(ParseMode.Markdown, Collections.singletonList("Please, use this command with reply from who would leave from ETS list"));

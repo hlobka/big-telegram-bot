@@ -23,8 +23,9 @@ public class RemoveUserFromVacationListCommand implements Command {
     public Pair<ParseMode, List<String>> run(Update update, String values) {
         Message replyToMessage = update.message().replyToMessage();
         if(replyToMessage != null) {
+            Long chatId = replyToMessage.chat().id();
             User user = replyToMessage.from();
-            returnUserFromVacation(user);
+            returnUserFromVacation(user, chatId);
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s returns from vacation", user.firstName())));
         }
         HashMap<User, Boolean> users = EtsHelper.getUsers();
@@ -37,7 +38,8 @@ public class RemoveUserFromVacationListCommand implements Command {
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("Invalid user id: %s", values)));
             }
             if(user.id() == userId){
-                returnUserFromVacation(user);
+                Long chatId = update.message().chat().id();
+                returnUserFromVacation(user, chatId);
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s returns from vacation", user.firstName())));
             }
         }
@@ -45,12 +47,12 @@ public class RemoveUserFromVacationListCommand implements Command {
         return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("Unknown user with id: %s", values)));
     }
 
-    private void returnUserFromVacation(User user) {
+    private void returnUserFromVacation(User user, Long chatId) {
         ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
         if(usersInVacation.contains(user)){
             usersInVacation.remove(user);
             EtsHelper.saveUsersWhichInVacation(usersInVacation);
         }
-        EtsClarityChecker.updateLastMessage(bot);
+        EtsClarityChecker.updateLastMessage(bot, chatId);
     }
 }
