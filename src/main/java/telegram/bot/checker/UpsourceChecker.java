@@ -271,7 +271,7 @@ public class UpsourceChecker extends Thread {
     }
 
     public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
-        logFor(this, "check:start: " + chatData.getUpsourceIds().toString());
+        logFor(this, String.format("check:start: %s(%s)", chatData.getChatName(), chatData.getUpsourceIds().toString()));
         log(chatData.getUpsourceIds().toString());
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {

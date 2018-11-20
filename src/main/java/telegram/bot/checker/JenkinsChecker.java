@@ -94,7 +94,7 @@ public class JenkinsChecker extends Thread {
                     String key = entry.getKey();
                     Job job = entry.getValue();
                     if (key.contains(jenkinsId)) {
-                        log("JenkinsChecker::checkJobsStatus:" + key + " for chat: " + chatData.getChatId());
+                        log("JenkinsChecker::checkJobsStatus:" + key + " for chat: " + chatData.getChatName() + "[" + chatData.getChatId() + "]");
                         checkJobStatus(chatData, key, job);
                     }
                 }
