@@ -13,9 +13,11 @@ public class ExternalJobRunnerMain {
     public static void main(String[] args) throws IOException, InterruptedException {
         TelegramBot bot = new TelegramBot(Common.data.token);
         for (ExternalJob externalJob : Common.EXTERNAL_JOBS) {
-            externalJob.run(errorMsg->{
-                for (Long chatId : Common.getChatIdList(externalJob.groupId)) {
-                    BotHelper.sendMessage(bot, chatId, "```"+ errorMsg + "```", ParseMode.Markdown);
+            externalJob.run(errorMsg -> {
+                for (String chatId : externalJob.groupIds) {
+                    if (!errorMsg.contains("INFO: ") && !errorMsg.contains("ProtocolHandshake createSession") && !errorMsg.contains("Only local connections are allowed.") && !errorMsg.contains("Starting ChromeDriver") && !errorMsg.contains("The process \"chromedriver.exe\" not found")) {
+                        BotHelper.sendMessage(bot, Common.data.getChatData(chatId).getChatId(), "```" + errorMsg + "```", ParseMode.Markdown);
+                    }
                 }
             });
         }

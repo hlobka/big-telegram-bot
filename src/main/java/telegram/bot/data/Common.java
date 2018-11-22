@@ -56,7 +56,7 @@ public class Common {
         List<String> commandLines = new ArrayList<>();
         commandLines.add(properties.getProperty("external.job.executable.commandLine"));
         int i = 0;
-        while (properties.containsKey("external.job.executable.commandLine" + i)){
+        while (properties.containsKey("external.job.executable.commandLine" + i)) {
             commandLines.add(properties.getProperty("external.job.executable.commandLine" + i));
             i++;
         }
@@ -65,52 +65,11 @@ public class Common {
                 properties.getProperty("external.job.executable.file"),
                 commandLines,
                 properties.getProperty("external.job.result.report"),
-                properties.getProperty("external.job.result.telegram.chat.ids.group")
-        );
-    }
-
-    private static ExternalJob buildExternalJob(String filePath) {
-        Properties properties = System.getProperties();
-        loadPropertiesFile("/" + filePath, properties);
-
-        List<String> commandLines = new ArrayList<>();
-        commandLines.add(properties.getProperty("external.job.executable.commandLine"));
-        int i = 0;
-        while (properties.containsKey("external.job.executable.commandLine" + i)){
-            commandLines.add(properties.getProperty("external.job.executable.commandLine" + i));
-            i++;
-        }
-        return new ExternalJob(
-                properties.getProperty("external.job.executable.folder"),
-                properties.getProperty("external.job.executable.file"),
-                commandLines,
-                properties.getProperty("external.job.result.report"),
-                properties.getProperty("external.job.result.telegram.chat.ids.group")
-        );
-    }
-
-    private static ExternalJob buildExternalJob(String filePath) {
-        Properties properties = System.getProperties();
-        loadPropertiesFile("/" + filePath, properties);
-
-        List<String> commandLines = new ArrayList<>();
-        commandLines.add(properties.getProperty("external.job.executable.commandLine"));
-        int i = 0;
-        while (properties.containsKey("external.job.executable.commandLine" + i)){
-            commandLines.add(properties.getProperty("external.job.executable.commandLine" + i));
-            i++;
-        }
-        return new ExternalJob(
-                properties.getProperty("external.job.executable.folder"),
-                properties.getProperty("external.job.executable.file"),
-                commandLines,
-                properties.getProperty("external.job.result.report"),
-                properties.getProperty("external.job.result.telegram.chat.ids.group")
+                getPropertyAsList(properties, "external.job.result.telegram.chat.ids.group")
         );
     }
 
     public final String token;
-
 
     private Common() {
         String configFile = "/config.properties";
@@ -145,7 +104,11 @@ public class Common {
     }
 
     private static List<String> getPropertyAsList(String property) {
-        return Arrays.asList(PROPERTIES.getProperty(property).split(","));
+        return Common.getPropertyAsList(PROPERTIES, property);
+    }
+
+    private static List<String> getPropertyAsList(Properties properties, String property) {
+        return Arrays.asList(properties.getProperty(property).split(","));
     }
 
     private static void loadPropertiesFile(String filePath, Properties properties) {

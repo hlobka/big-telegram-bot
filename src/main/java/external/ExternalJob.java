@@ -11,14 +11,14 @@ public class ExternalJob {
     private final String executableFile;
     private final String reportPath;
     private final List<String> commandLines;
-    public final String groupId;
+    public final List<String> groupIds;
 
-    public ExternalJob(String executableFolder, String executableFile, List<String> commandLines, String reportPath, String groupId) {
+    public ExternalJob(String executableFolder, String executableFile, List<String> commandLines, String reportPath, List<String> groupIds) {
         this.executableFolder = executableFolder;
         this.executableFile = executableFile;
         this.commandLines = commandLines;
         this.reportPath = reportPath;
-        this.groupId = groupId;
+        this.groupIds = groupIds;
     }
 
     public void run(Consumer<String> errorConsumer) throws IOException, InterruptedException {
