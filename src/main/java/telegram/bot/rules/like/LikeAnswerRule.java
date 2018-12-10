@@ -54,6 +54,9 @@ public class LikeAnswerRule implements Rule {
                 new InlineKeyboardButton("Like 👍🏻").callbackData("like_0"),
                 new InlineKeyboardButton("DisLike 👎🏻").callbackData("dislike_0")
             }));
+        if(message.replyToMessage() != null){
+            request.replyToMessageId(message.replyToMessage().messageId());
+        }
         SendResponse execute = bot.execute(request);
         listOfLikes.put(getLikeKey(execute.message()), new Like());
         SharedObject.save(Common.LIKED_POSTS, listOfLikes);
