@@ -18,6 +18,12 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testAllGetRegString1() {
+        assertThat(StringHelper.getAllRegString("Кто такой Шива?", "(([a-zA-Zа-яА-Я]+) )", 2))
+            .hasSize(2).contains("Кто", "такой");
+    }
+
+    @Test
     public void testReplace() {
 //        String input = ":20:9405601140";
 //        input.replaceAll("(:20):(\\d+)(?!\\d)", "$1");

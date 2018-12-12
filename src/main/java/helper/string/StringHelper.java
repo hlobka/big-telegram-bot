@@ -22,6 +22,17 @@ public class StringHelper {
         }
     }
 
+    public static List<String> getAllRegString(String text, String regex, int group) {
+        List<String> result = new ArrayList<>();
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            String values = matcher.group(group);
+            result.add(values);
+        }
+        return result;
+    }
+
     public static String getRegString(String text, String regex, int group) {
         Pattern pattern = Pattern.compile(/*"(?U)" + */regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         Matcher matcher = pattern.matcher(text);
