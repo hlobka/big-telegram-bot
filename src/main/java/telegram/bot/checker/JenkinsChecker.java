@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JENKINS_STATUSES;
 
+//TODO: try to analise this jobs: http://master-jenkins/job/environment-jobs/
 public class JenkinsChecker extends Thread {
     private TelegramBot bot;
     private long millis;
