@@ -1,8 +1,10 @@
 package telegram.bot.helper;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
@@ -11,11 +13,21 @@ import telegram.bot.data.TelegramCriteria;
 import telegram.bot.data.chat.ChatData;
 
 public class BotHelper {
-    public static SendResponse sendMessage(TelegramBot bot, long chatId, String message, ParseMode parseMode){
+
+    public static BaseResponse removeMessage(TelegramBot bot, Message message) {
+        return removeMessage(bot, message.chat().id(), message.messageId());
+    }
+
+    public static BaseResponse removeMessage(TelegramBot bot, long chatId, int messageId) {
+        DeleteMessage request = new DeleteMessage(chatId, messageId);
+        return bot.execute(request);
+    }
+
+    public static SendResponse sendMessage(TelegramBot bot, long chatId, String message, ParseMode parseMode) {
         return sendMessage(bot, chatId, message, parseMode, false, false);
     }
 
-    public static SendResponse sendMessage(TelegramBot bot, long chatId, String message, ParseMode parseMode, boolean disableWebPagePreview, boolean disableNotification){
+    public static SendResponse sendMessage(TelegramBot bot, long chatId, String message, ParseMode parseMode, boolean disableWebPagePreview, boolean disableNotification) {
         message = getCuttedMessage(message);
         SendMessage request = new SendMessage(chatId, message)
             .parseMode(parseMode)
@@ -28,7 +40,7 @@ public class BotHelper {
         int length = message.length();
         if (length >= TelegramCriteria.MAX_MESSAGE_LENGTH) {
             String notification = String.format("%nПревышина максимальная длина сообщения. %nТекущая %d из допустимых %d", length, TelegramCriteria.MAX_MESSAGE_LENGTH);
-            message = message.substring(0, TelegramCriteria.MAX_MESSAGE_LENGTH - notification.length())+notification;
+            message = message.substring(0, TelegramCriteria.MAX_MESSAGE_LENGTH - notification.length()) + notification;
         }
         return message;
     }

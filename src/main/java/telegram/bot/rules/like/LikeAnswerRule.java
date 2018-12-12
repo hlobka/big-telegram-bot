@@ -7,10 +7,10 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import telegram.bot.helper.BotHelper;
 import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
@@ -35,14 +35,9 @@ public class LikeAnswerRule implements Rule {
             return;
         }
         if (text.toLowerCase().contains("#like")) {
-            removeMessage(message);
+            BotHelper.removeMessage(bot, message);
             sendMessage(message);
         }
-    }
-
-    private void removeMessage(Message message) {
-        DeleteMessage request = new DeleteMessage(message.chat().id(), message.messageId());
-        bot.execute(request);
     }
 
     private void sendMessage(Message message) {

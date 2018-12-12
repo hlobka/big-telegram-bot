@@ -5,7 +5,6 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.response.SendResponse;
@@ -333,7 +332,7 @@ public class AnswerRule implements Rule {
         SendResponse sendResponse;
         sendResponse = sendSticker(chatId, stickerId);
         TimeHelper.waitTime(1, TimeUnit.SECONDS);
-        bot.execute(new DeleteMessage(chatId, sendResponse.message().messageId()));
+        BotHelper.removeMessage(bot, chatId, sendResponse.message().messageId());
     }
 
     private SendResponse sendSticker(Long chatId, String stickerId) {

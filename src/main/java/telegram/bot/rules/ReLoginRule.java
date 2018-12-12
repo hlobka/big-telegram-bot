@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.time.TimeHelper;
@@ -71,7 +70,7 @@ public class ReLoginRule implements Rule {
             if (data.contains(TRY_TO_RE_LOGIN)) {
                 statuses.put(data, true);
                 logFor(ReLoginRule.class, "await for:" + data + " approved");
-                bot.execute(new DeleteMessage(message.chat().id(), message.messageId()));
+                BotHelper.removeMessage(bot, message);
             }
         }
     }

@@ -1,21 +1,11 @@
 package telegram.bot.rules;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.DeleteMessage;
-import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
-import com.pengrad.telegrambot.response.SendResponse;
-import helper.string.StringHelper;
-
-import java.util.HashMap;
-import java.util.Map;
+import telegram.bot.helper.BotHelper;
 
 public class BotSayAnswerRule implements Rule {
     private TelegramBot bot;
@@ -38,8 +28,7 @@ public class BotSayAnswerRule implements Rule {
     }
 
     private void removeMessage(Message message) {
-        DeleteMessage request = new DeleteMessage(message.chat().id(), message.messageId());
-        bot.execute(request);
+        BotHelper.removeMessage(bot, message);
     }
 
     private void sendMessage(Message message) {
