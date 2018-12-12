@@ -1,5 +1,12 @@
 package telegram.bot.helper;
 
+import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import helper.file.SharedObject;
 import telegram.bot.dto.ActionItemDto;
 
@@ -49,5 +56,19 @@ public class ActionItemsHelper {
 
     public HashMap<Integer, ActionItemDto> loadActionItems() {
         return SharedObject.loadMap(actionItemsKey, new HashMap<>());
+    }
+
+    public void askForDeadLine(TelegramBot bot, int actionItemKey, Message message) {
+        Long chatId = message.chat().id();
+        String text = "Хотите установить дедлайн?";
+        SendMessage request = new SendMessage(chatId, text)
+            .parseMode(ParseMode.HTML)
+            .disableWebPagePreview(true)
+            .disableNotification(false)
+            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+                new InlineKeyboardButton("Sure").callbackData("choose_aiDl_"+actionItemKey),
+                new InlineKeyboardButton("No").callbackData("avoid_ai_dead_line_"+actionItemKey),
+            }));
+        bot.execute(request);
     }
 }

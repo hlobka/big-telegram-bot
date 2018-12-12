@@ -206,37 +206,6 @@ public class AnswerRule implements Rule {
             String query = StringHelper.getRegString(s, "кто так(ой|ая),? ([a-zA-Zа-яА-Я ]+)\\??", 2);
             return Common.GOOGLE.getFirstResult(query);
         });
-
-        actions.put("#AI", message -> {
-            String text = message.text() == null ? "" : message.text();
-            StringBuilder result = new StringBuilder();
-            Integer i = 0;
-            Message reply = message.replyToMessage();
-            if (reply != null) {
-                if (reply.from().isBot()) {
-                    return "Бот не может навязывать нам ActionItems";
-                }
-                int key = ActionItemsHelper.unresolved.saveActionItem(reply.text(), message.chat().id());
-                result.append("Сохранил ActionItem\n")
-                    .append("Вы можете закрыть его используя комманду: ")
-                    .append("/resolveAI__").append(key);
-                return result.toString();
-            }
-            for (String actionItem : text.split("#(AI|ai|Ai|aI) ")) {
-                if (actionItem.isEmpty()) {
-                    continue;
-                }
-                int key = ActionItemsHelper.unresolved.saveActionItem(actionItem, message.chat().id(), i);
-                if (i > 0) {
-                    result.append("\n");
-                }
-                result.append("Сохранил ActionItem\n")
-                    .append("Вы можете закрыть его используя комманду: ")
-                    .append("/resolveAI__").append(key);
-                i++;
-            }
-            return result.toString();
-        });
     }
 
     @Override
