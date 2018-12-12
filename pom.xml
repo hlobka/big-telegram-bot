@@ -13,6 +13,12 @@
         <atlassian.product.version>7.6.1</atlassian.product.version>
         <java.version>1.8</java.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>atlassian</id>
+            <url>https://maven.atlassian.com/content/repositories/atlassian-public/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -44,6 +50,7 @@
             <groupId>com.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
             <version>2.6.1</version>
+            <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.atlassian.jira/jira-rest-java-client-api -->
         <dependency>
