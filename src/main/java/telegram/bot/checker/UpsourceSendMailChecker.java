@@ -128,12 +128,13 @@ public class UpsourceSendMailChecker extends Thread {
 
     private void check() throws IOException {
         UpsourceApi upsourceApi = getUpsourceApi();
+        ArrayList<String> issuesWasCommented = new ArrayList<>();
         for (ChatData chatData : BIG_GENERAL_GROUPS) {
-            check(upsourceApi, chatData);
+            check(upsourceApi, chatData, issuesWasCommented);
         }
     }
 
-    public void check(UpsourceApi upsourceApi, ChatData chatData) throws IOException {
+    public void check(UpsourceApi upsourceApi, ChatData chatData, List<String> issuesWasCommented) throws IOException {
         logFor(this, String.format("check:%s[%s]", chatData.getChatName(), chatData.getUpsourceIds().toString()));
         HashMap<String, String> jiraAssignOn = SharedObject.load(this, JIRA_ASSIGN_ON, new HashMap<>());
         JiraHelper jiraHelper = jiraHelperProvider.get();
@@ -145,32 +146,34 @@ public class UpsourceSendMailChecker extends Thread {
             for (JiraUpsourceReview review : reviews) {
                 String reviewCreator = getMappedReviewerName(review.upsourceReview);
                 Issue issue = jiraHelper.getIssue(review.issueId);
-                String reviewerName = getReviewerId(jiraHelper, review.issueId);
-                String issueAssignOn = Common.UPSOURCE.userLoginOnMailMap.getOrDefault(reviewerName, "");
+                String issueAssignedOnLoginName = getReviewerId(jiraHelper, review.issueId);
+                String issueAssignedOnMail = getUserMail(issueAssignedOnLoginName);
                 String issueKey = issue.getKey();
-                if(issueAssignOn.isEmpty()){
+                if(issueAssignedOnMail.isEmpty()){
                     try {
                         jiraHelper.assignIssueOn(issue.getKey(), reviewCreator);
                         jiraHelper.resetCache();
                         issue = jiraHelper.getIssue(review.issueId);
-                        issueAssignOn = reviewCreator;
+                        issueAssignedOnMail = getUserMail(reviewCreator);
                     } catch (RestClientException e){
                         logErrorFor(this, e);
                     }
                 }
-                if (jiraAssignOn.containsKey(issueKey) && jiraAssignOn.get(issueKey).equals(issueAssignOn)) {
+                if (jiraAssignOn.containsKey(issueKey) && jiraAssignOn.get(issueKey).equals(issueAssignedOnMail)) {
                     continue;
                 }
-                if (reviewerName == null) {
+                if (issueAssignedOnLoginName == null) {
                     continue;
                 }
-                if (!reviewCreator.equals(issueAssignOn)) {
+                if (!reviewCreator.equals(issueAssignedOnMail)) {
                     boolean isFixVersionRequired = isFixVersionRequired(issue);
-                    if (isFixVersionRequired) {
+                    boolean commentWasAdded = issuesWasCommented.contains(issueKey);
+                    if (isFixVersionRequired && !commentWasAdded) {
                         try {
                             jiraHelper.assignIssueOn(issueKey, reviewCreator);
                             jiraHelper.addIssueComment(issueKey, getFixVersionRequiredComment());
-                            issueAssignOn = reviewCreator;
+                            issueAssignedOnMail = getUserMail(reviewCreator);
+                            issuesWasCommented.add(issueKey);
                         } catch (RestClientException e){
                             logErrorFor(this, e);
                         }
@@ -178,23 +181,23 @@ public class UpsourceSendMailChecker extends Thread {
                 }
                 String linkedIssueKey = String.format("<a href=\"%2$s/browse/%1$s\">%1$s</a>", issueKey, Common.JIRA.url);
                 String linkedReviewKey = String.format("<a href=\"%2$s/%3$s/review/%1$s\">%1$s</a>", review.upsourceReview.reviewId(), Common.UPSOURCE.url, upsourceId);
-                boolean isAssignOnPresent = !issueAssignOn.isEmpty();
+                boolean isAssignOnPresent = !issueAssignedOnMail.isEmpty();
                 if (isAssignOnPresent) {
-                    if (reviewCreator.equals(reviewerName)) {
+                    if (reviewCreator.equals(issueAssignedOnLoginName)) {
                         String message = String.format("<b>[%s]</b> as '%s' Please, Pay Attention; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
-                        if (!userAbortedMessages.containsKey(issueAssignOn)) {
-                            userAbortedMessages.put(issueAssignOn, new ArrayList<>());
+                        if (!userAbortedMessages.containsKey(issueAssignedOnMail)) {
+                            userAbortedMessages.put(issueAssignedOnMail, new ArrayList<>());
                         }
-                        userAbortedMessages.get(issueAssignOn).add(message);
+                        userAbortedMessages.get(issueAssignedOnMail).add(message);
                     } else {
                         String message = String.format("<b>[%s]</b> as '%s' ready for review; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
-                        if (!userMessages.containsKey(issueAssignOn)) {
-                            userMessages.put(issueAssignOn, new ArrayList<>());
+                        if (!userMessages.containsKey(issueAssignedOnMail)) {
+                            userMessages.put(issueAssignedOnMail, new ArrayList<>());
                         }
-                        userMessages.get(issueAssignOn).add(message);
+                        userMessages.get(issueAssignedOnMail).add(message);
                     }
                 }
-                jiraAssignOn.put(issueKey, issueAssignOn);
+                jiraAssignOn.put(issueKey, issueAssignedOnMail);
                 SharedObject.save(this, JIRA_ASSIGN_ON, jiraAssignOn);
             }
             String title = "[" + upsourceId + "] Possible review was assigned to you";
@@ -206,9 +209,13 @@ public class UpsourceSendMailChecker extends Thread {
 
     }
 
+    public String getUserMail(String issueAssignedOnLoginName) {
+        return Common.UPSOURCE.userLoginOnMailMap.getOrDefault(issueAssignedOnLoginName, "admin");
+    }
+
     public boolean isFixVersionRequired(Issue issue) {
         Iterable<Version> fixVersions = issue.getFixVersions();
-        return fixVersions != null || !fixVersions.iterator().hasNext();
+        return fixVersions == null || !fixVersions.iterator().hasNext();
     }
 
     private String getFixVersionRequiredComment() {
