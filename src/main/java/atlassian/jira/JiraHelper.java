@@ -6,7 +6,11 @@ import com.atlassian.jira.rest.client.api.AuthenticationHandler;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.RestClientException;
+import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
+import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
+import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.util.ErrorCollection;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.internal.async.*;
@@ -105,7 +109,7 @@ public class JiraHelper {
             return getIssue(issueKey, false) != null;
         } catch (RestClientException e) {
             for (ErrorCollection errorCollection : e.getErrorCollections()) {
-                if(errorCollection.getErrorMessages().contains("Issue Does Not Exist")){
+                if (errorCollection.getErrorMessages().contains("Issue Does Not Exist")) {
                     return false;
                 }
             }
@@ -125,8 +129,8 @@ public class JiraHelper {
         Issue issue;
         try {
             issue = promise.claim();
-        } catch (RestClientException e){
-            if(errorHandler != null && checkRelogin){
+        } catch (RestClientException e) {
+            if (errorHandler != null && checkRelogin) {
                 errorHandler.accept(e);
                 promise = client.getIssueClient().getIssue(issueKey);
                 issue = promise.claim();
@@ -138,5 +142,18 @@ public class JiraHelper {
             cacheOfIssues.put(issueKey, issue);
         }
         return issue;
+    }
+
+    public void assignIssueOn(String issueKey, String userLoginName) throws RestClientException {
+        ComplexIssueInputFieldValue value = ComplexIssueInputFieldValue.with("name", userLoginName);
+        FieldInput fieldInput = new FieldInput("assignee", value);
+        IssueInput issueInput = IssueInput.createWithFields(fieldInput);
+        client.getIssueClient().updateIssue(issueKey, issueInput).claim();
+    }
+
+    public void addIssueComment(String issueKey, String commentValue) {
+        URI commentsUri = getIssue(issueKey).getCommentsUri();
+        Comment comment = Comment.valueOf(commentValue);
+        client.getIssueClient().addComment(commentsUri, comment).claim();
     }
 }
