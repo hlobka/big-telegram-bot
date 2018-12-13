@@ -1,8 +1,10 @@
 package telegram.bot.checker;
 
 import atlassian.jira.JiraHelper;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
+import com.atlassian.jira.rest.client.api.domain.Version;
 import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import helper.mail.MailHelper;
@@ -18,13 +20,11 @@ import upsource.filter.CountCondition;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import static helper.logger.ConsoleLogger.logErrorFor;
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.BIG_GENERAL_GROUPS;
 
@@ -34,6 +34,30 @@ public class UpsourceSendMailChecker extends Thread {
     private final long timeout;
     private final Supplier<JiraHelper> jiraHelperProvider;
     private boolean isFirstTime = true;
+    //TODO: move to config file
+    private static final List<String> FIX_VERSION_REQUIRED_COMMENT_LIST = Arrays.asList(
+            "fix version required",
+            "let's have fix ver here",
+            "Pls add fix ver ",
+            "fix version needs to be added",
+            "fix version needed",
+            "reopen because of fix version empty",
+            "fix version empty"
+    );
+
+    public static void main(String[] args) {
+        String issueKey = "JIRA-100500";
+        String userName = "loginname";
+        String testComment = new UpsourceSendMailChecker(1000, null)
+                .getFixVersionRequiredComment();
+        JiraHelper client = JiraHelper.getClient(Common.JIRA);
+        Issue issue = client.getIssue(issueKey);
+        Iterable<Version> fixVersions = issue.getFixVersions();
+        if (fixVersions != null && !fixVersions.iterator().hasNext()) {
+            client.assignIssueOn(issueKey, userName);
+            client.addIssueComment(issueKey, testComment);
+        }
+    }
 
     public UpsourceSendMailChecker(long timeout, Supplier<JiraHelper> jiraHelperProvider) {
         this.timeout = timeout;
@@ -96,10 +120,10 @@ public class UpsourceSendMailChecker extends Thread {
 
     private boolean isWorkDay() {
         return TimeHelper.checkToDayIs(DayOfWeek.MONDAY) ||
-            TimeHelper.checkToDayIs(DayOfWeek.TUESDAY) ||
-            TimeHelper.checkToDayIs(DayOfWeek.WEDNESDAY) ||
-            TimeHelper.checkToDayIs(DayOfWeek.THURSDAY) ||
-            TimeHelper.checkToDayIs(DayOfWeek.FRIDAY);
+                TimeHelper.checkToDayIs(DayOfWeek.TUESDAY) ||
+                TimeHelper.checkToDayIs(DayOfWeek.WEDNESDAY) ||
+                TimeHelper.checkToDayIs(DayOfWeek.THURSDAY) ||
+                TimeHelper.checkToDayIs(DayOfWeek.FRIDAY);
     }
 
     private void check() throws IOException {
@@ -119,33 +143,59 @@ public class UpsourceSendMailChecker extends Thread {
             List<Review> upsourceReviews = getReviews(upsourceApi, upsourceId);
             List<JiraUpsourceReview> reviews = convertToJiraReviews(upsourceReviews);
             for (JiraUpsourceReview review : reviews) {
-                String createdBy = getMappedReviewerName(review.upsourceReview);
+                String reviewCreator = getMappedReviewerName(review.upsourceReview);
                 Issue issue = jiraHelper.getIssue(review.issueId);
                 String reviewerName = getReviewerId(jiraHelper, review.issueId);
-                String to = Common.UPSOURCE.userLoginOnMailMap.getOrDefault(reviewerName, "");
+                String issueAssignOn = Common.UPSOURCE.userLoginOnMailMap.getOrDefault(reviewerName, "");
                 String issueKey = issue.getKey();
-                if (jiraAssignOn.containsKey(issueKey) && jiraAssignOn.get(issueKey).equals(to)) {
+                if(issueAssignOn.isEmpty()){
+                    try {
+                        jiraHelper.assignIssueOn(issue.getKey(), reviewCreator);
+                        jiraHelper.resetCache();
+                        issue = jiraHelper.getIssue(review.issueId);
+                        issueAssignOn = reviewCreator;
+                    } catch (RestClientException e){
+                        logErrorFor(this, e);
+                    }
+                }
+                if (jiraAssignOn.containsKey(issueKey) && jiraAssignOn.get(issueKey).equals(issueAssignOn)) {
                     continue;
                 }
                 if (reviewerName == null) {
                     continue;
                 }
+                if (!reviewCreator.equals(issueAssignOn)) {
+                    Iterable<Version> fixVersions = issue.getFixVersions();
+                    boolean isFixVersionRequired = fixVersions != null && fixVersions.iterator().hasNext();
+                    if (isFixVersionRequired) {
+                        try {
+                            jiraHelper.assignIssueOn(issueKey, reviewCreator);
+                            jiraHelper.addIssueComment(issueKey, getFixVersionRequiredComment());
+                            issueAssignOn = reviewCreator;
+                        } catch (RestClientException e){
+                            logErrorFor(this, e);
+                        }
+                    }
+                }
                 String linkedIssueKey = String.format("<a href=\"%2$s/browse/%1$s\">%1$s</a>", issueKey, Common.JIRA.url);
                 String linkedReviewKey = String.format("<a href=\"%2$s/%3$s/review/%1$s\">%1$s</a>", review.upsourceReview.reviewId(), Common.UPSOURCE.url, upsourceId);
-                if (!to.isEmpty() && createdBy.equals(reviewerName)) {
-                    String message = String.format("<b>[%s]</b> as '%s' Please, Pay Attention; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
-                    if (!userAbortedMessages.containsKey(to)) {
-                        userAbortedMessages.put(to, new ArrayList<>());
+                boolean isAssignOnPresent = !issueAssignOn.isEmpty();
+                if (isAssignOnPresent) {
+                    if (reviewCreator.equals(reviewerName)) {
+                        String message = String.format("<b>[%s]</b> as '%s' Please, Pay Attention; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
+                        if (!userAbortedMessages.containsKey(issueAssignOn)) {
+                            userAbortedMessages.put(issueAssignOn, new ArrayList<>());
+                        }
+                        userAbortedMessages.get(issueAssignOn).add(message);
+                    } else {
+                        String message = String.format("<b>[%s]</b> as '%s' ready for review; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
+                        if (!userMessages.containsKey(issueAssignOn)) {
+                            userMessages.put(issueAssignOn, new ArrayList<>());
+                        }
+                        userMessages.get(issueAssignOn).add(message);
                     }
-                    userAbortedMessages.get(to).add(message);
-                } else if (!to.isEmpty() && !createdBy.equals(reviewerName)) {
-                    String message = String.format("<b>[%s]</b> as '%s' ready for review; Link on review: %s<br>\n", linkedIssueKey, issue.getSummary(), linkedReviewKey);
-                    if (!userMessages.containsKey(to)) {
-                        userMessages.put(to, new ArrayList<>());
-                    }
-                    userMessages.get(to).add(message);
                 }
-                jiraAssignOn.put(issueKey, to);
+                jiraAssignOn.put(issueKey, issueAssignOn);
                 SharedObject.save(this, JIRA_ASSIGN_ON, jiraAssignOn);
             }
             String title = "[" + upsourceId + "] Possible review was assigned to you";
@@ -155,6 +205,12 @@ public class UpsourceSendMailChecker extends Thread {
         }
         logFor(this, "check:end");
 
+    }
+
+    private String getFixVersionRequiredComment() {
+        List<String> comments = FIX_VERSION_REQUIRED_COMMENT_LIST;
+        Collections.shuffle(comments);
+        return comments.get(0);
     }
 
     private void sendMail(Map<String, List<String>> messages, String titleOfMessageBody, String title) {
@@ -170,11 +226,11 @@ public class UpsourceSendMailChecker extends Thread {
 
     private List<Review> getReviews(UpsourceApi upsourceApi, String upsourceId) throws IOException {
         return upsourceApi.getProject(upsourceId)
-            .getReviewsProvider(true)
-            .withState(ReviewState.OPEN)
-            .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
-            .withReviewersCount(0, CountCondition.MORE_THAN)
-            .getReviews();
+                .getReviewsProvider(true)
+                .withState(ReviewState.OPEN)
+                .withCompleteCount(0, CountCondition.MORE_THAN_OR_EQUALS)
+                .withReviewersCount(0, CountCondition.MORE_THAN)
+                .getReviews();
     }
 
 }
