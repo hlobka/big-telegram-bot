@@ -30,11 +30,7 @@ import static telegram.bot.data.Common.BIG_GENERAL_GROUPS;
 
 public class UpsourceSendMailChecker extends Thread {
 
-    private static final String JIRA_ASSIGN_ON = "jiraAssignOn";
-    private final long timeout;
-    private final Supplier<JiraHelper> jiraHelperProvider;
-    private boolean isFirstTime = true;
-    //TODO: move to config file
+    //TODO: need move to config file
     private static final List<String> FIX_VERSION_REQUIRED_COMMENT_LIST = Arrays.asList(
             "fix version required",
             "let's have fix ver here",
@@ -44,6 +40,10 @@ public class UpsourceSendMailChecker extends Thread {
             "reopen because of fix version empty",
             "fix version empty"
     );
+    private static final String JIRA_ASSIGN_ON = "jiraAssignOn";
+    private final long timeout;
+    private final Supplier<JiraHelper> jiraHelperProvider;
+    private boolean isFirstTime = true;
 
     public static void main(String[] args) {
         String issueKey = "JIRA-100500";
@@ -165,8 +165,7 @@ public class UpsourceSendMailChecker extends Thread {
                     continue;
                 }
                 if (!reviewCreator.equals(issueAssignOn)) {
-                    Iterable<Version> fixVersions = issue.getFixVersions();
-                    boolean isFixVersionRequired = fixVersions != null && fixVersions.iterator().hasNext();
+                    boolean isFixVersionRequired = isFixVersionRequired(issue);
                     if (isFixVersionRequired) {
                         try {
                             jiraHelper.assignIssueOn(issueKey, reviewCreator);
@@ -205,6 +204,11 @@ public class UpsourceSendMailChecker extends Thread {
         }
         logFor(this, "check:end");
 
+    }
+
+    public boolean isFixVersionRequired(Issue issue) {
+        Iterable<Version> fixVersions = issue.getFixVersions();
+        return fixVersions != null || !fixVersions.iterator().hasNext();
     }
 
     private String getFixVersionRequiredComment() {
