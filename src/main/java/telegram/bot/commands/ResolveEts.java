@@ -36,6 +36,7 @@ public class ResolveEts implements Command {
     public static void sendUserOnVocation(User user, TelegramBot bot, long chatId) {
         if(!Common.ETS_HELPER.isUserOnVacation(user)) {
             Common.ETS_HELPER.userOnVacation(user);
+            EtsClarityChecker.updateLastMessage(bot, chatId);
             String message = String.format("user %s sent on vacation", user.firstName());
             for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
                 BotHelper.sendMessage(bot, mainGeneralChatId, message, ParseMode.Markdown);
