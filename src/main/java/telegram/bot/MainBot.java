@@ -34,13 +34,13 @@ public class MainBot {
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
         Rules rules = new Rules();
-        /*rules.registerRule(new SlotMachineRule(bot));
+        rules.registerRule(new SlotMachineRule(bot));
         rules.registerRule(new AnswerRule(bot));
         rules.registerRule(new IIAnswerRule(bot));
         rules.registerRule(new EtsAnswerRule(bot));
         rules.registerRule(new LikeAnswerRule(bot));
         rules.registerRule(new BotSayAnswerRule(bot));
-        rules.registerRule(new ReLoginRule(bot));*/
+        rules.registerRule(new ReLoginRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCallBackCommand("update_upsource_checker_view_result_for", new UpdateUpsourceViewResult(bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
