@@ -27,6 +27,8 @@ public class EtsAnswerRule implements Rule {
                 ResolveEts.resolveUser(callbackQuery.from(), bot, chatId);
             } else if(data.equals("ets_on_vacation")){
                 ResolveEts.sendUserOnVocation(callbackQuery.from(), bot, chatId);
+            } else if(data.equals("ets_with_issue")){
+                ResolveEts.setUserAsWithIssue(callbackQuery.from(), bot, chatId);
             }
         }
     }

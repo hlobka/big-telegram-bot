@@ -7,11 +7,9 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.helper.EtsHelper;
+import telegram.bot.data.Common;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 public class SendUserOnVacationByReplyListCommand implements Command {
@@ -24,21 +22,10 @@ public class SendUserOnVacationByReplyListCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-
         Message replyToMessage = update.message().replyToMessage();
-        if(replyToMessage != null) {
+        if (replyToMessage != null) {
             User replyUser = replyToMessage.from();
-            if(!users.containsKey(replyUser)){
-                users.put(replyUser, false);
-            }
-            if(!usersInVacation.contains(replyUser)) {
-                usersInVacation.add(replyUser);
-            }
-            EtsHelper.clearFromDuplicates(users);
-            EtsHelper.saveUsersWhichInVacation(usersInVacation);
-            EtsHelper.saveUsers(users);
+            Common.ETS_HELPER.userOnVacation(replyUser);
             EtsClarityChecker.updateLastMessage(bot, replyToMessage.chat().id());
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", replyUser.firstName())));
         }

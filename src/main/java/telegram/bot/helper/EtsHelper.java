@@ -4,24 +4,59 @@ import com.pengrad.telegrambot.model.User;
 import helper.file.SharedObject;
 
 import java.util.*;
-
-import static telegram.bot.data.Common.ETS_USERS;
-import static telegram.bot.data.Common.ETS_USERS_IN_VACATION;
+import java.util.stream.Collectors;
 
 public class EtsHelper {
 
-    public static void clearFromDuplicates(HashMap<User, Boolean> users) {
+    private final String etsUsers;
+    private final String etsUsersInVacation;
+    private final String etsUsersWithIssues;
+
+    public EtsHelper(String etsUsers, String etsUsersInVacation, String etsUsersWithIssues) {
+        this.etsUsers = etsUsers;
+        this.etsUsersInVacation = etsUsersInVacation;
+        this.etsUsersWithIssues = etsUsersWithIssues;
+    }
+
+    public void clearFromDuplicates(HashMap<User, Boolean> users) {
         List<User> userList = new ArrayList<>();
         Set<Map.Entry<User, Boolean>> entries = users.entrySet();
         for (Map.Entry<User, Boolean> userBooleanEntry : entries) {
             User user = userBooleanEntry.getKey();
-            if (isUserPresent(user, entries)) {
+            if (isUserPresent(user, entries) && !isUserPresent(user, userList)) {
                 userList.add(user);
             }
         }
         for (User user : userList) {
             users.remove(user);
         }
+    }
+
+    public void removeUser(User userToRemove) {
+        List<User> userList = new ArrayList<>();
+        HashMap<User, Boolean> users = getUsers();
+        Set<Map.Entry<User, Boolean>> entries = users.entrySet();
+        for (Map.Entry<User, Boolean> userBooleanEntry : entries) {
+            User user = userBooleanEntry.getKey();
+            if (user.id().equals(userToRemove.id())) {
+                userList.add(user);
+            }
+        }
+        for (User user : userList) {
+            users.remove(user);
+        }
+        removeUserFromIssuesList(userToRemove);
+        removeUserFromVacation(userToRemove);
+        saveUsers(users);
+    }
+
+    private static boolean isUserPresent(User user, List<User> users) {
+        for (User user1 : users) {
+            if (user1.id().equals(user.id())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isUserPresent(User user, Set<Map.Entry<User, Boolean>> entries) {
@@ -35,19 +70,131 @@ public class EtsHelper {
         return amount > 0;
     }
 
-    public static HashMap<User, Boolean> getUsers() {
-        return SharedObject.loadMap(ETS_USERS, new HashMap<>());
+    public HashMap<User, Boolean> getUsers() {
+        return SharedObject.loadMap(etsUsers, new HashMap<>());
     }
 
-    public static void saveUsers(HashMap<User, Boolean> users) {
-        SharedObject.save(ETS_USERS, users);
+    public void saveUsers(HashMap<User, Boolean> users) {
+        clearFromDuplicates(users);
+        SharedObject.save(etsUsers, users);
     }
 
-    public static ArrayList<User> getUsersFromVacation() {
-        return SharedObject.loadList(ETS_USERS_IN_VACATION, new ArrayList<>());
+    public ArrayList<User> getUsersFromVacation() {
+        return SharedObject.loadList(etsUsersInVacation, new ArrayList<>());
     }
 
-    public static void saveUsersWhichInVacation(ArrayList<User> users) {
-        SharedObject.save(ETS_USERS_IN_VACATION, users);
+    public void saveUsersWhichInVacation(ArrayList<User> users) {
+        SharedObject.save(etsUsersInVacation, users);
+    }
+
+    private void removeUserFromVacation(User user) {
+        ArrayList<User> users = getUsersFromVacation()
+                .stream().filter(user1 -> !user1.id().equals(user.id()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        saveUsersWhichInVacation(users);
+    }
+
+    private void saveUsersWhichHaveIssues(ArrayList<User> users) {
+        SharedObject.save(etsUsersWithIssues, users);
+    }
+
+    private ArrayList<User> getUsersWhichHaveIssues() {
+        return SharedObject.loadList(etsUsersWithIssues, new ArrayList<>());
+    }
+
+
+    public void userOnVacation(User user) {
+        ArrayList<User> users = getUsersFromVacation();
+        users.add(user);
+        removeUserFromIssuesList(user);
+        resolveUser(user);
+        saveUsersWhichInVacation(users);
+    }
+
+    private void removeUserFromIssuesList(User user) {
+        ArrayList<User> users = getUsersWhichHaveIssues()
+                .stream().filter(user1 -> !user1.id().equals(user.id()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        saveUsersWhichHaveIssues(users);
+    }
+
+    public void userHasIssue(User user) {
+        ArrayList<User> users = getUsersWhichHaveIssues();
+        users.add(user);
+        removeUserFromVacation(user);
+        unResolveUser(user);
+        saveUsersWhichHaveIssues(users);
+    }
+
+    public boolean isUserHasIssue(User user) {
+        ArrayList<User> users = getUsersWhichHaveIssues();
+        for (User user1 : users) {
+            if (user1.id().equals(user.id())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isUserOnVacation(User user) {
+        ArrayList<User> users = getUsersFromVacation();
+        for (User user1 : users) {
+            if (user1.id().equals(user.id())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isUserResolve(User user) {
+        HashMap<User, Boolean> users = getUsers();
+        for (Map.Entry<User, Boolean> entry : users.entrySet()) {
+            if (entry.getKey().id().equals(user.id())) {
+                return entry.getValue();
+            }
+        }
+        return false;
+    }
+
+    public void unResolveAllUsers() {
+        resolveAllUsers(false);
+    }
+
+    public void resolveAllUsers() {
+        resolveAllUsers(true);
+    }
+
+    public void resolveAllUsers(Boolean status) {
+        HashMap<User, Boolean> users = getUsers();
+        for (Map.Entry<User, Boolean> entry : users.entrySet()) {
+            resolveUser(entry.getKey(), status);
+        }
+    }
+
+    public void unResolveAllUsualUsers() {
+        HashMap<User, Boolean> users = getUsers();
+        for (User user : users.keySet()) {
+            if (!isUserOnVacation(user) && !isUserHasIssue(user)) {
+                unResolveUser(user);
+            }
+        }
+    }
+
+    public void unResolveUser(User user) {
+        resolveUser(user, false);
+    }
+
+    public void resolveUser(User user) {
+        resolveUser(user, true);
+    }
+
+    public void resolveUser(User user, boolean status) {
+        HashMap<User, Boolean> users = getUsers();
+        users.put(user, status);
+        saveUsers(users);
+        removeUserFromIssuesList(user);
+        removeUserFromVacation(user);
     }
 }

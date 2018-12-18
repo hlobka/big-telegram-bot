@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.helper.EtsHelper;
+import telegram.bot.data.Common;
 
 import java.util.*;
 
@@ -20,8 +20,7 @@ public class AddUserByIdOnVacationListCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
+        HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
         for (Map.Entry<User, Boolean> entry : users.entrySet()) {
             User user = entry.getKey();
             int userId;
@@ -31,11 +30,7 @@ public class AddUserByIdOnVacationListCommand implements Command {
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("Invalid user id: %s", values)));
             }
             if(user.id() == userId){
-                ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-                if(!usersInVacation.contains(user)) {
-                    usersInVacation.add(user);
-                }
-                EtsHelper.saveUsersWhichInVacation(usersInVacation);
+                Common.ETS_HELPER.userOnVacation(user);
                 EtsClarityChecker.updateLastMessage(bot, update.message().chat().id());
                 return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s sent on vacation", user.firstName())));
             }

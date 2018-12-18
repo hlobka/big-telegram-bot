@@ -7,11 +7,8 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.helper.EtsHelper;
-
-import java.util.ArrayList;
+import telegram.bot.data.Common;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 public class RemoveUserFromEtsListByReplyCommand implements Command {
@@ -24,16 +21,10 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-
         Message replyToMessage = update.message().replyToMessage();
         if(replyToMessage != null) {
             User replyUser = replyToMessage.from();
-            users.remove(replyUser);
-            usersInVacation.remove(replyUser);
-            EtsHelper.saveUsersWhichInVacation(usersInVacation);
-            EtsHelper.saveUsers(users);
+            Common.ETS_HELPER.resolveUser(replyUser);
             EtsClarityChecker.updateLastMessage(bot, update.message().chat().id());
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s was removed from ETS list", replyUser.firstName())));
         }

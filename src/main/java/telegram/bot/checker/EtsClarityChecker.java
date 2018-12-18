@@ -14,6 +14,7 @@ import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
+import telegram.bot.data.Common;
 import telegram.bot.helper.EtsHelper;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.COMMON_INT_DATA;
+
 //todo: remake without static fields
 public class EtsClarityChecker extends Thread {
     private TelegramBot bot;
@@ -63,7 +65,7 @@ public class EtsClarityChecker extends Thread {
         if (TimeHelper.checkToDayIs(DAY_TO_CHECK)) {
             checkIsAllUsersPresentsOnThisChat(bot, chatId);
             if (checkIsResolvedToDay(bot, chatId)) {
-                if(!isResolvedToday){
+                if (!isResolvedToday) {
                     isResolvedToday = true;
 
                 }
@@ -101,9 +103,10 @@ public class EtsClarityChecker extends Thread {
             .parseMode(ParseMode.HTML)
             .disableWebPagePreview(true)
             .disableNotification(false)
-            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
                 new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
             }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
@@ -120,16 +123,17 @@ public class EtsClarityChecker extends Thread {
             System.out.println(String.format("WARN::Couldn't updateLastMessage with CHAT_ID: %d, and MESSAGE_ID: %d", LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID));
             return;
         }
-        if(!TimeHelper.checkToDayIs(DAY_TO_CHECK)){
+        if (!TimeHelper.checkToDayIs(DAY_TO_CHECK)) {
             unResolveAll();
         }
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot, chatId))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
-                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
                     new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
                     new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                    new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
@@ -139,11 +143,7 @@ public class EtsClarityChecker extends Thread {
 
     private static void unResolveAll() {
         isResolvedToday = false;
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
-        for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
-            userBooleanEntry.setValue(false);
-        }
-        EtsHelper.saveUsers(users);
+        Common.ETS_HELPER.unResolveAllUsualUsers();
         LAST_MESSAGE_ID = -1;
         LAST_MESSAGE_CHAT_ID = -1;
         HashMap<String, Number> commonData = SharedObject.loadMap(COMMON_INT_DATA, new HashMap<String, Number>());
@@ -160,20 +160,22 @@ public class EtsClarityChecker extends Thread {
     }
 
     private static String getUsers(TelegramBot bot, long chatId) {
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
+        EtsHelper etsHelper = Common.ETS_HELPER;
+        HashMap<User, Boolean> users = etsHelper.getUsers();
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(chatId));
         int count = response.count();
         StringBuilder resolvedUsers = new StringBuilder();
         int resolvedCount = 0;
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
+        ArrayList<User> usersInVacation = etsHelper.getUsersFromVacation();
 
         if (!users.isEmpty()) {
             for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
                 User user = userBooleanEntry.getKey();
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
-                    if(usersInVacation.contains(user)){
-                        resolved = true;
+                    if (etsHelper.isUserHasIssue(user)) {
+                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "💊"));
+                    } else if (etsHelper.isUserOnVacation(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍌"));
                     } else {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved ? "🍏" : "🍎"));
@@ -190,80 +192,38 @@ public class EtsClarityChecker extends Thread {
     }
 
     public static void checkIsAllUsersPresentsOnThisChat(TelegramBot bot, long chatId) {
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-        List<Integer> allUsersId = new ArrayList<>();
-
-        List<User> usersToRemove = new ArrayList<>();
-        List<User> usersToRemoveFromVacation = new ArrayList<>();
+        HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
         for (User user : users.keySet()) {
-            if(!allUsersId.contains(user.id())) {
-                allUsersId.add(user.id());
+            if(!isUserChatMember(user, chatId, bot)){
+                Common.ETS_HELPER.removeUser(user);
             }
         }
-        for (User user : usersInVacation) {
-            if(!allUsersId.contains(user.id())) {
-                allUsersId.add(user.id());
-            }
-        }
-        for (Integer userId : allUsersId) {
-            GetChatMemberResponse response = bot.execute(new GetChatMember(chatId, userId));
-            ChatMember chatMember = response.chatMember();
-            if(chatMember ==null || chatMember.status().equals(ChatMember.Status.left)) {
-                for (User user : users.keySet()) {
-                    if(user.id().equals(userId)) {
-                        usersToRemove.add(user);
-                    }
-                }
-                for (User user : usersInVacation) {
-                    if(user.id().equals(userId)) {
-                        usersToRemoveFromVacation.add(user);
-                    }
-                }
-            }
-        }
-        for (User userFromVacation : usersInVacation) {
-            for (User user : users.keySet()) {
-                if(user.id().equals(userFromVacation.id()) && !user.equals(userFromVacation)){
-                    usersToRemoveFromVacation.add(userFromVacation);
-                }
-            }
-        }
-        for (User user : usersToRemove) {
-            users.remove(user);
-        }
-        for (User user : usersToRemoveFromVacation) {
-            usersInVacation.remove(user);
-        }
+    }
 
-        if(!usersToRemoveFromVacation.isEmpty()) {
-            EtsHelper.saveUsersWhichInVacation(usersInVacation);
-        }
-        if(!usersToRemove.isEmpty()) {
-            EtsHelper.saveUsers(users);
-        }
+    private static boolean isUserChatMember(User user, long chatId, TelegramBot bot) {
+        GetChatMemberResponse response = bot.execute(new GetChatMember(chatId, user.id()));
+        ChatMember chatMember = response.chatMember();
+        return chatMember != null && !chatMember.status().equals(ChatMember.Status.left);
     }
 
     public static Boolean checkIsResolvedToDay(TelegramBot bot, long chatId) {
         int resolvedCount = 0;
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-        if (!users.isEmpty()) {
-            for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
-                User user = userBooleanEntry.getKey();
-                Boolean resolved = userBooleanEntry.getValue();
-                if (user.isBot()) {
-                    continue;
-                }
-                if (resolved) {
-                    resolvedCount++;
-                }
+        int botsCount = 0;
+        HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
+        for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
+            User user = userBooleanEntry.getKey();
+            Boolean resolved = userBooleanEntry.getValue();
+            if (user.isBot()) {
+                botsCount++;
+                continue;
+            }
+            if (resolved) {
+                resolvedCount++;
             }
         }
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(chatId));
-        int count = response.count();
-        int expectedCount = count - 1 - usersInVacation.size();
-        return TimeHelper.checkToDayIs(DAY_TO_CHECK) && resolvedCount >= expectedCount;
+        int count = response.count() - botsCount;
+        return TimeHelper.checkToDayIs(DAY_TO_CHECK) && resolvedCount >= count;
     }
 
     private static String getMessageFromFile() {

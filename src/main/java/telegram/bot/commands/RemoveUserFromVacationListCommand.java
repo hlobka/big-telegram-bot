@@ -7,9 +7,12 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
 import telegram.bot.checker.EtsClarityChecker;
-import telegram.bot.helper.EtsHelper;
+import telegram.bot.data.Common;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RemoveUserFromVacationListCommand implements Command {
 
@@ -28,7 +31,7 @@ public class RemoveUserFromVacationListCommand implements Command {
             returnUserFromVacation(user, chatId);
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s returns from vacation", user.firstName())));
         }
-        HashMap<User, Boolean> users = EtsHelper.getUsers();
+        HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
         for (Map.Entry<User, Boolean> entry : users.entrySet()) {
             User user = entry.getKey();
             int userId;
@@ -48,10 +51,8 @@ public class RemoveUserFromVacationListCommand implements Command {
     }
 
     private void returnUserFromVacation(User user, Long chatId) {
-        ArrayList<User> usersInVacation = EtsHelper.getUsersFromVacation();
-        if(usersInVacation.contains(user)){
-            usersInVacation.remove(user);
-            EtsHelper.saveUsersWhichInVacation(usersInVacation);
+        if(Common.ETS_HELPER.isUserOnVacation(user)) {
+            Common.ETS_HELPER.resolveUser(user, false);
         }
         EtsClarityChecker.updateLastMessage(bot, chatId);
     }
