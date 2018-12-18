@@ -95,6 +95,10 @@ public class EtsClarityChecker extends Thread {
     }
 
     private void sendNotification(long chatId) {
+        sendNotification(chatId, bot);
+    }
+
+    public static void sendNotification(long chatId, TelegramBot bot) {
         String message = getMessage(bot, chatId);
         SendMessage request = new SendMessage(chatId, message)
             .parseMode(ParseMode.HTML)

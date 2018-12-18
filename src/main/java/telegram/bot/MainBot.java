@@ -70,6 +70,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_help_links", new ShowHelpLinks());
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         commandExecutorRule.addCommand("/show_reviews", new ShowUpsourceReviewCommand(bot));
+        commandExecutorRule.addCommand("/show_ets", new ShowEtsCommand(bot));
         rules.registerRule(commandExecutorRule);
 //        new JokesSender(bot).start();
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();

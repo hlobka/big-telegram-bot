@@ -15,3 +15,4 @@ send_on_vacation - Need for sending user on vacation by using reply from him
 remove_user_from_ets_list - Need for extracting user from ets list by using reply from him
 return_from_vacation - need to return user from vacation by it id
 show_reviews - should be show reviews which dependent on this chat and have an open status
+show_ets - need to show ets
