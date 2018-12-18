@@ -6,10 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.GetChatMember;
-import com.pengrad.telegrambot.request.GetChatMembersCount;
-import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetChatMemberResponse;
 import com.pengrad.telegrambot.response.GetChatMembersCountResponse;
 import com.pengrad.telegrambot.response.SendResponse;
@@ -115,6 +112,7 @@ public class EtsClarityChecker extends Thread {
         commonData.put("LAST_MESSAGE_ID", LAST_MESSAGE_ID);
         commonData.put("LAST_MESSAGE_CHAT_ID", LAST_MESSAGE_CHAT_ID);
         SharedObject.save(COMMON_INT_DATA, commonData);
+        bot.execute(new PinChatMessage(chatId, LAST_MESSAGE_ID));
     }
 
     public static void updateLastMessage(TelegramBot bot, long chatId) {
