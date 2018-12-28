@@ -79,8 +79,10 @@ public class EtsClarityChecker extends Thread {
                 if (timeout > 0) {
                     sleep(timeout, TimeUnit.MINUTES);
                 }
-                sendNotification(chatId);
-                System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
+                if (!isResolvedToday) {
+                    sendNotification(chatId);
+                    System.out.println(new Date().getTime() + "::EtsClarityChecker::TRUE; Hours: " + currentTimeInHours + "; Minutes: " + currentTimeInMinutes);
+                }
             }
         } else {
             unResolveAll();
@@ -194,7 +196,7 @@ public class EtsClarityChecker extends Thread {
     public static void checkIsAllUsersPresentsOnThisChat(TelegramBot bot, long chatId) {
         HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
         for (User user : users.keySet()) {
-            if(!isUserChatMember(user, chatId, bot)){
+            if (!isUserChatMember(user, chatId, bot)) {
                 Common.ETS_HELPER.removeUser(user);
             }
         }
@@ -208,7 +210,7 @@ public class EtsClarityChecker extends Thread {
 
     public static Boolean checkIsResolvedToDay(TelegramBot bot, long chatId) {
         int resolvedCount = 0;
-        int botsCount = 0;
+        int botsCount = 1;
         HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
         for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
             User user = userBooleanEntry.getKey();
