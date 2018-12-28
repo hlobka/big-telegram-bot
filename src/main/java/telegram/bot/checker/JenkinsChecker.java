@@ -129,22 +129,23 @@ public class JenkinsChecker extends Thread {
                 return;
             }
         }
-        String msg = getBuildMessage(key, job, lastBuildDetails, allBuilds);
+        String possibleException = getPossibleException(lastBuildDetails);
+        String msg = getBuildMessage(key, job, lastBuildDetails, allBuilds, possibleException);
         logFor(this, msg);
-        sendMessage(chatData, msg);
+        sendMessage(chatData, msg, possibleException.isEmpty());
         statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
         SharedObject.save(JENKINS_STATUSES, statuses);
     }
 
-    private void sendMessage(ChatData chatData, String msg) {
+    private void sendMessage(ChatData chatData, String msg, boolean disableNotification) {
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true)
-                .disableNotification(false);
+                .disableNotification(disableNotification);
         bot.execute(request);
     }
 
-    private String getBuildMessage(String key, Job job, BuildWithDetails lastBuildDetails, List<Build> allBuilds) throws IOException {
+    private String getBuildMessage(String key, Job job, BuildWithDetails lastBuildDetails, List<Build> allBuilds, String possibleException) throws IOException {
         BuildResult result = lastBuildDetails.getResult();
         String url = job.getUrl();
         url = getShortUrlAsLink(url, key);
@@ -152,7 +153,6 @@ public class JenkinsChecker extends Thread {
         int totalBuilds = allBuilds.size();
         long failedCount = totalBuilds - successCount;
         String changes = getChanges(lastBuildDetails);
-        String possibleException = getPossibleException(lastBuildDetails);
 
         return String.format("Entry: %s %nStatus: <b>%s</b> %nTotal builds: <b>%d</b>; %nSuccess builds:<b>%d</b>; %nFailed builds:<b>%d</b>%n%s%n%s", url, result, totalBuilds, successCount, failedCount, changes, possibleException);
     }
