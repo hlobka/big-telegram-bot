@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 public class AnswerRule implements Rule {
     private final TelegramBot bot;
+    private Map<Long, MessageSupplier<String>> nextChatAnswer = new HashMap<>();
     private Map<String, MessageSupplier<String>> commonRegAnswers = new HashMap<>();
     private Map<String, Function<String, String>> commonAnswers = new HashMap<>();
     private Map<String, Function<String, String>> answers = new HashMap<>();
@@ -40,6 +41,10 @@ public class AnswerRule implements Rule {
     public AnswerRule(TelegramBot bot) {
         this.bot = bot;
         answers.put("бот, привет", s -> "О, Привет!");
+        answers.put("да, бот?", s -> {
+            nextChatAnswer.put(-1L, s1 -> "Я в раздумиях...");
+            return "Что да?";
+        });
         commonRegAnswers.put("бот,? голос", s -> {
             List<String> strings = Arrays.asList("Аф, Аф!!", "Миаууу", "Пффф...", "ква-ква", "кря-кря", "Квооо-ко-ко-к-ко", "и-О-а-Аа Эи эи эии", "ква-ква", "Ым Ым", "ЫЫ-ЫЫ", "пых-пых", "ту-ту", "пи-пи-пи", "Ня-ня-ня");
             return strings.get((int) Math.round(Math.random() * (strings.size() - 1)));
@@ -317,6 +322,19 @@ public class AnswerRule implements Rule {
                 bot.execute(request);
                 return;
             }
+        }
+        if(nextChatAnswer.containsKey(chatId)){
+            SendMessage request = new SendMessage(chatId, nextChatAnswer.get(chatId).apply(text))
+                    .parseMode(ParseMode.Markdown)
+                    .disableWebPagePreview(false)
+                    .disableNotification(true)
+                    .replyToMessageId(message.messageId());
+            bot.execute(request);
+            nextChatAnswer.remove(chatId);
+        }
+        if(nextChatAnswer.containsKey(-1L)){
+            nextChatAnswer.put(chatId, nextChatAnswer.get(-1L));
+            nextChatAnswer.remove(-1L);
         }
     }
 
