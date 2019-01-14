@@ -337,13 +337,14 @@ public class AnswerRule implements Rule {
             }
         }
         if(nextChatAnswer.containsKey(chatId)){
-            SendMessage request = new SendMessage(chatId, nextChatAnswer.get(chatId).apply(text))
+            MessageSupplier<String> stringMessageSupplier = nextChatAnswer.get(chatId);
+            nextChatAnswer.remove(chatId);
+            SendMessage request = new SendMessage(chatId, stringMessageSupplier.apply(text))
                     .parseMode(ParseMode.Markdown)
                     .disableWebPagePreview(false)
                     .disableNotification(true)
                     .replyToMessageId(message.messageId());
             bot.execute(request);
-            nextChatAnswer.remove(chatId);
         }
         if(nextChatAnswer.containsKey(-1L)){
             nextChatAnswer.put(chatId, nextChatAnswer.get(-1L));
