@@ -75,7 +75,10 @@ public class MainBot {
         rules.registerRule(commandExecutorRule);
 //        new JokesSender(bot).start();
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
-        new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL).start();
+        new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL)
+                .withIdleTimeoutMultiplier(5)
+                .withMaxNumberOfAttempts(5)
+                .start();
         for (Long chatId : Common.data.getMainGeneralChatIds()) {
             //todo: move day to config file
             new EtsClarityChecker(bot, chatId, TimeUnit.MINUTES.toMillis(58), DayOfWeek.FRIDAY).start();

@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
+import helper.time.TimeHelper;
 import http.GetExecuter;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
@@ -28,16 +29,23 @@ import static telegram.bot.data.Common.JENKINS_STATUSES;
 //TODO: try to analise this jobs: http://master-jenkins/job/environment-jobs/
 public class JenkinsChecker extends Thread {
     private TelegramBot bot;
-    private long millis;
+    private long timeoutInMillis;
     private final JenkinsServer jenkins;
+    private int maxNumberOfAttempts;
+    private int idleTimeoutMultiplier = 1;
     private HashMap<String, Boolean> statuses;
-    private Boolean isFirstTime = true;
+    private int numberOfAttempts = -1;
 
-    public JenkinsChecker(TelegramBot bot, long millis, String jenkinsServerUrl) throws URISyntaxException {
+    public JenkinsChecker(TelegramBot bot, long timeoutInMillis, String jenkinsServerUrl) throws URISyntaxException {
+        this(bot, timeoutInMillis, jenkinsServerUrl, 0);
+    }
+
+    public JenkinsChecker(TelegramBot bot, long timeoutInMillis, String jenkinsServerUrl, int maxNumberOfAttempts) throws URISyntaxException {
         this.bot = bot;
-        this.millis = millis;
-        jenkins = new JenkinsServer(new URI(jenkinsServerUrl));
-        statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<String, Boolean>());
+        this.timeoutInMillis = timeoutInMillis;
+        this.jenkins = new JenkinsServer(new URI(jenkinsServerUrl));
+        this.maxNumberOfAttempts = maxNumberOfAttempts;
+        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<String, Boolean>());
     }
 
     @Override
@@ -45,19 +53,35 @@ public class JenkinsChecker extends Thread {
         super.run();
         while (true) {
             try {
-                long millis = isFirstTime ? 1 : this.millis;
-                isFirstTime = false;
-                TimeUnit.MILLISECONDS.sleep(millis);
+                sleepToNextCheck();
                 check();
+                numberOfAttempts = 0;
             } catch (InterruptedException e) {
                 ConsoleLogger.logErrorFor(this, e);
                 Thread.interrupted();
                 return;
             } catch (IOException e) {
                 ConsoleLogger.logErrorFor(this, e);
-                return;
+                if (numberOfAttempts++ > maxNumberOfAttempts) {
+                    return;
+                }
+                ConsoleLogger.logError(e, String.format("will be rerun in %d minutes. Attempt: %d", TimeUnit.MILLISECONDS.toMinutes(getMillisToNextRun()), numberOfAttempts));
             }
         }
+    }
+
+    private long getMillisToNextRun() {
+        long millis = numberOfAttempts == -1 ? 1 : timeoutInMillis;
+        if (TimeHelper.isWeekends() || TimeHelper.isNight()) {
+            millis = millis * idleTimeoutMultiplier;
+        }
+        return millis;
+    }
+
+    private void sleepToNextCheck() throws InterruptedException {
+        long millis = getMillisToNextRun();
+        logFor(this, "sleepToNextCheck: " + TimeUnit.MILLISECONDS.toMinutes(millis) + " minutes");
+        TimeUnit.MILLISECONDS.sleep(millis);
     }
 
     private void check() throws IOException {
@@ -232,5 +256,15 @@ public class JenkinsChecker extends Thread {
             }
         }
         return result;
+    }
+
+    public JenkinsChecker withIdleTimeoutMultiplier(int multiplier){
+        idleTimeoutMultiplier = multiplier;
+        return this;
+    }
+
+    public JenkinsChecker withMaxNumberOfAttempts(int maxNumberOfAttempts){
+        this.maxNumberOfAttempts = maxNumberOfAttempts;
+        return this;
     }
 }

@@ -58,22 +58,12 @@ public class JiraChecker extends Thread {
         isFirstTime = false;
         logFor(this, "sleepToNextCheck: " + TimeUnit.MILLISECONDS.toMinutes(millis) + " minutes");
         TimeUnit.MILLISECONDS.sleep(millis);
-        if (isWeekends() || isNight()) {
+        if (TimeHelper.isWeekends() || TimeHelper.isNight()) {
             logFor(this, "sleepToNextCheck: 10 minutes");
             TimeUnit.MINUTES.sleep(10);
             return false;
         }
         return true;
-    }
-
-    private boolean isNight() {
-        Calendar calendar = Calendar.getInstance();
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        return !(hours > 8 && hours < 20);
-    }
-
-    private boolean isWeekends() {
-        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
     }
 
     public void check() {

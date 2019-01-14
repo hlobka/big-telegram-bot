@@ -242,16 +242,11 @@ public class UpsourceChecker extends Thread {
         long minutesUntilTargetHour = getMinutesUntilNextTargetHour();
         logFor(this, "sleepToNextCheck: " + minutesUntilTargetHour + " minutes");
         TimeUnit.MINUTES.sleep(minutesUntilTargetHour);
-        if (isWeekends()) {
+        if (TimeHelper.isWeekends()) {
             TimeUnit.MINUTES.sleep(1);
             return false;
         }
         return true;
-
-    }
-
-    private boolean isWeekends() {
-        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
     }
 
     private Long getMinutesUntilNextTargetHour() {

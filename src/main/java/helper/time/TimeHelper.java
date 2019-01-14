@@ -51,4 +51,14 @@ public class TimeHelper {
     public static String getCurrentTimeStamp(String pattern) {
         return new SimpleDateFormat(pattern).format(new Date());
     }
+
+    public static boolean isNight() {
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        return !(hours > 8 && hours < 20);
+    }
+
+    public static boolean isWeekends() {
+        return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
+    }
 }
