@@ -193,7 +193,8 @@ public class AnswerRule implements Rule {
         commonRegAnswers.put("^[a-zа-я]{21,}$", s -> "Ну очень длинное слово");
         commonRegAnswers.put("(.*(Ф|ф)а+к,? .*)|(^(Ф|ф)а+к!{0,})", s -> "Попрошу не выражаться.");
         commonRegAnswers.put("^(M|m)erde$", s -> "Pue");
-        commonRegAnswers.put("^[(0-9+ -/*^]{3,}$|^[(0-9+ -/*^)(]{5,}$", s -> {
+        commonRegAnswers.put("^\\){7,}$", s -> "Что за губная гормошка?");
+        commonRegAnswers.put(StringMath.REG_EXPRESSION_TO_MATH_MATCH, s -> {
             try {
                 return StringMath.stringToMathResult(s) + "";
             } catch (NumberFormatException e) {
