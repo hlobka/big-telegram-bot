@@ -54,6 +54,7 @@ public class UpsourceChecker extends Thread {
         JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
         return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
     }
+
     private static String getUpsourceViewResult(JiraHelper jiraHelper, UpsourceApi upsourceApi, String upsourceId) throws IOException {
         List<Review> upsourceReviews = upsourceApi.getProject(upsourceId)
             .getReviewsProvider(true)
@@ -91,7 +92,7 @@ public class UpsourceChecker extends Thread {
     }
 
     private static String getReviewsStatusTable(String upsourceId, List<JiraUpsourceReview> reviews, JiraHelper jiraHelper, String title) {
-        String message = title;
+        String message = (title.isEmpty() ? "" : "\n") + title;
         final String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
         if (reviews.size() > 0) {
             message += "\n* " + upsourceId + " *";
