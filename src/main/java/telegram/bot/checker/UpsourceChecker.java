@@ -210,7 +210,9 @@ public class UpsourceChecker extends Thread {
             new InlineKeyboardButton("Обновить")
                 .callbackData("update_upsource_checker_view_result_for:" + upsourceProjectId),
             new InlineKeyboardButton("Подробнее")
-                .callbackData("show_upsource_checker_tabs_description")
+                .callbackData("show_upsource_checker_tabs_description"),
+            new InlineKeyboardButton("Что может быть не так?")
+                .callbackData("show_upsource_checker_possible_problems")
         });
     }
 

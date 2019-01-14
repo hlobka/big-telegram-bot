@@ -44,6 +44,7 @@ public class MainBot {
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCallBackCommand("update_upsource_checker_view_result_for", new UpdateUpsourceViewResult(bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
+        commandExecutorRule.addCallBackCommand("show_upsource_checker_possible_problems", new ShowAlertFromResource(Common.UPSOURCE.checkerPossibleProblemsHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
         commandExecutorRule.addCommand("/remove_user_from_ets_list", new RemoveUserFromEtsListByReplyCommand(bot));

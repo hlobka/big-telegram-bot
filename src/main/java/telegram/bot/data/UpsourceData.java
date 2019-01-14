@@ -11,9 +11,11 @@ public class UpsourceData {
     public final Map<String, String> userIdOnNameMap;
     public final Map<String, String> userLoginOnMailMap;
     public String checkerHelpLink;
+    public String checkerPossibleProblemsHelpLink;
 
     public UpsourceData(Properties properties) {
         checkerHelpLink = properties.getProperty("upsource.checkerHelpLink");
+        checkerPossibleProblemsHelpLink = properties.getProperty("upsource.checkerPossibleProblemsHelpLink");
         LoginData loginData = new LoginData(properties, "upsource");
         url = loginData.url;
         login = loginData.login;
