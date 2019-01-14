@@ -111,6 +111,9 @@ public class AnswerRule implements Rule {
             }
             return "Сегодня не ваш день...";
         });
+        commonAnswers.put("Гадицца", s -> "Не обГадицца");
+        commonRegAnswers.put("Брос(ила|ал|ил|ать|им|ай)", s -> "Я как то курить бросал...");
+        commonAnswers.put("Он в отпуске", s -> "Так ему и надо, Заслужил!");
         commonAnswers.put("Бот, как тебе ", s -> {
             String who = StringHelper.getRegString(s, "Бот, как тебе (моя?и? )?([А-Яа-яa-zA-Z ]+)\\?", 2);
             String which = "классная и красивая";
