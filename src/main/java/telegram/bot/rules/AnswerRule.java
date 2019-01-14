@@ -322,6 +322,7 @@ public class AnswerRule implements Rule {
                     .disableNotification(true)
                     .replyToMessageId(message.messageId());
                 bot.execute(request);
+                registerPossibleChatAnswer(chatId);
                 return;
             }
         }
@@ -333,6 +334,7 @@ public class AnswerRule implements Rule {
                     .disableNotification(true)
                     .replyToMessageId(message.messageId());
                 bot.execute(request);
+                registerPossibleChatAnswer(chatId);
                 return;
             }
         }
@@ -346,6 +348,10 @@ public class AnswerRule implements Rule {
                     .replyToMessageId(message.messageId());
             bot.execute(request);
         }
+        registerPossibleChatAnswer(chatId);
+    }
+
+    public void registerPossibleChatAnswer(Long chatId) {
         if(nextChatAnswer.containsKey(-1L)){
             nextChatAnswer.put(chatId, nextChatAnswer.get(-1L));
             nextChatAnswer.remove(-1L);
