@@ -112,7 +112,16 @@ public class AnswerRule implements Rule {
             return "Сегодня не ваш день...";
         });
         commonAnswers.put("Гадицца", s -> "Не обГадицца");
-        commonRegAnswers.put(".*брос(ила|ал|ил|ать|им|ай).*", s -> "Я как то курить бросал...");
+        List<String> possibleAnswers = Arrays.asList("Я в раздумиях...","Я Тоже так думал...", "А ты сам попробуй...");
+        commonRegAnswers.put(".*брос(ила|ал|ил|ать|им|ай).*", s -> {
+            Collections.shuffle(possibleAnswers);
+            nextChatAnswer.put(-1L, s1 -> {
+                Collections.shuffle(possibleAnswers);
+                nextChatAnswer.put(-1L, s2 -> possibleAnswers.get(0));
+                return possibleAnswers.get(0);
+            });
+            return "Я как то курить бросал...";
+        });
         commonAnswers.put("Он в отпуске.*", s -> "Так ему и надо, Заслужил!");
         commonAnswers.put("Бот, как тебе ", s -> {
             String who = StringHelper.getRegString(s, "Бот, как тебе (моя?и? )?([А-Яа-яa-zA-Z ]+)\\?", 2);
