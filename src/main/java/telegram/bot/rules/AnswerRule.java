@@ -114,10 +114,12 @@ public class AnswerRule implements Rule {
         commonAnswers.put("Гадицца", s -> "Не обГадицца");
         List<String> possibleAnswers = Arrays.asList("Я в раздумиях...","Я Тоже так думал...", "А ты сам попробуй...");
         commonRegAnswers.put(".*брос(ила|ал|ил|ать|им|ай).*", s -> {
-            Collections.shuffle(possibleAnswers);
             nextChatAnswer.put(-1L, s1 -> {
                 Collections.shuffle(possibleAnswers);
-                nextChatAnswer.put(-1L, s2 -> possibleAnswers.get(0));
+                nextChatAnswer.put(-1L, s2 -> {
+                    Collections.shuffle(possibleAnswers);
+                    return possibleAnswers.get(0);
+                });
                 return possibleAnswers.get(0);
             });
             return "Я как то курить бросал...";
