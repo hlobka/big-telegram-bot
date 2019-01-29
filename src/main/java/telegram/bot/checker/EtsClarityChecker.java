@@ -217,7 +217,7 @@ public class EtsClarityChecker extends Thread {
         for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
             User user = userBooleanEntry.getKey();
             Boolean resolved = userBooleanEntry.getValue();
-            if (resolved && !etsHelper.isUserOnVacation(user) && !etsHelper.isUserHasIssue(user)) {
+            if ((resolved || etsHelper.isUserOnVacation(user)) && !etsHelper.isUserHasIssue(user)) {
                 resolvedCount++;
             }
         }
