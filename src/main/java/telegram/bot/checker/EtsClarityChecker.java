@@ -15,6 +15,7 @@ import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import telegram.bot.data.Common;
+import telegram.bot.helper.BotHelper;
 import telegram.bot.helper.EtsHelper;
 
 import java.io.IOException;
@@ -66,8 +67,8 @@ public class EtsClarityChecker extends Thread {
             checkIsAllUsersPresentsOnThisChat(bot, chatId);
             if (checkIsResolvedToDay(bot, chatId)) {
                 if (!isResolvedToday) {
+                    notifyThatIsResolvedToDay();
                     isResolvedToday = true;
-
                 }
                 return;
             }
@@ -102,14 +103,14 @@ public class EtsClarityChecker extends Thread {
     public static void sendNotification(long chatId, TelegramBot bot) {
         String message = getMessage(bot, chatId);
         SendMessage request = new SendMessage(chatId, message)
-            .parseMode(ParseMode.HTML)
-            .disableWebPagePreview(true)
-            .disableNotification(false)
-            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
-                new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
-                new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
-            }));
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true)
+                .disableNotification(false)
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                        new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                        new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                        new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+                }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
         LAST_MESSAGE_CHAT_ID = chatId;
@@ -130,13 +131,13 @@ public class EtsClarityChecker extends Thread {
         }
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot, chatId))
-                .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(true)
-                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
-                    new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                    new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
-                    new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
-                }));
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(true)
+                    .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                            new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                            new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                            new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+                    }));
             bot.execute(request);
         } catch (RuntimeException e) {
             ConsoleLogger.logErrorFor(EtsClarityChecker.class, e);
@@ -211,21 +212,22 @@ public class EtsClarityChecker extends Thread {
     public static Boolean checkIsResolvedToDay(TelegramBot bot, long chatId) {
         int resolvedCount = 0;
         int botsCount = 1;
-        HashMap<User, Boolean> users = Common.ETS_HELPER.getUsers();
+        EtsHelper etsHelper = Common.ETS_HELPER;
+        HashMap<User, Boolean> users = etsHelper.getUsers();
         for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
             User user = userBooleanEntry.getKey();
             Boolean resolved = userBooleanEntry.getValue();
-            if (user.isBot()) {
-                botsCount++;
-                continue;
-            }
-            if (resolved) {
+            if (resolved && !etsHelper.isUserOnVacation(user) && !etsHelper.isUserHasIssue(user)) {
                 resolvedCount++;
             }
         }
         GetChatMembersCountResponse response = bot.execute(new GetChatMembersCount(chatId));
         int count = response.count() - botsCount;
         return TimeHelper.checkToDayIs(DAY_TO_CHECK) && resolvedCount >= count;
+    }
+
+    public void notifyThatIsResolvedToDay() {
+        BotHelper.sendMessage(bot, chatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
     }
 
     private static String getMessageFromFile() {

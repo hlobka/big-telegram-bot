@@ -48,9 +48,13 @@ public class ResolveEts implements Command {
         Common.ETS_HELPER.resolveUser(user);
         EtsClarityChecker.updateLastMessage(bot, chatId);
         if (EtsClarityChecker.checkIsResolvedToDay(bot, chatId)) {
-            for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
-                BotHelper.sendMessage(bot, mainGeneralChatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
-            }
+            notifyThatIsResolvedToDay(bot);
+        }
+    }
+
+    public static void notifyThatIsResolvedToDay(TelegramBot bot) {
+        for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
+            BotHelper.sendMessage(bot, mainGeneralChatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
         }
     }
 
