@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
+import com.pengrad.telegrambot.request.PinChatMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.logger.ConsoleLogger;
@@ -294,11 +295,13 @@ public class UpsourceChecker extends Thread {
     }
 
     private void sendMessageWithInlineBtns(ChatData chatData, String message, String upsourceProjectId) {
-        SendMessage request = new SendMessage(chatData.getChatId(), message)
+        long chatId = chatData.getChatId();
+        SendMessage request = new SendMessage(chatId, message)
             .parseMode(ParseMode.Markdown)
             .disableWebPagePreview(false)
             .disableNotification(false)
             .replyMarkup(getReplyMarkup(upsourceProjectId));
         SendResponse execute = bot.execute(request);
+        bot.execute(new PinChatMessage(chatId, execute.message().messageId()));
     }
 }
