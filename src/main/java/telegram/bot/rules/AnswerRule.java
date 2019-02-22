@@ -268,7 +268,7 @@ public class AnswerRule implements Rule {
         }
         Long chatId = message.chat().id();
         if (message.replyToMessage() != null) {
-            if (message.replyToMessage().from().isBot()) {
+            if (message.replyToMessage().from().isBot() && !Common.data.isGeneralChat(chatId)) {
                 Collections.shuffle(popularBotAnswers);
                 String answer = popularBotAnswers.get(0);
                 SendMessage request = new SendMessage(chatId, answer)
