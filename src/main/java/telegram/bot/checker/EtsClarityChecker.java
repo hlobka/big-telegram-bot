@@ -179,7 +179,7 @@ public class EtsClarityChecker extends Thread {
                     if (etsHelper.isUserHasIssue(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "💊"));
                     } else if (etsHelper.isUserOnVacation(user)) {
-                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🌴"));
+                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍹"));
                     } else {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved ? "🍏" : "🍎"));
                     }
