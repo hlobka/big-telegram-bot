@@ -24,7 +24,7 @@ public class RemoveUserFromEtsListByReplyCommand implements Command {
         Message replyToMessage = update.message().replyToMessage();
         if(replyToMessage != null) {
             User replyUser = replyToMessage.from();
-            Common.ETS_HELPER.resolveUser(replyUser);
+            Common.ETS_HELPER.removeUser(replyUser);
             EtsClarityChecker.updateLastMessage(bot, update.message().chat().id());
             return new Pair<>(ParseMode.Markdown, Collections.singletonList(String.format("user %s was removed from ETS list", replyUser.firstName())));
         }
