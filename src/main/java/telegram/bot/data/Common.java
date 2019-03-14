@@ -5,6 +5,7 @@ import telegram.bot.data.chat.ChatPropertiesReader;
 import telegram.bot.helper.EtsHelper;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,12 +32,14 @@ public class Common {
     public static final String BIG_HELP_LINKS;
     public static final String JENKINS_URL;
     public static final String JENKINS_JOBS_URL;
+    public static final DayOfWeek ETS_DAY;
     static {
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
         JENKINS_URL = PROPERTIES.getProperty("jenkins.url");
         JENKINS_JOBS_URL = PROPERTIES.getProperty("jenkins.jobs.url");
+        ETS_DAY = DayOfWeek.of(Integer.parseInt(PROPERTIES.getProperty("ets.check.day")));
     }
 
     public List<ChatData> getChatForReport() {

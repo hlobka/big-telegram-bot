@@ -80,8 +80,7 @@ public class MainBot {
                 .withMaxNumberOfAttempts(5)
                 .start();
         for (Long chatId : Common.data.getMainGeneralChatIds()) {
-            //todo: move day to config file
-            new EtsClarityChecker(bot, chatId, TimeUnit.MINUTES.toMillis(58), DayOfWeek.THURSDAY).start();
+            new EtsClarityChecker(bot, chatId, TimeUnit.MINUTES.toMillis(58), Common.ETS_DAY).start();
         }
 
         new UpsourceChecker(bot).start();
