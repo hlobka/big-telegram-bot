@@ -31,14 +31,22 @@ public class Common {
     public static final String HELP_LINKS;
     public static final String BIG_HELP_LINKS;
     public static final String JENKINS_URL;
+    public static final String JENKINS_ADDITIONAL_URL;
+    public static final String JENKINS_PROXY_HOST;
+    public static final String JENKINS_PROXY_PORT;
     public static final String JENKINS_JOBS_URL;
+    public static final String JENKINS_ADDITIONAL_JOBS_URL;
     public static final DayOfWeek ETS_DAY;
     static {
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
         BIG_HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.big.file");
         JENKINS_URL = PROPERTIES.getProperty("jenkins.url");
+        JENKINS_ADDITIONAL_URL = PROPERTIES.getProperty("jenkins.additional.url");
+        JENKINS_PROXY_HOST = PROPERTIES.getProperty("jenkins.proxy.host");
+        JENKINS_PROXY_PORT = PROPERTIES.getProperty("jenkins.proxy.port");
         JENKINS_JOBS_URL = PROPERTIES.getProperty("jenkins.jobs.url");
+        JENKINS_ADDITIONAL_JOBS_URL = PROPERTIES.getProperty("jenkins.additional.jobs.url");
         ETS_DAY = DayOfWeek.of(Integer.parseInt(PROPERTIES.getProperty("ets.check.day")));
     }
 
@@ -76,6 +84,7 @@ public class Common {
                 chatPropertiesReader.getChatId(),
                 chatPropertiesReader.getChatName(),
                 chatPropertiesReader.getJenkinsIds(),
+                chatPropertiesReader.getJenkinsIdsForAllStatuses(),
                 chatPropertiesReader.getUpsourceIds(),
                 chatPropertiesReader.getJiraIds(),
                 chatPropertiesReader.isMainGeneralChat(),

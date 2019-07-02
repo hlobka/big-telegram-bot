@@ -9,6 +9,7 @@ public class ChatData {
     private final long chatId;
     private final String chatName;
     private final List<String> jenkinsIds;
+    private final List<String> jenkinsIdsForAllStatuses;
     private final List<String> upsourceIds;
     private final List<String> jiraProjectKeyIds;
     private final Boolean isMainGeneral;

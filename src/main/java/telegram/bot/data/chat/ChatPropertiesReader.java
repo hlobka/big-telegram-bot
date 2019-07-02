@@ -24,6 +24,10 @@ public class ChatPropertiesReader {
         return getPropertyAsList("chat.jenkins.ids");
     }
 
+    public List<String> getJenkinsIdsForAllStatuses() {
+        return getPropertyAsList("chat.jenkins.for_all_statuses.ids");
+    }
+
     public List<String> getUpsourceIds() {
         return getPropertyAsList("chat.upsource.ids");
     }
@@ -53,6 +57,6 @@ public class ChatPropertiesReader {
     }
 
     private List<String> getPropertyAsList(String property) {
-        return Arrays.stream(properties.getProperty(property).split(",")).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        return Arrays.stream(properties.getProperty(property, "").split(",")).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 }

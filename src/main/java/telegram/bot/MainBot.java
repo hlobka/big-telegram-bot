@@ -75,6 +75,10 @@ public class MainBot {
         rules.registerRule(commandExecutorRule);
 //        new JokesSender(bot).start();
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
+        new JenkinsCheckerForAllStatuses(bot, TimeUnit.HOURS.toMillis(1), Common.JENKINS_ADDITIONAL_URL)
+            .withIdleTimeoutMultiplier(5)
+            .withMaxNumberOfAttempts(5)
+            .start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL)
                 .withIdleTimeoutMultiplier(5)
                 .withMaxNumberOfAttempts(5)
