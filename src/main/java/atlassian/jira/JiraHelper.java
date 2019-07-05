@@ -2,12 +2,10 @@ package atlassian.jira;
 
 import com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
-import com.atlassian.jira.rest.client.api.AuthenticationHandler;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
-import com.atlassian.jira.rest.client.api.RestClientException;
+import com.atlassian.jira.rest.client.api.*;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
@@ -21,7 +19,9 @@ import telegram.bot.data.LoginData;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -115,6 +115,19 @@ public class JiraHelper {
             }
             return getIssue(issueKey, true) != null;
         }
+    }
+
+    public List<Issue> getIssues(String jql) {
+        return getIssues(jql, 100, 0);
+    }
+
+    public List<Issue> getIssues(String jql, Integer maxPerQuery, Integer startIndex) {
+        SearchRestClient searchRestClient = client.getSearchClient();
+        Promise<SearchResult> searchResult = searchRestClient.searchJql(jql, maxPerQuery, startIndex, null);
+        SearchResult results = searchResult.claim();
+        ArrayList<Issue> result = new ArrayList<>();
+        results.getIssues().forEach(result::add);
+        return result;
     }
 
     public Issue getIssue(String issueKey) {
