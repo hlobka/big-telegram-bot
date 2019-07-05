@@ -4,6 +4,7 @@ import helper.file.FileHelper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,5 +106,22 @@ public class StringHelper {
             result.add(issueId);
         }
         return result;
+    }
+
+    public static String getBar(List<Double> list, List<String> valueCharacterSymbols, int barLength) {
+        assert list.size() == valueCharacterSymbols.size();
+        Double sum = list.stream().mapToDouble(Double::doubleValue).sum();
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            Double value = list.get(i);
+            String valueSymbol = valueCharacterSymbols.get(i);
+            int openedIssuesAmount = Math.round((float) Math.round((value / sum) * barLength));
+            result.append(repeat(valueSymbol, openedIssuesAmount));
+        }
+        return result.toString();
+    }
+
+    private static String repeat(String s, int n) {
+        return String.join("", Collections.nCopies(n, s));
     }
 }
