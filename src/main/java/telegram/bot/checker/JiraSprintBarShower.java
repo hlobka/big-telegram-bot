@@ -1,5 +1,6 @@
 package telegram.bot.checker;
 
+import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -10,6 +11,7 @@ import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.ReLoginRule;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,10 +19,6 @@ import java.util.stream.Stream;
 public class JiraSprintBarShower extends Thread {
 
     private final static Integer RULE_WIDTH = 12;
-    private final static String SPRINT_ALL_ISSUES_JQL       = "project = %s AND Sprint in openSprints()";
-    private final static String SPRINT_CLOSED_ISSUES_JQL    = "project = %s AND Sprint in openSprints() AND (status = Closed OR status = Rejected)";
-    private final static String SPRINT_ACTIVE_ISSUES_JQL    = "project = %s AND Sprint in openSprints() AND status != Rejected AND status != Closed AND status != Opened";
-    private final static String SPRINT_OPEN_ISSUES_JQL      = "project = %s AND Sprint in openSprints() AND status = Opened";
     private TelegramBot bot;
     private long millis;
     private final JiraHelper jiraHelper;
@@ -30,6 +28,7 @@ public class JiraSprintBarShower extends Thread {
         TelegramBot bot = new TelegramBot(Common.data.token);
 //        ChatData chatData = Common.data.getChatData("REPORT");
         JiraSprintBarShower jiraSprintBarShower = new JiraSprintBarShower(bot, TimeUnit.MINUTES.toMillis(60));
+        Long hours = jiraSprintBarShower.getActiveSprintTotalHours("SPHICL");
         jiraSprintBarShower.show("FOREGY");
         jiraSprintBarShower.show("SPHICL");
         jiraSprintBarShower.show("BOOSPH");
@@ -39,9 +38,17 @@ public class JiraSprintBarShower extends Thread {
     }
 
     public JiraSprintBarShower(TelegramBot bot, long millis) {
+        this(
+            JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e)),
+            bot,
+            millis
+        );
+    }
+
+    public JiraSprintBarShower(JiraHelper jiraHelper, TelegramBot bot, long millis) {
+        this.jiraHelper = jiraHelper;
         this.bot = bot;
         this.millis = millis;
-        jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
     }
 
     @Override
@@ -52,7 +59,7 @@ public class JiraSprintBarShower extends Thread {
         } else {
         }
         show("FOREGY");
-        while (true){
+        while (true) {
             try {
                 TimeUnit.MILLISECONDS.sleep(millis);
             } catch (InterruptedException e) {
@@ -66,9 +73,9 @@ public class JiraSprintBarShower extends Thread {
     }
 
     private void show(String projectKey) {
-        int closedIssuesAmount = jiraHelper.getIssues(String.format(SPRINT_CLOSED_ISSUES_JQL, projectKey)).size();
-        int openedIssuesAmount = jiraHelper.getIssues(String.format(SPRINT_ACTIVE_ISSUES_JQL, projectKey)).size();
-        int activeIssuesAmount = jiraHelper.getIssues(String.format(SPRINT_OPEN_ISSUES_JQL, projectKey)).size();
+        int closedIssuesAmount = jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintClosedIssuesJql(projectKey)).size();
+        int openedIssuesAmount = jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintActiveIssuesJql(projectKey)).size();
+        int activeIssuesAmount = jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintOpenIssuesJql(projectKey)).size();
         sendMessage(closedIssuesAmount, openedIssuesAmount, activeIssuesAmount);
     }
 
@@ -80,6 +87,16 @@ public class JiraSprintBarShower extends Thread {
         );
         ConsoleLogger.log(message);
         long chatId = Common.data.getChatForReport().get(0).getChatId();
-        BotHelper.sendMessage(bot, chatId, message , ParseMode.Markdown);
+        BotHelper.sendMessage(bot, chatId, message, ParseMode.Markdown);
+    }
+
+    public Long getActiveSprintTotalHours(String projectKey) {
+        return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectKey))
+            .stream()
+            .filter(issue -> issue.getTimeTracking() != null)
+            .map(issue -> issue.getTimeTracking().getOriginalEstimateMinutes())
+            .filter(Objects::nonNull)
+            .mapToLong(Integer::longValue)
+            .sum();
     }
 }

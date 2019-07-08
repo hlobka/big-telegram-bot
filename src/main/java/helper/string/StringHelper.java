@@ -35,7 +35,12 @@ public class StringHelper {
     }
 
     public static String getRegString(String text, String regex, int group) {
-        Pattern pattern = Pattern.compile(/*"(?U)" + */regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        int flags = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+        return getRegString(text, regex, group, flags);
+    }
+
+    public static String getRegString(String text, String regex, int group, int flags) {
+        Pattern pattern = Pattern.compile(/*"(?U)" + */regex, flags);
         Matcher matcher = pattern.matcher(text);
         String values = "";
         if (matcher.find()) {

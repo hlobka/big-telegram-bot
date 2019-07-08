@@ -5,6 +5,7 @@ import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.jira.rest.client.api.*;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
@@ -13,18 +14,20 @@ import com.atlassian.jira.rest.client.api.domain.util.ErrorCollection;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.internal.async.*;
 import com.atlassian.util.concurrent.Promise;
+import com.google.common.collect.Lists;
 import helper.logger.ConsoleLogger;
+import helper.string.StringHelper;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import telegram.bot.data.LoginData;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class JiraHelper {
 
@@ -115,6 +118,47 @@ public class JiraHelper {
             }
             return getIssue(issueKey, true) != null;
         }
+    }
+
+    public SprintDto getActiveSprint(String projectId) {
+        Object sprintValue = getIssues(FavoriteJqlScriptHelper.getSprintActiveIssuesJql(projectId)).get(0).getFieldByName("Sprint").getValue();
+        List<String> sprintValues = (List<String>) sprintValue;
+        for (String value : Lists.reverse(sprintValues)) {
+            Function<String, Date> dateProvider = s -> {
+                if (s == null || "<null>".equals(s)) {
+                    return null;
+                }
+                s = s.replaceAll("T", " ");
+                try {
+                    return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(s);
+                } catch (ParseException e) {
+                    throw new RuntimeException(String.format("Could not parse: %s", s), e);
+                }
+            };
+            SprintDto sprint = new SprintDto(
+                Long.parseLong(StringHelper.getRegString(value, ".*id=(.+?)(?=,).*", 1, 0)),
+                Long.parseLong(StringHelper.getRegString(value, ".*rapidViewId=(.+?)(?=,).*", 1, 0)),
+                StringHelper.getRegString(value, ".*state=(.+?)(?=,).*", 1, 0),
+                StringHelper.getRegString(value, ".*name=(.+?)(?=,).*", 1, 0),
+                StringHelper.getRegString(value, ".*startDate=(.+?)(?=,).*", 1, 0),
+                dateProvider.apply(StringHelper.getRegString(value, ".*startDate=(.+?)(?=,).*", 1, 0)),
+                StringHelper.getRegString(value, ".*endDate=(.+?)(?=,).*", 1, 0),
+                dateProvider.apply(StringHelper.getRegString(value, ".*endDate=(.+?)(?=,).*", 1, 0)),
+                StringHelper.getRegString(value, ".*completeDate=(.+?)(?=,).*", 1, 0),
+                dateProvider.apply(StringHelper.getRegString(value, ".*completeDate=(.+?)(?=,).*", 1, 0)),
+                Long.parseLong(StringHelper.getRegString(value, ".*sequence=(.+?)(?=,).*", 1, 0)),
+                StringHelper.getRegString(value, ".*goal=(.+?)(?=]).*", 1, 0)
+            );
+            if (sprint.getState().equalsIgnoreCase("ACTIVE")) {
+                return sprint;
+            }
+        }
+        throw new RuntimeException(String.format("Active sprint where not found by projectId: %s", projectId));
+    }
+
+    public Project getProject(String projectId) {
+        Project result = client.getProjectClient().getProject(projectId).claim();
+        return result;
     }
 
     public List<Issue> getIssues(String jql) {
