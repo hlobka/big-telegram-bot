@@ -36,6 +36,10 @@ public class ChatPropertiesReader {
         return getPropertyAsList("chat.jira.project.keyIds");
     }
 
+    public Boolean isEstimationRequired() {
+        return getPropertyAsBool("chat.config.isEstimationRequired");
+    }
+
     public Boolean isMainGeneralChat() {
         return getPropertyAsBool("chat.config.isMainGeneral");
     }
@@ -53,7 +57,7 @@ public class ChatPropertiesReader {
     }
 
     private Boolean getPropertyAsBool(String property) {
-        return properties.getProperty(property).equalsIgnoreCase("true");
+        return "true".equalsIgnoreCase(properties.getProperty(property));
     }
 
     private List<String> getPropertyAsList(String property) {

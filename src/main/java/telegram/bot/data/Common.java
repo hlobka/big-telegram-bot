@@ -87,6 +87,7 @@ public class Common {
                 chatPropertiesReader.getJenkinsIdsForAllStatuses(),
                 chatPropertiesReader.getUpsourceIds(),
                 chatPropertiesReader.getJiraIds(),
+                chatPropertiesReader.isEstimationRequired(),
                 chatPropertiesReader.isMainGeneralChat(),
                 chatPropertiesReader.isGeneralChat(),
                 chatPropertiesReader.isReportChat(),

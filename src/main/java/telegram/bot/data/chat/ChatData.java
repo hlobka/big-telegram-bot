@@ -12,6 +12,7 @@ public class ChatData {
     private final List<String> jenkinsIdsForAllStatuses;
     private final List<String> upsourceIds;
     private final List<String> jiraProjectKeyIds;
+    private final Boolean isEstimationRequired;
     private final Boolean isMainGeneral;
     private final Boolean isGeneral;
     private final Boolean isReport;

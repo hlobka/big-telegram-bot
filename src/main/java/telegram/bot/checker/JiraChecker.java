@@ -1,8 +1,6 @@
 package telegram.bot.checker;
 
 import atlassian.jira.JiraHelper;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -13,8 +11,6 @@ import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.rules.ReLoginRule;
 
-import java.time.DayOfWeek;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +19,7 @@ import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
 public class JiraChecker extends Thread {
     public static final int MAX_ISSUES_ON_ONE_POST = 10;
+    public static final int MAX_ISSUES_AMOUNT = 100;
     private TelegramBot bot;
     private long millis;
     private final JiraHelper jiraHelper;
@@ -82,9 +79,19 @@ public class JiraChecker extends Thread {
             sendAllMessages(chatData, projectJiraId, lastCreatedOrPostedIssueId);
             Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, lastCreatedOrPostedIssueId);
             statuses.put(projectJiraId, lastJiraIssueId);
+            if (lastJiraIssueId.equals(lastCreatedOrPostedIssueId) && chatData.getIsEstimationRequired()) {
+                checkUnEstimatedIssues(chatData, projectJiraId);
+            }
             SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
             logFor(this, String.format("check:posted %s: issues id from: %d to: %d", projectJiraId, lastCreatedOrPostedIssueId, lastJiraIssueId));
             logFor(this, String.format("check:%s[%s]:end", chatData.getChatId(), projectJiraId));
+        }
+    }
+
+    public void checkUnEstimatedIssues(ChatData chatData, String projectJiraId) {
+        String message = new JiraCheckerHelper(jiraHelper).getActiveSprintUnEstimatedIssuesMessage(projectJiraId);
+        if (!message.isEmpty()) {
+            sendMessage(chatData, message);
         }
     }
 
@@ -110,7 +117,7 @@ public class JiraChecker extends Thread {
         for (int i = 0; i < MAX_ISSUES_ON_ONE_POST; i++) {
             if (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
                 String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
-                String issueDescription = getIssueDescription(issueKey);
+                String issueDescription = JiraCheckerHelper.getIssueDescription(jiraHelper.getIssue(issueKey));
                 message += issueDescription;
             }
             lastCreatedIssueId++;
@@ -121,37 +128,24 @@ public class JiraChecker extends Thread {
         return message;
     }
 
-    private String getIssueDescription(String issueKey) {
-        Issue issue = jiraHelper.getIssue(issueKey);
-        String reporter = getName(issue.getReporter());
-        String assignee = getName(issue.getAssignee());
-        String summary = issue.getSummary();
-        Object priority = issue.getPriority() == null ? "Low" : issue.getPriority().getName();
-        String linkedIssueKey = String.format("[%1$s](%2$s/browse/%1$s)", issueKey, Common.JIRA.url);
-        return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: *%s* with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
-    }
-
-    private String getName(User user) {
-        return user == null ? "RIP" : user.getName();
-    }
-
     private String getIssueKey(String projectJiraId, Integer lastCreatedIssueId) {
         return projectJiraId + "-" + lastCreatedIssueId;
     }
 
     private Integer getIssueId(String projectJiraId) {
-        Integer issueId;
+        Integer issueId = 0;
         if (!statuses.containsKey(projectJiraId)) {
-            issueId = getLastJiraIssueId(projectJiraId);
+            int maxIssuesAmount = MAX_ISSUES_AMOUNT;
+            while (!jiraHelper.hasIssue(getIssueKey(projectJiraId, ++issueId))) {
+                if (maxIssuesAmount-- < 0) {
+                    throw new RuntimeException(String.format("MAX_ISSUES_AMOUNT reached: %d", MAX_ISSUES_AMOUNT));
+                }
+            }
         } else {
             issueId = statuses.get(projectJiraId);
         }
         issueId = Math.max(0, issueId);
         return issueId;
-    }
-
-    private Integer getLastJiraIssueId(String projectJiraId) {
-        return getLastJiraIssueId(projectJiraId, 1);
     }
 
     private Integer getLastJiraIssueId(String projectJiraId, int previousResult) {
@@ -176,9 +170,9 @@ public class JiraChecker extends Thread {
 
     private void sendMessage(ChatData chatData, String msg) {
         SendMessage request = new SendMessage(chatData.getChatId(), msg)
-                .parseMode(ParseMode.Markdown)
-                .disableWebPagePreview(true)
-                .disableNotification(false);
+            .parseMode(ParseMode.Markdown)
+            .disableWebPagePreview(true)
+            .disableNotification(false);
         bot.execute(request);
     }
 }
