@@ -53,7 +53,7 @@ public class JenkinsCheckerForAllStatuses extends Thread {
         CloseableHttpClient httpClient = HttpClients.custom().setRoutePlanner(routePlanner).build();
         this.jenkins = new JenkinsServer(new JenkinsHttpClient(new URI(jenkinsServerUrl), httpClient));
         this.maxNumberOfAttempts = maxNumberOfAttempts;
-        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<String, Boolean>());
+        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<>());
     }
 
     @Override
@@ -151,6 +151,7 @@ public class JenkinsCheckerForAllStatuses extends Thread {
         sendMessage(chatData, msg, possibleException.isEmpty());
         statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
         SharedObject.save(JENKINS_STATUSES, statuses);
+        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<>());
     }
 
     private void sendMessage(ChatData chatData, String msg, boolean disableNotification) {

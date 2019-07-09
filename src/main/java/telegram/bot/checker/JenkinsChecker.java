@@ -159,6 +159,7 @@ public class JenkinsChecker extends Thread {
         sendMessage(chatData, msg, possibleException.isEmpty());
         statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
         SharedObject.save(JENKINS_STATUSES, statuses);
+        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<>());
     }
 
     private void sendMessage(ChatData chatData, String msg, boolean disableNotification) {
