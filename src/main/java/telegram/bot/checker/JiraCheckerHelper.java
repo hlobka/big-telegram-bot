@@ -36,7 +36,10 @@ public class JiraCheckerHelper {
 
     public String getActiveSprintUnEstimatedIssuesMessage(String projectKey) {
         List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey);
-        StringBuilder result = new StringBuilder("Данные задачи нуждаються в дополнительной экстимации:");
+        StringBuilder result = new StringBuilder();
+        if(!issues.isEmpty()){
+            result.append("Данные задачи нуждаються в дополнительной экстимации:");
+        }
         for (Issue issue : issues) {
             result.append(getIssueDescription(issue));
         }
