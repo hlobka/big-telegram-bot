@@ -47,7 +47,8 @@ public class MainBot {
         commandExecutorRule.addCallBackCommand("show_upsource_checker_possible_problems", new ShowAlertFromResource(Common.UPSOURCE.checkerPossibleProblemsHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
         commandExecutorRule.addCommand("/get_user_id_by_name", new GetUserIdByNameCommand());
-        commandExecutorRule.addCommand("/remove_user_from_ets_list", new RemoveUserFromEtsListByReplyCommand(bot));
+        commandExecutorRule.addCommand("/get_user_id", new GetUserIdByReplyCommand());
+        commandExecutorRule.addCommand("/remove_user_ from_ets_list", new RemoveUserFromEtsListByReplyCommand(bot));
         commandExecutorRule.addCommand("/send_on_vacation_by_id", new AddUserByIdOnVacationListCommand(bot));
         commandExecutorRule.addCommand("/send_on_vacation", new SendUserOnVacationByReplyListCommand(bot));
         commandExecutorRule.addCommand("/return_from_vacation_by_id", new RemoveUserFromVacationListCommand(bot));

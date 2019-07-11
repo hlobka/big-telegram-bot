@@ -10,6 +10,7 @@ show_all_resolved_action_items - Should be show all action items
 resolve_ets - need to resolve ets today
 get_chat_id - need to get chat id
 get_user_id_by_name - need to get user id by name
+get_user_id - need to get user id by reply
 send_on_vacation_by_id - need to send user on vacation by it id
 send_on_vacation - Need for sending user on vacation by using reply from him
 remove_user_from_ets_list - Need for extracting user from ets list by using reply from him
