@@ -28,7 +28,6 @@ public class JiraSprintBarShower extends Thread {
         TelegramBot bot = new TelegramBot(Common.data.token);
 //        ChatData chatData = Common.data.getChatData("REPORT");
         JiraSprintBarShower jiraSprintBarShower = new JiraSprintBarShower(bot, TimeUnit.MINUTES.toMillis(60));
-        Long hours = jiraSprintBarShower.getActiveSprintTotalHours("SPHICL");
         jiraSprintBarShower.show("FOREGY");
         jiraSprintBarShower.show("SPHICL");
         jiraSprintBarShower.show("BOOSPH");
@@ -88,15 +87,5 @@ public class JiraSprintBarShower extends Thread {
         ConsoleLogger.log(message);
         long chatId = Common.data.getChatForReport().get(0).getChatId();
         BotHelper.sendMessage(bot, chatId, message, ParseMode.Markdown);
-    }
-
-    public Long getActiveSprintTotalHours(String projectKey) {
-        return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectKey))
-            .stream()
-            .filter(issue -> issue.getTimeTracking() != null)
-            .map(issue -> issue.getTimeTracking().getOriginalEstimateMinutes())
-            .filter(Objects::nonNull)
-            .mapToLong(Integer::longValue)
-            .sum();
     }
 }
