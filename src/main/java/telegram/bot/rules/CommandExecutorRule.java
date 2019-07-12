@@ -29,7 +29,8 @@ public class CommandExecutorRule implements Rule {
     @Override
     public void callback(Update update) {
         String data = update.callbackQuery().data();
-        String commandKey = StringHelper.getRegString(data, "(\\w+).*", 1);
+        String commandKey = StringHelper.getRegString(data, "(\\w+):(.*)", 1);
+        commandKey = commandKey.isEmpty()?StringHelper.getRegString(data, "(\\w+).*", 1):commandKey;
         String commandValue = StringHelper.getRegString(data, "(\\w+):(.*)", 2);
         if(callBackCommands.containsKey(commandKey)){
             callBackCommands.get(commandKey).run(update, commandValue);
