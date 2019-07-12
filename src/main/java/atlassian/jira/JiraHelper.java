@@ -3,10 +3,7 @@ package atlassian.jira;
 import com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.jira.rest.client.api.*;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.Project;
-import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.*;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
@@ -18,6 +15,8 @@ import com.google.common.collect.Lists;
 import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import telegram.bot.data.LoginData;
 
 import java.net.URI;
@@ -121,8 +120,33 @@ public class JiraHelper {
     }
 
     public SprintDto getActiveSprint(String projectId) {
-        Object sprintValue = getIssues(FavoriteJqlScriptHelper.getSprintActiveIssuesJql(projectId)).get(0).getFieldByName("Sprint").getValue();
-        List<String> sprintValues = (List<String>) sprintValue;
+        String jql = FavoriteJqlScriptHelper.getSprintActiveIssuesJql(projectId);
+        List<Issue> issues = getIssues(jql, 1, 0);
+        if (issues.isEmpty()) {
+            throw new RuntimeException(String.format("No active sprints for project: %s", projectId));
+        }
+        IssueField sprintIssueField = issues.get(0).getFieldByName("Sprint");
+        if (sprintIssueField == null) {
+            throw new RuntimeException(String.format("Sprint issues without Sprint Field in project: %s", projectId));
+        }
+        Object sprintValue = sprintIssueField.getValue();
+        List<String> sprintValues;
+        if (sprintValue instanceof JSONArray) {
+            sprintValues = new ArrayList<>();
+            JSONArray sprintValuesJsArray = (JSONArray) sprintValue;
+            for (int i = 0; i < sprintValuesJsArray.length(); i++) {
+                try {
+                    sprintValues.add(sprintValuesJsArray.getString(i));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        } else if(sprintValue instanceof List){
+            sprintValues = (List<String>) sprintValue;
+        } else {
+            throw new RuntimeException(String.format("No sprint values for project: %s", projectId));
+        }
         for (String value : Lists.reverse(sprintValues)) {
             Function<String, Date> dateProvider = s -> {
                 if (s == null || "<null>".equals(s)) {
@@ -162,12 +186,33 @@ public class JiraHelper {
     }
 
     public List<Issue> getIssues(String jql) {
-        return getIssues(jql, 100, 0);
+        return getIssues(jql, false);
+    }
+
+    public List<Issue> getIssues(String jql, boolean fillInformation) {
+        return getIssues(jql, 100, 0, fillInformation);
     }
 
     public List<Issue> getIssues(String jql, Integer maxPerQuery, Integer startIndex) {
+        return getIssues(jql, maxPerQuery, startIndex, false);
+    }
+
+    public List<Issue> getIssues(String jql, Integer maxPerQuery, Integer startIndex, boolean fillInformation) {
+        return getIssues(jql, new JqlCriteria()
+            .withMaxPerQuery(maxPerQuery)
+            .withStartIndex(startIndex)
+            .withFillInformation(fillInformation)
+            .withFields(null)
+        );
+    }
+
+    public List<Issue> getIssues(String jql, JqlCriteria jqlCriteria) {
+        Integer maxPerQuery = jqlCriteria.maxPerQuery;
+        Integer startIndex = jqlCriteria.startIndex;
+        Set<String> fields = jqlCriteria.fields;
+
         SearchRestClient searchRestClient = client.getSearchClient();
-        Promise<SearchResult> searchResult = searchRestClient.searchJql(jql, maxPerQuery, startIndex, null);
+        Promise<SearchResult> searchResult = searchRestClient.searchJql(jql, maxPerQuery, startIndex, fields);
         SearchResult results = searchResult.claim();
         ArrayList<Issue> result = new ArrayList<>();
         results.getIssues().forEach(result::add);

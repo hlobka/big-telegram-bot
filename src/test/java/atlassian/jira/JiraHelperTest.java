@@ -161,7 +161,7 @@ public class JiraHelperTest {
         IssueField mockedIssueField= Mockito.mock(IssueField.class);
         Mockito.when(issuesPromiseMock.claim()).thenReturn(mockedSearchResult);
         Mockito.when(mockedSearchResult.getIssues()).thenReturn(issues);
-        Mockito.when(mockedSearchRestClient.searchJql(jql, 100, 0, null)).thenReturn(issuesPromiseMock);
+        Mockito.when(mockedSearchRestClient.searchJql(jql, 1, 0, null)).thenReturn(issuesPromiseMock);
         Mockito.when(issues.get(0).getFieldByName("Sprint")).thenReturn(mockedIssueField);
         Mockito.when(mockedIssueField.getValue()).thenReturn(Arrays.asList(
             "com.atlassian.greenhopper.service.sprint.Sprint@6d6b0049[id=6669,rapidViewId=5406,state=CLOSED,name=FOE Sprint 0,startDate=2019-03-05T12:58:20.120+01:00,endDate=2019-03-15T12:58:00.000+01:00,completeDate=2019-04-03T11:35:13.050+02:00,sequence=6669,goal=<null>]",

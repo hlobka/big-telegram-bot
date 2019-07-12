@@ -59,12 +59,17 @@ public class Common {
     }
 
     public final String token;
+    public final List<Integer> telegramUserIdsWithGeneralAccess;
 
 
     private Common() {
         String configFile = "/config.properties";
         loadPropertiesFile(configFile, PROPERTIES);
         token = PROPERTIES.getProperty("telegram.bot.token");
+        telegramUserIdsWithGeneralAccess = getPropertyAsList("telegram.user.id.available.list")
+            .stream()
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
         collectChatDatas();
     }
 
@@ -118,5 +123,9 @@ public class Common {
 
     public List<ChatData> getChatsFotSpam() {
         return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsSpam).collect(Collectors.toList());
+    }
+
+    public List<ChatData> getGeneralChats() {
+        return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsGeneral).collect(Collectors.toList());
     }
 }
