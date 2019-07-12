@@ -43,6 +43,7 @@ public class MainBot {
         rules.registerRule(new ReLoginRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCallBackCommand("update_upsource_checker_view_result_for", new UpdateUpsourceViewResult(bot));
+        commandExecutorRule.addCallBackCommand(ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC, new ShowJiraMetricsByProjectIdCommand(bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_possible_problems", new ShowAlertFromResource(Common.UPSOURCE.checkerPossibleProblemsHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
@@ -73,6 +74,7 @@ public class MainBot {
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         commandExecutorRule.addCommand("/show_reviews", new ShowUpsourceReviewCommand(bot));
         commandExecutorRule.addCommand("/show_ets", new ShowEtsCommand(bot));
+        commandExecutorRule.addCommand("/show_jira_metrics", new ShowJiraMetricsCommand(bot));
         rules.registerRule(commandExecutorRule);
 //        new JokesSender(bot).start();
         new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
