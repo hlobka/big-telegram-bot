@@ -35,8 +35,7 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
                     String metrics = getMetrics(jiraId);
                     BotHelper.sendMessage(bot, message.chat().id(), metrics, ParseMode.Markdown);
                 } catch (RuntimeException e){
-                    ConsoleLogger.logErrorFor(this, e);
-                    throw e;
+                    BotHelper.sendMessage(bot, message.chat().id(), e.getMessage(), ParseMode.Markdown);
                 }
             }
         }
