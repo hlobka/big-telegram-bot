@@ -47,7 +47,7 @@ public class SlotMachine implements Rule {
     public void run(Update update) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
         Long chatId = message.chat().id();
-        if (!Common.data.isSpamChat(chatId)) {
+        if (Common.data.isGeneralChat(chatId)) {
             return;
         }
         if (message.text().contains("спин")) {
