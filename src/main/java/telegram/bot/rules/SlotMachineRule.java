@@ -24,7 +24,7 @@ public class SlotMachineRule implements Rule {
     private List<String> reelTemplate3 = new ArrayList<>(Arrays.asList("🌎", "🌍", "🌏", "🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"));
     private List<String> reelTemplate4 = new ArrayList<>(Arrays.asList("🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🍈", "🍒", "🍑", "🍍", "🥝", "🥑", "🍅", "🍆", "🥒", "🥕", "🌽", "🌶", "🥔", "🍠", "🌰", "🥜", "🍯", "🥐", "🍞", "🥖", "🧀", "🥚", "🍳", "🥓", "🥞", "🍤"));
     private Map<String, Double> symbolsMultiplier;
-    private List<String> wildSymbols = new ArrayList<>(Arrays.asList("🐰", "🦋", "🌑", "🍇"));
+    private List<String> wildSymbols = new ArrayList<>(Arrays.asList("🐰", "🦋", "🌑", "🍅"));
     private static final String savedUserBalanceKey = "/tmp/slots/savedUsersBalanceV1.ser";
     private static final String savedUserMachineKey = "/tmp/slots/savedUsersMachineV1.ser";
     private final HashMap<Integer, Double> savedUsersBalance;
@@ -50,13 +50,20 @@ public class SlotMachineRule implements Rule {
         symbolsMultiplier.put("🐭", 3d);
         symbolsMultiplier.put("🐹", 2d);
 
-        symbolsMultiplier.put("🦋", 1.5);
-        symbolsMultiplier.put("🐛", 2d);
+        symbolsMultiplier.put("🦋", 2d);
+        symbolsMultiplier.put("🐛", 4d);
         symbolsMultiplier.put("🐌", 3d);
 
-        symbolsMultiplier.put("🌎", 1.5d);
-        symbolsMultiplier.put("🌍", 2d);
-        symbolsMultiplier.put("🌏", 1.5d);
+        symbolsMultiplier.put("🌎", 2d);
+        symbolsMultiplier.put("🌍", 4d);
+        symbolsMultiplier.put("🌏", 6d);
+
+        symbolsMultiplier.put("🍏", 1.5d);
+        symbolsMultiplier.put("🍎", 2d);
+        symbolsMultiplier.put("🍐", 3d);
+        symbolsMultiplier.put("🍊", 4d);
+        symbolsMultiplier.put("🍋", 5d);
+        symbolsMultiplier.put("🍌", 6d);
 
         this.bot = bot;
         reels.add(reelTemplate1);
