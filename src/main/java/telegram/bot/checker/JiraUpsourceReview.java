@@ -2,11 +2,11 @@ package telegram.bot.checker;
 
 import upsource.dto.Review;
 
-class JiraUpsourceReview {
-    final String issueId;
-    final Review upsourceReview;
+public class JiraUpsourceReview {
+    public final String issueId;
+    public final Review upsourceReview;
 
-    JiraUpsourceReview(String issueId, Review upsourceReview) {
+    public JiraUpsourceReview(String issueId, Review upsourceReview) {
         this.issueId = issueId;
         this.upsourceReview = upsourceReview;
     }

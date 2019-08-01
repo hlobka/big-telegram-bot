@@ -10,6 +10,12 @@ import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import helper.logger.ConsoleLogger;
 import okhttp3.OkHttpClient;
 import telegram.bot.checker.*;
+import telegram.bot.checker.workFlow.CommonChecker;
+import telegram.bot.checker.workFlow.implementations.NewJiraIssuesChecker;
+import telegram.bot.checker.workFlow.implementations.UnEstimatedJiraIssuesChecker;
+import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesOnReviewChecker;
+import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
 import telegram.bot.helper.BotHelper;
@@ -17,7 +23,6 @@ import telegram.bot.rules.*;
 import telegram.bot.rules.like.LikeAnswerRule;
 
 import java.net.URISyntaxException;
-import java.time.DayOfWeek;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +33,7 @@ public class MainBot {
             .writeTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .build();
-        TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token,client);
+        TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token, client);
 //        TelegramBot bot = new TelegramBot(Common.data.token);
         GetUpdatesResponse updatesResponse = bot.execute(new GetUpdates());
         List<Update> updates = updatesResponse.updates();
@@ -76,8 +81,9 @@ public class MainBot {
         commandExecutorRule.addCommand("/show_ets", new ShowEtsCommand(bot));
         commandExecutorRule.addCommand("/show_jira_metrics", new ShowJiraMetricsCommand(bot));
         rules.registerRule(commandExecutorRule);
+        initCommonChecker(bot);
 //        new JokesSender(bot).start();
-        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
+//        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsCheckerForAllStatuses(bot, TimeUnit.HOURS.toMillis(1), Common.JENKINS_ADDITIONAL_URL)
             .withIdleTimeoutMultiplier(5)
             .withMaxNumberOfAttempts(5)
@@ -104,5 +110,18 @@ public class MainBot {
             new Thread(() -> rules.handle(updatess)).start();
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
+    }
+
+    private static void initCommonChecker(TelegramBot bot) {
+        JiraHelperServiceProvider jiraHelperServiceProvider = new JiraHelperServiceProvider(bot);
+        UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();
+        new CommonChecker(bot, TimeUnit.MINUTES.toMillis(20))
+            .withChecker(new NewJiraIssuesChecker(jiraHelperServiceProvider))
+            .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProvider))
+            .withChecker(new UnTrackedJiraIssuesOnReviewChecker(jiraHelperServiceProvider, upsourceServiceProvider))
+            .withIdleTimeoutMultiplier(5)
+            .withMaxNumberOfAttempts(5)
+            .start();
+
     }
 }

@@ -2,6 +2,7 @@ package atlassian.jira;
 
 public class FavoriteJqlScriptHelper {
 
+    private final static String ALL_ISSUES_JQL = "project = %s ORDER BY createdDate DESC";
     private final static String SPRINT_ALL_ISSUES_JQL = "project = %s AND Sprint in openSprints()";
     private final static String SPRINT_CLOSED_ISSUES_JQL = "project = %s AND Sprint in openSprints() AND (status = Closed OR status = Rejected OR status = Verified)";
     private final static String SPRINT_ACTIVE_ISSUES_JQL = "project = %s AND Sprint in openSprints() AND status != Rejected AND status != Closed AND status != Opened AND status != Verified";
@@ -27,5 +28,9 @@ public class FavoriteJqlScriptHelper {
 
     public static String getSprintOpenIssuesJql(String projectId) {
         return String.format(SPRINT_OPEN_ISSUES_JQL, projectId);
+    }
+
+    public static String getAllIssuesJql(String projectId) {
+        return String.format(ALL_ISSUES_JQL, projectId);
     }
 }
