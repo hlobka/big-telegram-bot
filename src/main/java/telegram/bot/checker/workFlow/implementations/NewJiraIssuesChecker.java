@@ -78,8 +78,8 @@ public class NewJiraIssuesChecker implements ChatChecker {
     private String getAllCreatedIssuesMessage(String projectJiraId, Integer lastCreatedIssueId) {
         String message = "";
         for (int i = 0; i < MAX_ISSUES_ON_ONE_POST; i++) {
-            if (jiraHelper.hasIssue(getIssueKey(projectJiraId, lastCreatedIssueId))) {
-                String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
+            String issueKey = getIssueKey(projectJiraId, lastCreatedIssueId);
+            if (jiraHelper.hasIssue(issueKey)&& jiraHelper.getIssue(issueKey).getKey().equalsIgnoreCase(issueKey)) {
                 String issueDescription = JiraCheckerHelper.getIssueDescription(jiraHelper.getIssue(issueKey));
                 message += issueDescription;
             }
