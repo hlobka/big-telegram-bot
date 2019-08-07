@@ -40,6 +40,10 @@ public class ChatPropertiesReader {
         return getPropertyAsBool("chat.config.isEstimationRequired");
     }
 
+    public Boolean isEstimationRequiredExcludeBugs() {
+        return getPropertyAsBool("chat.config.isEstimationRequiredExcludeBugs");
+    }
+
     public Boolean isMainGeneralChat() {
         return getPropertyAsBool("chat.config.isMainGeneral");
     }

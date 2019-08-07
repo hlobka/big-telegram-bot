@@ -35,9 +35,13 @@ public class JiraCheckerHelper {
     }
 
     public String getActiveSprintUnEstimatedIssuesMessage(String projectKey) {
-        List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey);
+        return getActiveSprintUnEstimatedIssuesMessage(projectKey, false);
+    }
+
+    public String getActiveSprintUnEstimatedIssuesMessage(String projectKey, Boolean excludeBugs) {
+        List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey, excludeBugs);
         StringBuilder result = new StringBuilder();
-        if(!issues.isEmpty()){
+        if (!issues.isEmpty()) {
             result.append("Данные задачи нуждаються в дополнительной экстимации:");
         }
         for (Issue issue : issues) {
@@ -46,7 +50,10 @@ public class JiraCheckerHelper {
         return result.toString();
     }
 
-    public List<Issue> getActiveSprintUnEstimatedIssues(String projectKey) {
+    public List<Issue> getActiveSprintUnEstimatedIssues(String projectKey, Boolean excludeBugs) {
+        if (excludeBugs) {
+            return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + " AND type != Bug ");
+        }
         return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey));
     }
 

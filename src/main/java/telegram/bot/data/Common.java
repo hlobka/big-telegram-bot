@@ -93,6 +93,7 @@ public class Common {
                 chatPropertiesReader.getUpsourceIds(),
                 chatPropertiesReader.getJiraIds(),
                 chatPropertiesReader.isEstimationRequired(),
+                chatPropertiesReader.isEstimationRequiredExcludeBugs(),
                 chatPropertiesReader.isMainGeneralChat(),
                 chatPropertiesReader.isGeneralChat(),
                 chatPropertiesReader.isReportChat(),

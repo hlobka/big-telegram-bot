@@ -33,9 +33,11 @@ public class UnEstimatedJiraIssuesChecker implements ChatChecker {
         List<String> result = new ArrayList<>();
         HashMap<String, Integer> statuses = SharedObject.loadMap(JIRA_CHECKER_STATUSES, new HashMap<>());
         jiraHelperServiceProvider.provide(jiraHelper -> {
+            JiraCheckerHelper jiraCheckerHelper = new JiraCheckerHelper(jiraHelper);
             for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
                 logFor(this, String.format("check:%s[%s]", chatData.getChatId(), projectJiraId));
-                String message = new JiraCheckerHelper(jiraHelper).getActiveSprintUnEstimatedIssuesMessage(projectJiraId);
+                Boolean excludeBugs = chatData.getIsEstimationRequiredExcludeBugs();
+                String message = jiraCheckerHelper.getActiveSprintUnEstimatedIssuesMessage(projectJiraId, excludeBugs);
                 if (!message.isEmpty()) {
                     result.add(message);
                 }
