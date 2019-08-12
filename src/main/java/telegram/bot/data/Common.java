@@ -3,6 +3,7 @@ package telegram.bot.data;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.data.chat.ChatPropertiesReader;
 import telegram.bot.helper.EtsHelper;
+import telegram.bot.helper.PropertiesReadHelper;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -36,6 +37,7 @@ public class Common {
     public static final String JENKINS_PROXY_PORT;
     public static final String JENKINS_JOBS_URL;
     public static final String JENKINS_ADDITIONAL_JOBS_URL;
+    public static final Map<String, Integer> USER_LOGIN_ON_TELEGRAM_ID_MAP = new PropertiesReadHelper(PROPERTIES).getStringIntMap("jiraLoginOnTelegramIdMap");
     public static final DayOfWeek ETS_DAY;
     static {
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
