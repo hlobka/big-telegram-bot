@@ -7,6 +7,7 @@ import com.atlassian.jira.rest.client.api.domain.User;
 import telegram.bot.data.Common;
 
 import java.util.List;
+import java.util.Map;
 
 public class JiraCheckerHelper {
     private final JiraHelper jiraHelper;
@@ -24,10 +25,22 @@ public class JiraCheckerHelper {
         String issueKey = issue.getKey();
         String reporter = getName(issue.getReporter());
         String assignee = getName(issue.getAssignee());
+        assignee = getUserLoginWithTelegramLinkOnUser(assignee);
         String summary = issue.getSummary();
         Object priority = issue.getPriority() == null ? "Low" : issue.getPriority().getName();
         String linkedIssueKey = JiraCheckerHelper.getTelegramIssueLink(issueKey);
-        return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: *%s* with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
+        return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: %s with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
+    }
+
+    private static String getUserLoginWithTelegramLinkOnUser(String userLogin) {
+        Integer telegramId = Common.USER_LOGIN_ON_TELEGRAM_ID_MAP.getOrDefault(userLogin, 0);
+        for (Map.Entry<com.pengrad.telegrambot.model.User, Boolean> entry : Common.ETS_HELPER.getUsers().entrySet()) {
+            com.pengrad.telegrambot.model.User telegramUser = entry.getKey();
+            if (telegramUser.id().equals(telegramId)) {
+                return "[" + userLogin + "](tg://user?id=" + telegramUser.id() + ")";
+            }
+        }
+        return "*" + userLogin + "*";
     }
 
     private static String getName(User user) {
