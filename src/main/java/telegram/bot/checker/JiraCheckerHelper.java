@@ -55,6 +55,7 @@ public class JiraCheckerHelper {
         List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey, excludeBugs);
         StringBuilder result = new StringBuilder();
         if (!issues.isEmpty()) {
+            result.append("🔥🔥🔥\n");
             result.append("Данные задачи нуждаються в дополнительной экстимации:");
         }
         for (Issue issue : issues) {
