@@ -19,6 +19,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import telegram.bot.data.LoginData;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -28,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Nice example
+ * https://github.com/eugenp/tutorials/blob/master/saas/src/main/java/com/baeldung/saas/jira/MyJiraClient.java
+ */
 public class JiraHelper {
 
     private final JiraRestClient client;
@@ -257,5 +262,14 @@ public class JiraHelper {
         URI commentsUri = getIssue(issueKey).getCommentsUri();
         Comment comment = Comment.valueOf(commentValue);
         client.getIssueClient().addComment(commentsUri, comment).claim();
+    }
+
+    public void disconnect() {
+        try {
+            client.close();
+        } catch (IOException e) {
+            ConsoleLogger.logErrorFor(this, e);
+            e.printStackTrace();
+        }
     }
 }
