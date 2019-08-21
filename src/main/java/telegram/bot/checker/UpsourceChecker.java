@@ -29,7 +29,6 @@ import upsource.dto.UpsourceUser;
 import upsource.filter.CountCondition;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -136,7 +135,9 @@ public class UpsourceChecker extends Thread {
             Issue issue = jiraHelper.getIssue(review.issueId);
             User assignee = issue.getAssignee();
             String telegramLinkOnUser = JiraCheckerHelper.getUserLoginWithTelegramLinkOnUser(assignee);
-            result.add(telegramLinkOnUser);
+            if (!result.contains(telegramLinkOnUser)) {
+                result.add(telegramLinkOnUser);
+            }
         }
         return result;
     }
