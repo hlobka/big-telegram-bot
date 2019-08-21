@@ -53,7 +53,11 @@ public class UpsourceChecker extends Thread {
 
     private static String getUpsourceViewResult(TelegramBot bot, UpsourceApi upsourceApi, String upsourceId) throws IOException {
         JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
-        return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
+        try {
+            return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
+        } finally {
+            jiraHelper.disconnect();
+        }
     }
 
     private static String getUpsourceViewResult(JiraHelper jiraHelper, UpsourceApi upsourceApi, String upsourceId) throws IOException {
@@ -117,7 +121,24 @@ public class UpsourceChecker extends Thread {
             message += "\n------------------------------------------------------";
             message += "\n```";
         }
+        message += "\n ";
+        List<String> users = extractReviewers(reviews, jiraHelper);
+        for (String user : users) {
+            message += " " + user;
+        }
+
         return message;
+    }
+
+    private static List<String> extractReviewers(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
+        List<String> result = new ArrayList<>();
+        for (JiraUpsourceReview review : reviews) {
+            Issue issue = jiraHelper.getIssue(review.issueId);
+            User assignee = issue.getAssignee();
+            String telegramLinkOnUser = JiraCheckerHelper.getUserLoginWithTelegramLinkOnUser(assignee);
+            result.add(telegramLinkOnUser);
+        }
+        return result;
     }
 
     private static List<JiraUpsourceReview> extractUnVersionReviews(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {

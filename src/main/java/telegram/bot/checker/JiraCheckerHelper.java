@@ -32,6 +32,11 @@ public class JiraCheckerHelper {
         return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: %s with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
     }
 
+    public static String getUserLoginWithTelegramLinkOnUser(User user) {
+        String assignee = getName(user);
+        return getUserLoginWithTelegramLinkOnUser(assignee);
+    }
+
     private static String getUserLoginWithTelegramLinkOnUser(String userLogin) {
         Integer telegramId = Common.USER_LOGIN_ON_TELEGRAM_ID_MAP.getOrDefault(userLogin, 0);
         for (Map.Entry<com.pengrad.telegrambot.model.User, Boolean> entry : Common.ETS_HELPER.getUsers().entrySet()) {
