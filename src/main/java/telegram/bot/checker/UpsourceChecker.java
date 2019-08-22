@@ -98,7 +98,8 @@ public class UpsourceChecker extends Thread {
     private static String getReviewsStatusTable(String upsourceId, List<JiraUpsourceReview> reviews, JiraHelper jiraHelper, String title) {
         String message = (title.isEmpty() ? "" : "\n") + title;
         final String format = "%n%1$-13s|%2$11s|%3$-13s|%4$-3s|%5$5s|%6$3s";
-        if (reviews.size() > 0) {
+        boolean hasReviews = reviews.size() > 0;
+        if (hasReviews) {
             message += "\n* " + upsourceId + " *";
             message += "\n```";
             message += "\n------------------------------------------------------";
@@ -116,14 +117,14 @@ public class UpsourceChecker extends Thread {
         for (JiraUpsourceReview review : reviews) {
             message += reviewStringFunction.apply(review);
         }
-        if (reviews.size() > 0) {
+        if (hasReviews) {
             message += "\n------------------------------------------------------";
             message += "\n```";
-        }
-        message += "\n ";
-        List<String> users = extractReviewers(reviews, jiraHelper);
-        for (String user : users) {
-            message += " " + user;
+            message += "\n ";
+            List<String> users = extractReviewers(reviews, jiraHelper);
+            for (String user : users) {
+                message += " " + user;
+            }
         }
 
         return message;
