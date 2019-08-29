@@ -206,8 +206,8 @@ public class JiraHelper {
         return getIssues(jql, new JqlCriteria()
             .withMaxPerQuery(maxPerQuery)
             .withStartIndex(startIndex)
-            .withFillInformation(fillInformation)
             .withFields(null)
+            .withFillInformation(fillInformation)
         );
     }
 

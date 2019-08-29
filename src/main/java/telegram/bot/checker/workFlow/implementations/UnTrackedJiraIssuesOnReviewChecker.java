@@ -4,28 +4,23 @@ import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
-import helper.file.SharedObject;
 import helper.string.StringHelper;
 import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.JiraUpsourceReview;
 import telegram.bot.checker.workFlow.ChatChecker;
 import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
 import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
-import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import upsource.ReviewState;
 import upsource.UpsourceApi;
 import upsource.dto.Review;
-import upsource.dto.UpsourceUser;
 import upsource.filter.CountCondition;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static helper.logger.ConsoleLogger.logFor;
-import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
 public class UnTrackedJiraIssuesOnReviewChecker implements ChatChecker {
     private final JiraHelperServiceProvider jiraHelperServiceProvider;

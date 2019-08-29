@@ -14,6 +14,7 @@ import telegram.bot.checker.workFlow.CommonChecker;
 import telegram.bot.checker.workFlow.implementations.NewJiraIssuesChecker;
 import telegram.bot.checker.workFlow.implementations.UnEstimatedJiraIssuesChecker;
 import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesOnReviewChecker;
+import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesWhichWasDoneChecker;
 import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
 import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
 import telegram.bot.commands.*;
@@ -115,6 +116,11 @@ public class MainBot {
     private static void initCommonChecker(TelegramBot bot) {
         JiraHelperServiceProvider jiraHelperServiceProvider = new JiraHelperServiceProvider(bot);
         UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();
+        new CommonChecker(bot, TimeUnit.HOURS.toMillis(2))
+            .withChecker(new UnTrackedJiraIssuesWhichWasDoneChecker(jiraHelperServiceProvider))
+            .withIdleTimeoutMultiplier(2)
+            .withMaxNumberOfAttempts(5)
+            .start();
         new CommonChecker(bot, TimeUnit.MINUTES.toMillis(20))
             .withChecker(new NewJiraIssuesChecker(jiraHelperServiceProvider))
             .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProvider))
