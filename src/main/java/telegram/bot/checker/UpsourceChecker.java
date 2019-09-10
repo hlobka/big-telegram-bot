@@ -76,7 +76,7 @@ public class UpsourceChecker extends Thread {
             reviewsStatusTable += getReviewsStatusTable(upsourceId, unVersionReviews, jiraHelper, "  Данные ревью не содержат фикс версии:");
         }
         if (abnormalReviews.size() > 0) {
-            reviewsStatusTable += getReviewsStatusTable(upsourceId, abnormalReviews, jiraHelper, "  С данными ревью что то не так:");
+            reviewsStatusTable += getReviewsStatusTable(upsourceId, abnormalReviews, jiraHelper, "🔥🔥🔥\n  С данными ревью что то не так:");
         }
         return reviewsStatusTable;
     }
