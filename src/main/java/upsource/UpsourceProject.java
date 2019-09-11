@@ -23,6 +23,10 @@ public class UpsourceProject {
         return new UpsourceReviewsProvider(projectId, getRpmExecutor(), useCache);
     }
 
+    public UpsourceResponseProvider getResponseProvider() {
+        return new UpsourceResponseProvider(projectId, getRpmExecutor());
+    }
+
     public UpsourceRevisionsProvider getRevisionsProvider() {
         return new UpsourceRevisionsProvider(projectId, getRpmExecutor());
     }
