@@ -147,9 +147,10 @@ public class UpsourceSendMailChecker extends Thread {
                 String reviewCreator = getMappedReviewerName(review.upsourceReview);
                 Issue issue;
                 try {
+                    logFor(this, String.format("getIssue: issueId: %s", review.issueId));
                     issue = jiraHelper.getIssue(review.issueId);
                 } catch (Throwable throwable){
-                    logFor(this, String.format("issueId: %s", review.issueId));
+                    logErrorFor(this, throwable);
                     throw throwable;
                 }
                 String issueAssignedOnLoginName = getReviewerId(jiraHelper, review.issueId);
