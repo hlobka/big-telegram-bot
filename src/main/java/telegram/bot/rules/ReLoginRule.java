@@ -35,6 +35,7 @@ public class ReLoginRule implements Rule {
         statuses.put(callbackId, false);
         for (ChatData chatData : Common.data.getChatForReport()) {
             sendMessage(bot, chatData.getChatId(), message, callbackId);
+            e.printStackTrace();
         }
         while (!statuses.get(callbackId)) {
             logFor(ReLoginRule.class, "await 10 seconds for:" + callbackId);
