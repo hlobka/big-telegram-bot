@@ -200,7 +200,7 @@ public class EtsClarityChecker extends Thread {
         if (resolved) {
             userName = user.firstName() + " " + user.lastName();
         } else {
-            userName = BotHelper.getLinkOnUser(user);
+            userName = BotHelper.getLinkOnUser(user, ParseMode.HTML);
         }
         return userName;
     }
