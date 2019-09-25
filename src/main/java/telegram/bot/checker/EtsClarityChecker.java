@@ -103,14 +103,14 @@ public class EtsClarityChecker extends Thread {
     public static void sendNotification(long chatId, TelegramBot bot) {
         String message = getMessage(bot, chatId);
         SendMessage request = new SendMessage(chatId, message)
-                .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(true)
-                .disableNotification(false)
-                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
-                        new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                        new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
-                        new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
-                }));
+            .parseMode(ParseMode.HTML)
+            .disableWebPagePreview(true)
+            .disableNotification(false)
+            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+                new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+            }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
         LAST_MESSAGE_CHAT_ID = chatId;
@@ -131,13 +131,13 @@ public class EtsClarityChecker extends Thread {
         }
         try {
             EditMessageText request = new EditMessageText(LAST_MESSAGE_CHAT_ID, LAST_MESSAGE_ID, getMessage(bot, chatId))
-                    .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(true)
-                    .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
-                            new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
-                            new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
-                            new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
-                    }));
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true)
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
+                    new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
+                    new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
+                    new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+                }));
             bot.execute(request);
         } catch (RuntimeException e) {
             ConsoleLogger.logErrorFor(EtsClarityChecker.class, e);
@@ -181,7 +181,8 @@ public class EtsClarityChecker extends Thread {
                     } else if (etsHelper.isUserOnVacation(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍹"));
                     } else {
-                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), resolved ? "🍏" : "🍎"));
+                        String userName = getUserName(user, resolved);
+                        resolvedUsers.append(String.format("%s : %s%n", userName, resolved ? "🍏" : "🍎"));
                     }
                 }
                 if (resolved) {
@@ -192,6 +193,16 @@ public class EtsClarityChecker extends Thread {
         int expectedCount = count - 1 - usersInVacation.size();
         isResolvedToday = resolvedCount >= expectedCount;
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
+    }
+
+    private static String getUserName(User user, Boolean resolved) {
+        String userName;
+        if (resolved) {
+            userName = user.firstName() + " " + user.lastName();
+        } else {
+            userName = BotHelper.getLinkOnUser(user);
+        }
+        return userName;
     }
 
     public static void checkIsAllUsersPresentsOnThisChat(TelegramBot bot, long chatId) {

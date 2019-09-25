@@ -2,6 +2,7 @@ package telegram.bot.helper;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.DeleteMessage;
@@ -65,5 +66,20 @@ public class BotHelper {
             sendMessage(bot, chatData.getChatId(), getCuttedMessage(clearForHtmlMessages(message)), ParseMode.Markdown);
         }
 
+    }
+
+    public static String getLinkOnUser(User user) {
+        return getLinkOnUser(user, ParseMode.Markdown);
+    }
+
+    public static String getLinkOnUser(User user, ParseMode parseMode) {
+        return getLinkOnUser(user, user.firstName() + " " + user.lastName(), parseMode);
+    }
+
+    public static String getLinkOnUser(User user, String userName, ParseMode parseMode) {
+        if (parseMode == ParseMode.Markdown) {
+            return "[" + userName + "](tg://user?id=" + user.id() + ")";
+        }
+        return "<a href=\"tg://user?id=" + user.id() + "\">" + userName + "</a>";
     }
 }

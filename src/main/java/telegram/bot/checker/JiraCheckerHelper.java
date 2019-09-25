@@ -4,7 +4,9 @@ import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import telegram.bot.data.Common;
+import telegram.bot.helper.BotHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class JiraCheckerHelper {
         for (Map.Entry<com.pengrad.telegrambot.model.User, Boolean> entry : Common.ETS_HELPER.getUsers().entrySet()) {
             com.pengrad.telegrambot.model.User telegramUser = entry.getKey();
             if (telegramUser.id().equals(telegramId)) {
-                return "[" + userLogin + "](tg://user?id=" + telegramUser.id() + ")";
+                return BotHelper.getLinkOnUser(telegramUser, userLogin, ParseMode.Markdown);
             }
         }
         return "*" + userLogin + "*";
