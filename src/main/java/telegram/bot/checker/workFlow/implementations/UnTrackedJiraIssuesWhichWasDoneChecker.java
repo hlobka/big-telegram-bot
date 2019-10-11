@@ -1,16 +1,18 @@
 package telegram.bot.checker.workFlow.implementations;
 
 import atlassian.jira.FavoriteJqlScriptHelper;
+import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
 import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
-import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.data.chat.ChatData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -18,10 +20,10 @@ import static helper.logger.ConsoleLogger.logFor;
 
 public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
 
-    private final JiraHelperServiceProvider jiraHelperServiceProvider;
+    private final Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap;
 
-    public UnTrackedJiraIssuesWhichWasDoneChecker(JiraHelperServiceProvider jiraHelperServiceProvider) {
-        this.jiraHelperServiceProvider = jiraHelperServiceProvider;
+    public UnTrackedJiraIssuesWhichWasDoneChecker(Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap) {
+        this.jiraHelperServiceProviderMap = jiraHelperServiceProviderMap;
     }
 
     @Override
@@ -33,6 +35,8 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
+        String jiraUrl = chatData.getJiraLoginData().url;
+        ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             for (String jiraProjectKeyId : chatData.getJiraProjectKeyIds()) {
                 String jql = FavoriteJqlScriptHelper.getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId) + " AND status != Rejected";

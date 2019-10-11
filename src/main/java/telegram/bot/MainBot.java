@@ -16,15 +16,20 @@ import telegram.bot.checker.workFlow.implementations.UnEstimatedJiraIssuesChecke
 import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesOnReviewChecker;
 import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesWhichWasDoneChecker;
 import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
 import telegram.bot.commands.*;
 import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
+import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.*;
 import telegram.bot.rules.like.LikeAnswerRule;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MainBot {
@@ -90,20 +95,17 @@ public class MainBot {
             .withMaxNumberOfAttempts(5)
             .start();
         new JenkinsChecker(bot, TimeUnit.MINUTES.toMillis(20), Common.JENKINS_URL)
-                .withIdleTimeoutMultiplier(5)
-                .withMaxNumberOfAttempts(5)
-                .start();
+            .withIdleTimeoutMultiplier(5)
+            .withMaxNumberOfAttempts(5)
+            .start();
         for (Long chatId : Common.data.getMainGeneralChatIds()) {
             new EtsClarityChecker(bot, chatId, TimeUnit.MINUTES.toMillis(58), Common.ETS_DAY).start();
         }
 
-        new UpsourceChecker(bot).start();
         ConsoleLogger.additionalErrorLogger = message -> {
             BotHelper.logError(bot, message);
         };
-        new UpsourceSendMailChecker(TimeUnit.MINUTES.toMillis(30), () -> JiraHelper.tryToGetClient(Common.JIRA, true, e -> {
-            ReLoginRule.tryToRelogin(bot, e);
-        })).start();
+        initUpsourceCheckers(bot);
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
@@ -113,18 +115,47 @@ public class MainBot {
         });
     }
 
+    private static void initUpsourceCheckers(TelegramBot bot) {
+        new UpsourceChecker(bot).start();
+        LoginData loginData = getJiraLoginDataForChatsWithUpsource();
+        if (loginData != null) {
+            new UpsourceSendMailChecker(
+                TimeUnit.MINUTES.toMillis(30),
+                () -> JiraHelper.tryToGetClient(loginData,
+                    true,
+                    e -> ReLoginRule.tryToRelogin(bot, e, loginData)))
+                .start();
+        } else {
+            String message = "no chats for initUpsourceCheckers";
+            ConsoleLogger.logError(new RuntimeException(message), message);
+        }
+    }
+
+    private static LoginData getJiraLoginDataForChatsWithUpsource() {
+        for (ChatData generalChat : Common.data.getGeneralChats()) {
+            if (!generalChat.getUpsourceIds().isEmpty()) {
+                return generalChat.getJiraLoginData();
+            }
+        }
+
+        return null;
+    }
+
     private static void initCommonChecker(TelegramBot bot) {
-        JiraHelperServiceProvider jiraHelperServiceProvider = new JiraHelperServiceProvider(bot);
+        Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap = new HashMap<>();
+        for (ChatData generalChat : Common.data.getGeneralChats()) {
+            jiraHelperServiceProviderMap.put(generalChat.getJiraLoginData().url, new JiraHelperServiceProvider(bot, generalChat.getJiraLoginData()));
+        }
         UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();
         new CommonChecker(bot, TimeUnit.HOURS.toMillis(2))
-            .withChecker(new UnTrackedJiraIssuesWhichWasDoneChecker(jiraHelperServiceProvider))
+            .withChecker(new UnTrackedJiraIssuesWhichWasDoneChecker(jiraHelperServiceProviderMap))
             .withIdleTimeoutMultiplier(2)
             .withMaxNumberOfAttempts(5)
             .start();
         new CommonChecker(bot, TimeUnit.MINUTES.toMillis(20))
-            .withChecker(new NewJiraIssuesChecker(jiraHelperServiceProvider))
-            .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProvider))
-            .withChecker(new UnTrackedJiraIssuesOnReviewChecker(jiraHelperServiceProvider, upsourceServiceProvider))
+            .withChecker(new NewJiraIssuesChecker(jiraHelperServiceProviderMap))
+            .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProviderMap))
+            .withChecker(new UnTrackedJiraIssuesOnReviewChecker(jiraHelperServiceProviderMap, upsourceServiceProvider))
             .withIdleTimeoutMultiplier(5)
             .withMaxNumberOfAttempts(5)
             .start();

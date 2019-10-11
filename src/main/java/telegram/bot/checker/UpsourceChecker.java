@@ -19,6 +19,7 @@ import helper.string.StringHelper;
 import helper.time.TimeHelper;
 import javafx.util.Pair;
 import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.ReLoginRule;
@@ -50,8 +51,8 @@ public class UpsourceChecker extends Thread {
         return new UpsourceApi(Common.UPSOURCE.url, Common.UPSOURCE.login, Common.UPSOURCE.pass);
     }
 
-    private static String getUpsourceViewResult(TelegramBot bot, UpsourceApi upsourceApi, String upsourceId) throws IOException {
-        JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
+    private static String getUpsourceViewResult(TelegramBot bot, UpsourceApi upsourceApi, String upsourceId, LoginData jiraLoginData) throws IOException {
+        JiraHelper jiraHelper = JiraHelper.tryToGetClient(jiraLoginData, true, e -> ReLoginRule.tryToRelogin(bot, e, jiraLoginData));
         try {
             return getUpsourceViewResult(jiraHelper, upsourceApi, upsourceId);
         } finally {
@@ -202,11 +203,11 @@ public class UpsourceChecker extends Thread {
         return assignee == null ? "unassigned" : assignee.getName();
     }
 
-    public static void updateMessage(TelegramBot bot, String upsourceProjectId, Message message) {
+    public static void updateMessage(TelegramBot bot, String upsourceProjectId, Message message, LoginData jiraLoginData) {
         UpsourceApi upsourceApi = getUpsourceApi();
         String upsourceViewResult;
         try {
-            upsourceViewResult = getUpsourceViewResult(bot, upsourceApi, upsourceProjectId);
+            upsourceViewResult = getUpsourceViewResult(bot, upsourceApi, upsourceProjectId, jiraLoginData);
         } catch (IOException e) {
             ConsoleLogger.logErrorFor(UpsourceChecker.class, e);
             return;
@@ -295,7 +296,7 @@ public class UpsourceChecker extends Thread {
         logFor(this, String.format("check:start: %s(%s)", chatData.getChatName(), chatData.getUpsourceIds().toString()));
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
-            String message = getUpsourceViewResult(bot, upsourceApi, upsourceId);
+            String message = getUpsourceViewResult(bot, upsourceApi, upsourceId, chatData.getJiraLoginData());
             if (message.length() > 0) {
                 messages.add(new Pair<>(upsourceId, message));
             }

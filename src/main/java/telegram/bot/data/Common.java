@@ -23,11 +23,10 @@ public class Common {
     private static final Properties PROPERTIES = System.getProperties();
     public static final List<ChatData> BIG_GENERAL_GROUPS = new ArrayList<>();
     public static final Common data = new Common();
-    public static final LoginData JIRA = new LoginData(PROPERTIES, "atlassian.jira");
     public static final LoginData EMAIL = new LoginData(PROPERTIES, "email");
     public static final GoogleData GOOGLE = new GoogleData(PROPERTIES);
     public static final UpsourceData UPSOURCE = new UpsourceData(PROPERTIES);
-    public static final EtsHelper ETS_HELPER= new EtsHelper(ETS_USERS, ETS_USERS_IN_VACATION, ETS_USERS_WITH_ISSUES);
+    public static final EtsHelper ETS_HELPER = new EtsHelper(ETS_USERS, ETS_USERS_IN_VACATION, ETS_USERS_WITH_ISSUES);
     public static final String HELP_LINK;
     public static final String HELP_LINKS;
     public static final String BIG_HELP_LINKS;
@@ -39,6 +38,7 @@ public class Common {
     public static final String JENKINS_ADDITIONAL_JOBS_URL;
     public static final Map<String, Integer> USER_LOGIN_ON_TELEGRAM_ID_MAP = new PropertiesReadHelper(PROPERTIES).getStringIntMap("jiraLoginOnTelegramIdMap");
     public static final DayOfWeek ETS_DAY;
+
     static {
         HELP_LINK = PROPERTIES.getProperty("telegram.commands.help.file");
         HELP_LINKS = PROPERTIES.getProperty("telegram.commands.help_links.file");
@@ -88,18 +88,19 @@ public class Common {
         loadPropertiesFile(PROPERTIES.getProperty("telegram.chat." + chatConfigId), chatProperties);
         ChatPropertiesReader chatPropertiesReader = new ChatPropertiesReader(chatProperties);
         return new ChatData(
-                chatPropertiesReader.getChatId(),
-                chatPropertiesReader.getChatName(),
-                chatPropertiesReader.getJenkinsIds(),
-                chatPropertiesReader.getJenkinsIdsForAllStatuses(),
-                chatPropertiesReader.getUpsourceIds(),
-                chatPropertiesReader.getJiraIds(),
-                chatPropertiesReader.isEstimationRequired(),
-                chatPropertiesReader.isEstimationRequiredExcludeBugs(),
-                chatPropertiesReader.isMainGeneralChat(),
-                chatPropertiesReader.isGeneralChat(),
-                chatPropertiesReader.isReportChat(),
-                chatPropertiesReader.isSpamChat()
+            chatPropertiesReader.getChatId(),
+            chatPropertiesReader.getChatName(),
+            chatPropertiesReader.getJenkinsIds(),
+            chatPropertiesReader.getJenkinsIdsForAllStatuses(),
+            chatPropertiesReader.getUpsourceIds(),
+            chatPropertiesReader.getJiraIds(),
+            chatPropertiesReader.isEstimationRequired(),
+            chatPropertiesReader.isEstimationRequiredExcludeBugs(),
+            chatPropertiesReader.isMainGeneralChat(),
+            chatPropertiesReader.isGeneralChat(),
+            chatPropertiesReader.isReportChat(),
+            chatPropertiesReader.isSpamChat(),
+            chatPropertiesReader.isJiraLoginData()
         );
     }
 
@@ -130,5 +131,9 @@ public class Common {
 
     public List<ChatData> getGeneralChats() {
         return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsGeneral).collect(Collectors.toList());
+    }
+
+    public ChatData getChatData(Long chatId) {
+        return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).get(0);
     }
 }

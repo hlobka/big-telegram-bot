@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.time.TimeHelper;
 import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 
@@ -29,12 +30,12 @@ public class ReLoginRule implements Rule {
         this.bot = bot;
     }
 
-    public static void tryToRelogin(TelegramBot bot, Throwable e) {
+    public static void tryToRelogin(TelegramBot bot, Throwable e, LoginData jiraLoginData) {
         String message = "Possible Jira Errors: ```" + e.getClass().getSimpleName() + "```";
         String callbackId = TRY_TO_RE_LOGIN + e.hashCode();
         statuses.put(callbackId, false);
         for (ChatData chatData : Common.data.getChatForReport()) {
-            sendMessage(bot, chatData.getChatId(), message, callbackId);
+            sendMessage(bot, chatData.getChatId(), message, callbackId, jiraLoginData);
             e.printStackTrace();
         }
         while (!statuses.get(callbackId)) {
@@ -44,14 +45,14 @@ public class ReLoginRule implements Rule {
         logFor(ReLoginRule.class, "await for:" + callbackId + " End");
     }
 
-    private static void sendMessage(TelegramBot bot, long groupId, String message, String calbackId) {
+    private static void sendMessage(TelegramBot bot, long groupId, String message, String calbackId, LoginData jiraLoginData) {
         message = BotHelper.getCuttedMessage(message);
         SendMessage request = new SendMessage(groupId, message)
             .parseMode(ParseMode.Markdown)
             .disableWebPagePreview(false)
             .disableNotification(false)
             .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                new InlineKeyboardButton("Open jira").url(Common.JIRA.url),
+                new InlineKeyboardButton("Open jira").url(jiraLoginData.url),
                 new InlineKeyboardButton("Try again").callbackData(calbackId)
             }));
         SendResponse execute = bot.execute(request);

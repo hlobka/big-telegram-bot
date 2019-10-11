@@ -7,12 +7,13 @@ import helper.file.SharedObject;
 import helper.string.StringHelper;
 import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
-import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.data.chat.ChatData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
@@ -20,13 +21,13 @@ import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 public class NewJiraIssuesChecker implements ChatChecker {
     public static final int MAX_ISSUES_ON_ONE_POST = 10;
     public static final int MAX_ISSUES_AMOUNT = 100;
-    private final JiraHelperServiceProvider jiraHelperServiceProvider;
+    private final Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap;
 
     private HashMap<String, Integer> statuses;
     private JiraHelper jiraHelper;
 
-    public NewJiraIssuesChecker(JiraHelperServiceProvider jiraHelperServiceProvider) {
-        this.jiraHelperServiceProvider = jiraHelperServiceProvider;
+    public NewJiraIssuesChecker(Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap) {
+        this.jiraHelperServiceProviderMap = jiraHelperServiceProviderMap;
         statuses = SharedObject.loadMap(JIRA_CHECKER_STATUSES, new HashMap<>());
     }
 
@@ -39,8 +40,9 @@ public class NewJiraIssuesChecker implements ChatChecker {
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
-
-        this.jiraHelperServiceProvider.provide(jiraHelper1 -> {
+        String jiraUrl = chatData.getJiraLoginData().url;
+        ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
+        jiraHelperServiceProvider.provide(jiraHelper1 -> {
             jiraHelper = jiraHelper1;
             for (String projectJiraId : chatData.getJiraProjectKeyIds()) {
                 logFor(this, String.format("check:%s[%s]", chatData.getChatId(), projectJiraId));

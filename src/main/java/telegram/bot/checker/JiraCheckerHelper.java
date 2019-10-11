@@ -5,9 +5,11 @@ import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
 import telegram.bot.helper.BotHelper;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +26,12 @@ public class JiraCheckerHelper {
     }
 
     public static String getIssueDescription(Issue issue) {
-        String issueKey = issue.getKey();
         String reporter = getName(issue.getReporter());
         String assignee = getName(issue.getAssignee());
         assignee = getUserLoginWithTelegramLinkOnUser(assignee);
         String summary = issue.getSummary();
         Object priority = issue.getPriority() == null ? "Low" : issue.getPriority().getName();
-        String linkedIssueKey = JiraCheckerHelper.getTelegramIssueLink(issueKey);
+        String linkedIssueKey = JiraCheckerHelper.getTelegramIssueLink(issue);
         return String.format("%n%n %s as: ``` %s ``` Created by: *%s*,%n Assignee on: %s with Priority: * %s *", linkedIssueKey, summary, reporter, assignee, priority);
     }
 
@@ -78,12 +79,16 @@ public class JiraCheckerHelper {
         return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey));
     }
 
-    public static String getTelegramIssueLink(String issueKey) {
-        return getTelegramIssueLink(issueKey, Common.JIRA.url);
+    public static String getTelegramIssueLink(Issue issue) {
+        try {
+            return BotHelper.getLink(issue.getSelf().toURL().getPath(), issue.getKey());
+        } catch (MalformedURLException e) {
+            ConsoleLogger.logError(e, "getTelegramIssueLink");
+            return issue.getKey();
+        }
     }
-
-    public static String getTelegramIssueLink(String issueKey, String jiraUrl) {
-        return String.format("[%1$s](%2$s/browse/%1$s)", issueKey, jiraUrl);
+    public static String getTelegramIssueLink(String jiraUrl, String issueKey) {
+        return BotHelper.getLink(String.format("%1$s/browse/%2$s", jiraUrl, issueKey), issueKey);
     }
 
 

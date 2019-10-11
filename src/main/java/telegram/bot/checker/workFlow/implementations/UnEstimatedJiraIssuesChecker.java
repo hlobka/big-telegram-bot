@@ -4,22 +4,22 @@ import atlassian.jira.JiraHelper;
 import helper.file.SharedObject;
 import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
-import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
-import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.data.chat.ChatData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static helper.logger.ConsoleLogger.logFor;
 import static telegram.bot.data.Common.JIRA_CHECKER_STATUSES;
 
 public class UnEstimatedJiraIssuesChecker implements ChatChecker {
-    private final JiraHelperServiceProvider jiraHelperServiceProvider;
+    private final Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap;
 
-    public UnEstimatedJiraIssuesChecker(JiraHelperServiceProvider jiraHelperServiceProvider) {
-        this.jiraHelperServiceProvider = jiraHelperServiceProvider;
+    public UnEstimatedJiraIssuesChecker(Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap) {
+        this.jiraHelperServiceProviderMap = jiraHelperServiceProviderMap;
     }
 
     @Override
@@ -32,6 +32,8 @@ public class UnEstimatedJiraIssuesChecker implements ChatChecker {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
         HashMap<String, Integer> statuses = SharedObject.loadMap(JIRA_CHECKER_STATUSES, new HashMap<>());
+        String jiraUrl = chatData.getJiraLoginData().url;
+        ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             JiraCheckerHelper jiraCheckerHelper = new JiraCheckerHelper(jiraHelper);
             for (String projectJiraId : chatData.getJiraProjectKeyIds()) {

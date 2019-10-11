@@ -9,6 +9,7 @@ import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.JiraUpsourceReview;
 import telegram.bot.checker.workFlow.ChatChecker;
 import telegram.bot.checker.workFlow.implementations.services.JiraHelperServiceProvider;
+import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
 import telegram.bot.data.chat.ChatData;
 import upsource.ReviewState;
@@ -19,15 +20,16 @@ import upsource.filter.CountCondition;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static helper.logger.ConsoleLogger.logFor;
 
 public class UnTrackedJiraIssuesOnReviewChecker implements ChatChecker {
-    private final JiraHelperServiceProvider jiraHelperServiceProvider;
+    private final Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap;
     private final UpsourceServiceProvider upsourceServiceProvider;
 
-    public UnTrackedJiraIssuesOnReviewChecker(JiraHelperServiceProvider jiraHelperServiceProvider, UpsourceServiceProvider upsourceServiceProvider) {
-        this.jiraHelperServiceProvider = jiraHelperServiceProvider;
+    public UnTrackedJiraIssuesOnReviewChecker(Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap, UpsourceServiceProvider upsourceServiceProvider) {
+        this.jiraHelperServiceProviderMap = jiraHelperServiceProviderMap;
         this.upsourceServiceProvider = upsourceServiceProvider;
     }
 
@@ -40,6 +42,8 @@ public class UnTrackedJiraIssuesOnReviewChecker implements ChatChecker {
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
+        String jiraUrl = chatData.getJiraLoginData().url;
+        ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             upsourceServiceProvider.provide(upsourceApi -> {
                 for (String upsourceId : chatData.getUpsourceIds()) {

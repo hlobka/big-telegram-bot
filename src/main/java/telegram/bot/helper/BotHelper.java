@@ -77,9 +77,18 @@ public class BotHelper {
     }
 
     public static String getLinkOnUser(User user, String userName, ParseMode parseMode) {
+        String uri = "tg://user?id=" + user.id();
+        return getLink(uri, userName, parseMode);
+    }
+
+    public static String getLink(String uri, String uriName) {
+        return getLink(uri, uriName, ParseMode.Markdown);
+    }
+
+    public static String getLink(String uri, String uriName, ParseMode parseMode) {
         if (parseMode == ParseMode.Markdown) {
-            return "[" + userName + "](tg://user?id=" + user.id() + ")";
+            return "[" + uriName + "](" + uri + ")";
         }
-        return "<a href=\"tg://user?id=" + user.id() + "\">" + userName + "</a>";
+        return "<a href=\"" + uri + "\">" + uriName + "</a>";
     }
 }

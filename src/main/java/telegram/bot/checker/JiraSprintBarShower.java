@@ -7,6 +7,8 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import helper.logger.ConsoleLogger;
 import helper.string.StringHelper;
 import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
+import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.ReLoginRule;
 
@@ -26,22 +28,16 @@ public class JiraSprintBarShower extends Thread {
 
     public static void main(String[] args) {
         TelegramBot bot = new TelegramBot(Common.data.token);
-//        ChatData chatData = Common.data.getChatData("REPORT");
-        JiraSprintBarShower jiraSprintBarShower = new JiraSprintBarShower(bot, TimeUnit.MINUTES.toMillis(60));
+        ChatData chatData = Common.data.getChatData("REPORT");
+        LoginData jiraLoginData = chatData.getJiraLoginData();
+        JiraHelper jiraHelper = JiraHelper.tryToGetClient(jiraLoginData, true, e -> ReLoginRule.tryToRelogin(bot, e, jiraLoginData));
+        JiraSprintBarShower jiraSprintBarShower = new JiraSprintBarShower(jiraHelper, bot, TimeUnit.MINUTES.toMillis(60));
         jiraSprintBarShower.show("FOREGY");
         jiraSprintBarShower.show("SPHICL");
         jiraSprintBarShower.show("BOOSPH");
         jiraSprintBarShower.show("MAGOIFX");
         jiraSprintBarShower.show("FBIXF");
         jiraSprintBarShower.show("TRH");
-    }
-
-    public JiraSprintBarShower(TelegramBot bot, long millis) {
-        this(
-            JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e)),
-            bot,
-            millis
-        );
     }
 
     public JiraSprintBarShower(JiraHelper jiraHelper, TelegramBot bot, long millis) {

@@ -1,6 +1,7 @@
 package telegram.bot.data.chat;
 
 import lombok.Data;
+import telegram.bot.data.LoginData;
 
 import java.util.List;
 
@@ -18,5 +19,6 @@ public class ChatData {
     private final Boolean isGeneral;
     private final Boolean isReport;
     private final Boolean isSpam;
+    private final LoginData jiraLoginData;
 
 }

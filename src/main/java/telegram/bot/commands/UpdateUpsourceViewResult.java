@@ -6,6 +6,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import javafx.util.Pair;
 import telegram.bot.checker.UpsourceChecker;
+import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,8 @@ public class UpdateUpsourceViewResult implements Command {
         if (message == null){
             message = update.callbackQuery().message();
         }
-        UpsourceChecker.updateMessage(bot, values, message);
+        LoginData jiraLoginData = Common.data.getChatData(message.chat().id()).getJiraLoginData();
+        UpsourceChecker.updateMessage(bot, values, message, jiraLoginData);
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Ok: "));
     }
 }

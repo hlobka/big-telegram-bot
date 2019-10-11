@@ -10,6 +10,8 @@ import javafx.util.Pair;
 import telegram.bot.checker.JiraBigMetricsCollector;
 import telegram.bot.checker.JiraBigMetricsProvider;
 import telegram.bot.data.Common;
+import telegram.bot.data.LoginData;
+import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.ReLoginRule;
 
@@ -44,7 +46,11 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
 
     private String getMetrics(String jiraId) {
         String metrics = jiraId + " metrics:\n";
-        JiraHelper jiraHelper = JiraHelper.tryToGetClient(Common.JIRA, true, e -> ReLoginRule.tryToRelogin(bot, e));
+        final LoginData loginData = getLoginData(jiraId);
+        if (loginData == null) {
+            return "No available login data's for: " + jiraId;
+        }
+        JiraHelper jiraHelper = JiraHelper.tryToGetClient(loginData, true, e -> ReLoginRule.tryToRelogin(bot, e, loginData));
         try {
             JiraBigMetricsCollector jiraBigMetricsCollector = new JiraBigMetricsCollector(jiraHelper, jiraId);
             JiraBigMetricsProvider jiraBigMetricsProvider = jiraBigMetricsCollector.collect(TimeUnit.HOURS);
@@ -63,5 +69,15 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
             jiraHelper.disconnect();
         }
         return metrics;
+    }
+
+    private LoginData getLoginData(String jiraId) {
+        LoginData loginData = null;
+        for (ChatData generalChat : Common.data.getGeneralChats()) {
+            if (generalChat.getJiraProjectKeyIds().contains(jiraId)) {
+                loginData = generalChat.getJiraLoginData();
+            }
+        }
+        return loginData;
     }
 }
