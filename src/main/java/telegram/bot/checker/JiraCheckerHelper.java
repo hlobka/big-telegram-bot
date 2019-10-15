@@ -2,6 +2,7 @@ package telegram.bot.checker;
 
 import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -73,10 +74,25 @@ public class JiraCheckerHelper {
     }
 
     public List<Issue> getActiveSprintUnEstimatedIssues(String projectKey, Boolean excludeBugs) {
-        if (excludeBugs) {
-            return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + " AND type != Bug ");
+        try {
+            String jql = getSprintUnEstimatedIssuesJql(projectKey, excludeBugs, true);
+            return jiraHelper.getIssues(jql);
+        } catch (RestClientException e) {
+            String jql = getSprintUnEstimatedIssuesJql(projectKey, excludeBugs, false);
+            return jiraHelper.getIssues(jql);
         }
-        return jiraHelper.getIssues(FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey));
+    }
+
+    private String getSprintUnEstimatedIssuesJql(String projectKey, Boolean excludeBugs, Boolean excludeXRTestType) {
+        String jql;
+        String excludeXrTestTypeJql = excludeXRTestType ? " and type not in(\"XR Sub Test Execution\")" : "";
+
+        if (excludeBugs) {
+            jql = FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + " AND type != Bug " + excludeXrTestTypeJql;
+        } else {
+            jql = FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + excludeXrTestTypeJql;
+        }
+        return jql;
     }
 
     public static String getTelegramIssueLink(Issue issue) {
@@ -87,6 +103,7 @@ public class JiraCheckerHelper {
             return issue.getKey();
         }
     }
+
     public static String getTelegramIssueLink(String jiraUrl, String issueKey) {
         return BotHelper.getLink(String.format("%1$s/browse/%2$s", jiraUrl, issueKey), issueKey);
     }

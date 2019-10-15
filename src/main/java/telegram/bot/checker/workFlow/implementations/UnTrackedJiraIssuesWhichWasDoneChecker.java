@@ -2,6 +2,7 @@ package telegram.bot.checker.workFlow.implementations;
 
 import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
@@ -39,8 +40,7 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
         ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             for (String jiraProjectKeyId : chatData.getJiraProjectKeyIds()) {
-                String jql = FavoriteJqlScriptHelper.getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId) + " AND status != Rejected";
-                List<Issue> issues = jiraHelper.getIssues(jql, true);
+                List<Issue> issues = getIssues(jiraHelper, jiraProjectKeyId);
                 issues = issues.stream().filter(this::isJiraNotTimeTracked).collect(Collectors.toList());
                 result.addAll(getUnTrackedMessages(issues));
                 if (issues.size() > 0) {
@@ -50,6 +50,21 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
         });
         logFor(this, "check:end");
         return result;
+    }
+
+    private List<Issue> getIssues(JiraHelper jiraHelper, String jiraProjectKeyId) {
+        try {
+            String jql = getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId, true) + " AND status != Rejected";
+            return jiraHelper.getIssues(jql, true);
+        } catch (RestClientException e){
+            String jql = getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId, false) + " AND status != Rejected";
+            return jiraHelper.getIssues(jql, true);
+        }
+    }
+
+    private String getSprintClosedAndUnTrackedIssuesJql(String jiraProjectKeyId, Boolean excludeXRTestType) {
+        return FavoriteJqlScriptHelper.getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId) +
+            (excludeXRTestType?" and type not in(\"XR Sub Test Execution\")":"");
     }
 
     public String getExpectedLostTimeMessage(List<Issue> issues) {
