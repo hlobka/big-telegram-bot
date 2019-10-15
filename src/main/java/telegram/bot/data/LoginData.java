@@ -18,7 +18,7 @@ public class LoginData {
     public LoginData(Properties properties, final String type) {
         url = properties.getProperty(type + ".url");
         login = properties.getProperty(type + ".auth.login");
-        if(properties.containsKey(type + ".auth.cryptedPass")){
+        if(properties.containsKey(type + ".auth.cryptedPass") && !"".equals(properties.get(type + ".auth.cryptedPass"))){
             pass = StringHelper.getAsSimpleDeCrypted(properties.getProperty(type + ".auth.cryptedPass"));
         } else {
             pass = properties.getProperty(type + ".auth.pass");
