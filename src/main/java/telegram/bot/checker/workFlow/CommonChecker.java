@@ -83,7 +83,11 @@ public class CommonChecker extends Thread {
         List<String> messages = new ArrayList<>();
         for (ChatChecker chatChecker : chatCheckerList) {
             if (chatChecker.isAccessibleToCheck(chatData)) {
-                messages.addAll(chatChecker.check(chatData));
+                try {
+                    messages.addAll(chatChecker.check(chatData));
+                } catch (RuntimeException e) {
+                    ConsoleLogger.logError(e, "chatChecker.check:for "+ chatData.getChatName());
+                }
             }
         }
         messages = messages.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
@@ -93,12 +97,12 @@ public class CommonChecker extends Thread {
 
     }
 
-    public CommonChecker withIdleTimeoutMultiplier(int multiplier){
+    public CommonChecker withIdleTimeoutMultiplier(int multiplier) {
         idleTimeoutMultiplier = multiplier;
         return this;
     }
 
-    public CommonChecker withMaxNumberOfAttempts(int maxNumberOfAttempts){
+    public CommonChecker withMaxNumberOfAttempts(int maxNumberOfAttempts) {
         this.maxNumberOfAttempts = maxNumberOfAttempts;
         return this;
     }
