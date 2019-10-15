@@ -1,8 +1,6 @@
 package telegram.bot.checker.workFlow.implementations;
 
-import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
-import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
@@ -10,6 +8,7 @@ import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
 import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +35,11 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
-        String jiraUrl = chatData.getJiraLoginData().url;
+        String jiraUrl = chatData.getJiraConfig().getLoginData().url;
         ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             for (String jiraProjectKeyId : chatData.getJiraProjectKeyIds()) {
-                List<Issue> issues = getIssues(jiraHelper, jiraProjectKeyId);
+                List<Issue> issues = getIssues(jiraHelper, chatData.getJiraConfig(), jiraProjectKeyId);
                 issues = issues.stream().filter(this::isJiraNotTimeTracked).collect(Collectors.toList());
                 result.addAll(getUnTrackedMessages(issues));
                 if (issues.size() > 0) {
@@ -52,19 +51,9 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
         return result;
     }
 
-    private List<Issue> getIssues(JiraHelper jiraHelper, String jiraProjectKeyId) {
-        try {
-            String jql = getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId, true) + " AND status != Rejected";
-            return jiraHelper.getIssues(jql, true);
-        } catch (RestClientException e){
-            String jql = getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId, false) + " AND status != Rejected";
-            return jiraHelper.getIssues(jql, true);
-        }
-    }
-
-    private String getSprintClosedAndUnTrackedIssuesJql(String jiraProjectKeyId, Boolean excludeXRTestType) {
-        return FavoriteJqlScriptHelper.getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId) +
-            (excludeXRTestType?" and type not in(\"XR Sub Test Execution\")":"");
+    private List<Issue> getIssues(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String jiraProjectKeyId) {
+        String jql = jiraConfig.getSprintClosedAndUnTrackedIssuesJql(jiraProjectKeyId);
+        return jiraHelper.getIssues(jql, true);
     }
 
     public String getExpectedLostTimeMessage(List<Issue> issues) {

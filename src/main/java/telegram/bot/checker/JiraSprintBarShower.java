@@ -29,7 +29,7 @@ public class JiraSprintBarShower extends Thread {
     public static void main(String[] args) {
         TelegramBot bot = new TelegramBot(Common.data.token);
         ChatData chatData = Common.data.getChatData("REPORT");
-        LoginData jiraLoginData = chatData.getJiraLoginData();
+        LoginData jiraLoginData = chatData.getJiraConfig().getLoginData();
         JiraHelper jiraHelper = JiraHelper.tryToGetClient(jiraLoginData, true, e -> ReLoginRule.tryToRelogin(bot, e, jiraLoginData));
         JiraSprintBarShower jiraSprintBarShower = new JiraSprintBarShower(jiraHelper, bot, TimeUnit.MINUTES.toMillis(60));
         jiraSprintBarShower.show("FOREGY");

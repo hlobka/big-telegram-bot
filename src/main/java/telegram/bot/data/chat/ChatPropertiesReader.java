@@ -1,7 +1,5 @@
 package telegram.bot.data.chat;
 
-import telegram.bot.data.LoginData;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -16,6 +14,10 @@ public class ChatPropertiesReader {
 
     public String getChatName() {
         return properties.getProperty("chat.name");
+    }
+
+    public String getJiraType() {
+        return properties.getProperty("chat.atlassian.jira.typeId");
     }
 
     public long getChatId() {
@@ -60,10 +62,6 @@ public class ChatPropertiesReader {
 
     public Boolean isSpamChat() {
         return getPropertyAsBool("chat.config.isSpam");
-    }
-
-    public LoginData isJiraLoginData() {
-        return new LoginData(properties, "chat.atlassian.jira");
     }
 
     private Boolean getPropertyAsBool(String property) {

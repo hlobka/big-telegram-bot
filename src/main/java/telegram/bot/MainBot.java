@@ -134,7 +134,7 @@ public class MainBot {
     private static LoginData getJiraLoginDataForChatsWithUpsource() {
         for (ChatData generalChat : Common.data.getGeneralChats()) {
             if (!generalChat.getUpsourceIds().isEmpty()) {
-                return generalChat.getJiraLoginData();
+                return generalChat.getJiraConfig().getLoginData();
             }
         }
 
@@ -144,7 +144,8 @@ public class MainBot {
     private static void initCommonChecker(TelegramBot bot) {
         Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap = new HashMap<>();
         for (ChatData generalChat : Common.data.getGeneralChats()) {
-            jiraHelperServiceProviderMap.put(generalChat.getJiraLoginData().url, new JiraHelperServiceProvider(bot, generalChat.getJiraLoginData()));
+            LoginData loginData = generalChat.getJiraConfig().getLoginData();
+            jiraHelperServiceProviderMap.put(loginData.url, new JiraHelperServiceProvider(bot, loginData));
         }
         UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();
         new CommonChecker(bot, TimeUnit.HOURS.toMillis(2))
@@ -159,6 +160,5 @@ public class MainBot {
             .withIdleTimeoutMultiplier(5)
             .withMaxNumberOfAttempts(5)
             .start();
-
     }
 }

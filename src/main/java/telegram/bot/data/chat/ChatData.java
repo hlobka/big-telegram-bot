@@ -1,7 +1,7 @@
 package telegram.bot.data.chat;
 
 import lombok.Data;
-import telegram.bot.data.LoginData;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.List;
 
@@ -14,11 +14,10 @@ public class ChatData {
     private final List<String> upsourceIds;
     private final List<String> jiraProjectKeyIds;
     private final Boolean isEstimationRequired;
-    private final Boolean isEstimationRequiredExcludeBugs;
     private final Boolean isMainGeneral;
     private final Boolean isGeneral;
     private final Boolean isReport;
     private final Boolean isSpam;
-    private final LoginData jiraLoginData;
+    private final FavoriteJqlRules jiraConfig;
 
 }

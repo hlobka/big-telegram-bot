@@ -25,6 +25,7 @@ public class CommonChecker extends Thread {
     private int idleTimeoutMultiplier;
 
     public CommonChecker(TelegramBot bot, long timeoutInMillis) {
+        super("CommonChecker " + timeoutInMillis);
         this.bot = bot;
         this.timeoutInMillis = timeoutInMillis;
         chatCheckerList = new ArrayList<>();

@@ -12,6 +12,7 @@ import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.checker.workFlow.implementations.services.UpsourceServiceProvider;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class JiraCheckerMain {
         TelegramBot bot = new TelegramBot(Common.data.token);
         Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap = new HashMap<>();
         for (ChatData generalChat : Common.data.getGeneralChats()) {
-            jiraHelperServiceProviderMap.put(generalChat.getJiraLoginData().url, new JiraHelperServiceProvider(bot, generalChat.getJiraLoginData()));
+            FavoriteJqlRules jiraConfig = generalChat.getJiraConfig();
+            jiraHelperServiceProviderMap.put(jiraConfig.getLoginData().url, new JiraHelperServiceProvider(bot, jiraConfig.getLoginData()));
         }
 
         UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();

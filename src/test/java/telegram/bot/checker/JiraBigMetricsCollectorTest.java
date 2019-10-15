@@ -1,6 +1,5 @@
 package telegram.bot.checker;
 
-import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
 import atlassian.jira.JqlCriteria;
 import atlassian.jira.SprintDto;
@@ -10,6 +9,7 @@ import org.assertj.core.api.Assertions;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -19,17 +19,28 @@ import java.util.concurrent.TimeUnit;
 public class JiraBigMetricsCollectorTest {
 
     private JiraHelper jiraHelper = Mockito.mock(JiraHelper.class);
+    private FavoriteJqlRules jiraConfig = Mockito.mock(FavoriteJqlRules.class);
     private JiraBigMetricsCollector testTarget;
     private int expectedOriginalEstimate = 112;
     private float expectedPv = expectedOriginalEstimate;
 
     @BeforeMethod
     public void setUp() {
-        testTarget = new JiraBigMetricsCollector(jiraHelper, "TEST");
+
+        Mockito.when(jiraConfig.getAllIssuesJql(Mockito.anyString())).thenReturn("any1");
+        Mockito.when(jiraConfig.getSprintAllIssuesJql(Mockito.anyString())).thenReturn("any2");
+        Mockito.when(jiraConfig.getSprintClosedIssuesJql(Mockito.anyString())).thenReturn("any3");
+        Mockito.when(jiraConfig.getSprintActiveIssuesJql(Mockito.anyString())).thenReturn("any4");
+        Mockito.when(jiraConfig.getSprintOpenIssuesJql(Mockito.anyString())).thenReturn("any5");
+        Mockito.when(jiraConfig.getSprintUnEstimatedIssuesJql(Mockito.anyString())).thenReturn("any6");
+        Mockito.when(jiraConfig.getSprintUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any7");
+        Mockito.when(jiraConfig.getSprintClosedAndUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any8");
+
+        testTarget = new JiraBigMetricsCollector(jiraHelper, jiraConfig, "TEST");
         List<Issue> mockedIssues = Arrays.asList(
             getMockedIssueWithMockedTimeTracking(1, expectedOriginalEstimate)
         );
-        String jql = FavoriteJqlScriptHelper.getSprintAllIssuesJql("TEST");
+        String jql = jiraConfig.getSprintAllIssuesJql("TEST");
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
         SprintDto sprint = Mockito.mock(SprintDto.class);
@@ -203,7 +214,7 @@ public class JiraBigMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[1], originalEstimateMinutes[1]),
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
-        String jql = FavoriteJqlScriptHelper.getSprintClosedIssuesJql(projectId);
+        String jql = jiraConfig.getSprintClosedIssuesJql(projectId);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }
@@ -214,7 +225,7 @@ public class JiraBigMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[1], originalEstimateMinutes[1]),
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
-        String jql = FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectId);
+        String jql = jiraConfig.getSprintAllIssuesJql(projectId);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }

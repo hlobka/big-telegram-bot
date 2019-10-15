@@ -9,6 +9,7 @@ import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
 import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class NewJiraIssuesChecker implements ChatChecker {
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
-        String jiraUrl = chatData.getJiraLoginData().url;
+        String jiraUrl = chatData.getJiraConfig().getLoginData().url;
         ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper1 -> {
             jiraHelper = jiraHelper1;
@@ -48,7 +49,7 @@ public class NewJiraIssuesChecker implements ChatChecker {
                 logFor(this, String.format("check:%s[%s]", chatData.getChatId(), projectJiraId));
                 Integer lastCreatedOrPostedIssueId = getIssueId(projectJiraId);
                 result.addAll(getAllMessages(projectJiraId, lastCreatedOrPostedIssueId));
-                Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId);
+                Integer lastJiraIssueId = getLastJiraIssueId(projectJiraId, chatData.getJiraConfig());
                 statuses.put(projectJiraId, lastJiraIssueId);
                 SharedObject.save(JIRA_CHECKER_STATUSES, statuses);
                 logFor(this, String.format("check:posted %s: issues id from: %d to: %d", projectJiraId, lastCreatedOrPostedIssueId, lastJiraIssueId));
@@ -113,8 +114,8 @@ public class NewJiraIssuesChecker implements ChatChecker {
         return issueId;
     }
 
-    private Integer getLastJiraIssueId(String projectJiraId) {
-        Issue issue = jiraHelper.getIssues(FavoriteJqlScriptHelper.getAllIssuesJql(projectJiraId), 1, 0).get(0);
+    private Integer getLastJiraIssueId(String projectJiraId, FavoriteJqlRules jiraConfig) {
+        Issue issue = jiraHelper.getIssues(jiraConfig.getAllIssuesJql(projectJiraId), 1, 0).get(0);
         return Integer.valueOf(StringHelper.getRegString(issue.getKey(), "\\w+-(\\d+)", 1));
     }
 }

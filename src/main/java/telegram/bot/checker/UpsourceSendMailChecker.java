@@ -51,7 +51,7 @@ public class UpsourceSendMailChecker extends Thread {
         String testComment = new UpsourceSendMailChecker(1000, null)
                 .getFixVersionRequiredComment();
         ChatData chatData = Common.data.getChatData("REPORT");
-        JiraHelper client = JiraHelper.getClient(chatData.getJiraLoginData());
+        JiraHelper client = JiraHelper.getClient(chatData.getJiraConfig().getLoginData());
         Issue issue = client.getIssue(issueKey);
         Iterable<Version> fixVersions = issue.getFixVersions();
         if (fixVersions != null && !fixVersions.iterator().hasNext()) {
@@ -187,7 +187,7 @@ public class UpsourceSendMailChecker extends Thread {
                         }
                     }
                 }
-                String linkedIssueKey = String.format("<a href=\"%2$s/browse/%1$s\">%1$s</a>", issueKey, chatData.getJiraLoginData().url);
+                String linkedIssueKey = String.format("<a href=\"%2$s/browse/%1$s\">%1$s</a>", issueKey, chatData.getJiraConfig().getLoginData().url);
                 String linkedReviewKey = String.format("<a href=\"%2$s/%3$s/review/%1$s\">%1$s</a>", review.upsourceReview.reviewId(), Common.UPSOURCE.url, upsourceId);
                 boolean isAssignOnPresent = !issueAssignedOnMail.isEmpty();
                 if (isAssignOnPresent) {

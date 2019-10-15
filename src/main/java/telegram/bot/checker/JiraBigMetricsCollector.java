@@ -1,10 +1,10 @@
 package telegram.bot.checker;
 
-import atlassian.jira.FavoriteJqlScriptHelper;
 import atlassian.jira.JiraHelper;
 import atlassian.jira.JqlCriteria;
 import atlassian.jira.SprintDto;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import telegram.bot.data.jira.FavoriteJqlRules;
 
 import java.util.Date;
 import java.util.List;
@@ -14,15 +14,17 @@ import java.util.concurrent.TimeUnit;
 public class JiraBigMetricsCollector {
 
     private final JiraHelper jiraHelper;
+    private final FavoriteJqlRules jiraConfig;
     private final String projectKey;
 
-    public JiraBigMetricsCollector(JiraHelper jiraHelper, String projectKey) {
+    public JiraBigMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey) {
         this.jiraHelper = jiraHelper;
+        this.jiraConfig = jiraConfig;
         this.projectKey = projectKey;
     }
 
     Long getActiveSprintTotalHours(TimeUnit timeUnit) {
-        String jql = FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectKey);
+        String jql = jiraConfig.getSprintAllIssuesJql(projectKey);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         List<Issue> issues = jiraHelper.getIssues(jql, jqlCriteria);
         return getIssuesOriginalTotalTimeIn(issues, timeUnit);
@@ -59,14 +61,14 @@ public class JiraBigMetricsCollector {
     }
 
     private long getEarnedValue(TimeUnit timeUnit) {
-        String jql = FavoriteJqlScriptHelper.getSprintClosedIssuesJql(projectKey);
+        String jql = jiraConfig.getSprintClosedIssuesJql(projectKey);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         List<Issue> issues = jiraHelper.getIssues(jql, jqlCriteria);
         return getIssuesOriginalTotalTimeIn(issues, timeUnit);
     }
 
     private long getActualCost(TimeUnit timeUnit) {
-        String jql = FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectKey);
+        String jql = jiraConfig.getSprintAllIssuesJql(projectKey);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         List<Issue> issues = jiraHelper.getIssues(jql, jqlCriteria);
         return getIssuesSpentTotalTimeIn(issues, timeUnit);

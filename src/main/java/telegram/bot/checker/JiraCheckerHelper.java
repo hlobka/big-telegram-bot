@@ -8,6 +8,7 @@ import com.atlassian.jira.rest.client.api.domain.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
+import telegram.bot.data.jira.FavoriteJqlRules;
 import telegram.bot.helper.BotHelper;
 
 import java.net.MalformedURLException;
@@ -56,12 +57,8 @@ public class JiraCheckerHelper {
         return user == null ? "RIP" : user.getName();
     }
 
-    public String getActiveSprintUnEstimatedIssuesMessage(String projectKey) {
-        return getActiveSprintUnEstimatedIssuesMessage(projectKey, false);
-    }
-
-    public String getActiveSprintUnEstimatedIssuesMessage(String projectKey, Boolean excludeBugs) {
-        List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey, excludeBugs);
+    public String getActiveSprintUnEstimatedIssuesMessage(String projectKey, FavoriteJqlRules jiraConfig) {
+        List<Issue> issues = getActiveSprintUnEstimatedIssues(projectKey, jiraConfig);
         StringBuilder result = new StringBuilder();
         if (!issues.isEmpty()) {
             result.append("🔥🔥🔥\n");
@@ -73,26 +70,9 @@ public class JiraCheckerHelper {
         return result.toString();
     }
 
-    public List<Issue> getActiveSprintUnEstimatedIssues(String projectKey, Boolean excludeBugs) {
-        try {
-            String jql = getSprintUnEstimatedIssuesJql(projectKey, excludeBugs, true);
-            return jiraHelper.getIssues(jql);
-        } catch (RestClientException e) {
-            String jql = getSprintUnEstimatedIssuesJql(projectKey, excludeBugs, false);
-            return jiraHelper.getIssues(jql);
-        }
-    }
-
-    private String getSprintUnEstimatedIssuesJql(String projectKey, Boolean excludeBugs, Boolean excludeXRTestType) {
-        String jql;
-        String excludeXrTestTypeJql = excludeXRTestType ? " and type not in(\"XR Sub Test Execution\")" : "";
-
-        if (excludeBugs) {
-            jql = FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + " AND type != Bug " + excludeXrTestTypeJql;
-        } else {
-            jql = FavoriteJqlScriptHelper.getSprintUnEstimatedIssuesJql(projectKey) + excludeXrTestTypeJql;
-        }
-        return jql;
+    public List<Issue> getActiveSprintUnEstimatedIssues(String projectKey, FavoriteJqlRules jiraConfig) {
+        String jql = jiraConfig.getSprintUnEstimatedIssuesJql(projectKey);
+        return jiraHelper.getIssues(jql);
     }
 
     public static String getTelegramIssueLink(Issue issue) {

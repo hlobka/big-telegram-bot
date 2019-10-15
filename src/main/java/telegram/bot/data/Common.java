@@ -2,6 +2,8 @@ package telegram.bot.data;
 
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.data.chat.ChatPropertiesReader;
+import telegram.bot.data.jira.FavoriteJqlRules;
+import telegram.bot.data.jira.FavoriteJqlRulesPropertiesReader;
 import telegram.bot.helper.EtsHelper;
 import telegram.bot.helper.PropertiesReadHelper;
 
@@ -22,6 +24,7 @@ public class Common {
     public static final String LIKED_POSTS = "/tmp/likedPosts.ser";
     private static final Properties PROPERTIES = System.getProperties();
     public static final List<ChatData> BIG_GENERAL_GROUPS = new ArrayList<>();
+    public final Map<String, FavoriteJqlRules> favoriteJqlRulesMap = new HashMap<>();
     public static final Common data = new Common();
     public static final LoginData EMAIL = new LoginData(PROPERTIES, "email");
     public static final GoogleData GOOGLE = new GoogleData(PROPERTIES);
@@ -72,7 +75,32 @@ public class Common {
             .stream()
             .map(Integer::parseInt)
             .collect(Collectors.toList());
+        collectFavoriteJqlRulesMap();
         collectChatDatas();
+    }
+
+    private void collectFavoriteJqlRulesMap() {
+        List<String> listOfTheJiraConfigs = getPropertyAsList("atlassian.jira.config.files.list");
+        for (String jiraConfigFileId : listOfTheJiraConfigs) {
+            favoriteJqlRulesMap.put(jiraConfigFileId, getJiraJqlRules(jiraConfigFileId));
+        }
+    }
+
+    private FavoriteJqlRules getJiraJqlRules(String jiraConfigFileId) {
+        Properties propertiesFile = new Properties();
+        loadPropertiesFile(PROPERTIES.getProperty("atlassian.jira.config.path." + jiraConfigFileId), propertiesFile);
+        FavoriteJqlRulesPropertiesReader chatPropertiesReader = new FavoriteJqlRulesPropertiesReader(propertiesFile);
+        return new FavoriteJqlRules(
+            chatPropertiesReader.getAllIssuesJql(),
+            chatPropertiesReader.getSprintAllIssuesJql(),
+            chatPropertiesReader.getSprintClosedIssuesJql(),
+            chatPropertiesReader.getSprintActiveIssuesJql(),
+            chatPropertiesReader.getSprintOpenIssuesJql(),
+            chatPropertiesReader.getSprintUnEstimatedIssuesJql(),
+            chatPropertiesReader.getSprintUnTrackedIssuesJql(),
+            chatPropertiesReader.getSprintClosedAndUnTrackedIssuesJql(),
+            chatPropertiesReader.getLoginData()
+        );
     }
 
     private void collectChatDatas() {
@@ -95,12 +123,11 @@ public class Common {
             chatPropertiesReader.getUpsourceIds(),
             chatPropertiesReader.getJiraIds(),
             chatPropertiesReader.isEstimationRequired(),
-            chatPropertiesReader.isEstimationRequiredExcludeBugs(),
             chatPropertiesReader.isMainGeneralChat(),
             chatPropertiesReader.isGeneralChat(),
             chatPropertiesReader.isReportChat(),
             chatPropertiesReader.isSpamChat(),
-            chatPropertiesReader.isJiraLoginData()
+            favoriteJqlRulesMap.get(chatPropertiesReader.getJiraType())
         );
     }
 

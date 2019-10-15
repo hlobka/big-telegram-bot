@@ -12,6 +12,7 @@ import telegram.bot.checker.JiraBigMetricsProvider;
 import telegram.bot.data.Common;
 import telegram.bot.data.LoginData;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.data.jira.FavoriteJqlRules;
 import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.ReLoginRule;
 
@@ -46,13 +47,14 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
 
     private String getMetrics(String jiraId) {
         String metrics = jiraId + " metrics:\n";
-        final LoginData loginData = getLoginData(jiraId);
-        if (loginData == null) {
+        final FavoriteJqlRules jiraConfig = getJiraConfig(jiraId);
+        if (jiraConfig == null) {
             return "No available login data's for: " + jiraId;
         }
+        LoginData loginData = jiraConfig.getLoginData();
         JiraHelper jiraHelper = JiraHelper.tryToGetClient(loginData, true, e -> ReLoginRule.tryToRelogin(bot, e, loginData));
         try {
-            JiraBigMetricsCollector jiraBigMetricsCollector = new JiraBigMetricsCollector(jiraHelper, jiraId);
+            JiraBigMetricsCollector jiraBigMetricsCollector = new JiraBigMetricsCollector(jiraHelper, jiraConfig, jiraId);
             JiraBigMetricsProvider jiraBigMetricsProvider = jiraBigMetricsCollector.collect(TimeUnit.HOURS);
             metrics += "\nPV:  " + jiraBigMetricsProvider.getPlannedValue();
             metrics += "\nEV:  " + jiraBigMetricsProvider.getEarnedValue();
@@ -71,13 +73,13 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
         return metrics;
     }
 
-    private LoginData getLoginData(String jiraId) {
-        LoginData loginData = null;
+    private FavoriteJqlRules getJiraConfig(String jiraId) {
+        FavoriteJqlRules jiraConfig = null;
         for (ChatData generalChat : Common.data.getGeneralChats()) {
             if (generalChat.getJiraProjectKeyIds().contains(jiraId)) {
-                loginData = generalChat.getJiraLoginData();
+                jiraConfig = generalChat.getJiraConfig();
             }
         }
-        return loginData;
+        return jiraConfig;
     }
 }

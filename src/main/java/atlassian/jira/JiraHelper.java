@@ -125,7 +125,7 @@ public class JiraHelper {
     }
 
     public SprintDto getActiveSprint(String projectId) {
-        String jql = FavoriteJqlScriptHelper.getSprintActiveIssuesJql(projectId);
+        String jql = FavoriteJqlScriptHelper.getSprintAllIssuesJql(projectId);
         List<Issue> issues = getIssues(jql, 1, 0);
         if (issues.isEmpty()) {
             throw new RuntimeException(String.format("No active sprints for project: %s", projectId));

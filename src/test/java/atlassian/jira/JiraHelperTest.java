@@ -154,7 +154,7 @@ public class JiraHelperTest {
         SearchRestClient mockedSearchRestClient = Mockito.mock(SearchRestClient.class);
         JiraRestClient jiraRestClientMock = Mockito.mock(JiraRestClient.class);
         Mockito.when(jiraRestClientMock.getSearchClient()).thenReturn(mockedSearchRestClient);
-        String jql = FavoriteJqlScriptHelper.getSprintActiveIssuesJql("TEST_ID");
+        String jql = FavoriteJqlScriptHelper.getAllIssuesJql("TEST_ID");
         List<Issue> issues = Arrays.asList(Mockito.mock(Issue.class), Mockito.mock(Issue.class));
         Promise<SearchResult> issuesPromiseMock = Mockito.mock(Promise.class);
         SearchResult mockedSearchResult= Mockito.mock(SearchResult.class);

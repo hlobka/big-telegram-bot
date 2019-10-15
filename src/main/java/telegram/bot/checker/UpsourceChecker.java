@@ -296,7 +296,7 @@ public class UpsourceChecker extends Thread {
         logFor(this, String.format("check:start: %s(%s)", chatData.getChatName(), chatData.getUpsourceIds().toString()));
         List<Pair<String, String>> messages = new ArrayList<>();
         for (String upsourceId : chatData.getUpsourceIds()) {
-            String message = getUpsourceViewResult(bot, upsourceApi, upsourceId, chatData.getJiraLoginData());
+            String message = getUpsourceViewResult(bot, upsourceApi, upsourceId, chatData.getJiraConfig().getLoginData());
             if (message.length() > 0) {
                 messages.add(new Pair<>(upsourceId, message));
             }

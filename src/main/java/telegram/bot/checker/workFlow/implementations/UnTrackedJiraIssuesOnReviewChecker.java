@@ -35,14 +35,14 @@ public class UnTrackedJiraIssuesOnReviewChecker implements ChatChecker {
 
     @Override
     public Boolean isAccessibleToCheck(ChatData chatData) {
-        return !chatData.getJiraProjectKeyIds().isEmpty() && chatData.getIsEstimationRequired();
+        return !chatData.getUpsourceIds().isEmpty() && !chatData.getJiraProjectKeyIds().isEmpty() && chatData.getIsEstimationRequired();
     }
 
     @Override
     public List<String> check(ChatData chatData) {
         logFor(this, "check:start");
         List<String> result = new ArrayList<>();
-        String jiraUrl = chatData.getJiraLoginData().url;
+        String jiraUrl = chatData.getJiraConfig().getLoginData().url;
         ServiceProvider<JiraHelper> jiraHelperServiceProvider = jiraHelperServiceProviderMap.get(jiraUrl);
         jiraHelperServiceProvider.provide(jiraHelper -> {
             upsourceServiceProvider.provide(upsourceApi -> {

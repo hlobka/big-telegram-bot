@@ -25,7 +25,7 @@ public class UpdateUpsourceViewResult implements Command {
         if (message == null){
             message = update.callbackQuery().message();
         }
-        LoginData jiraLoginData = Common.data.getChatData(message.chat().id()).getJiraLoginData();
+        LoginData jiraLoginData = Common.data.getChatData(message.chat().id()).getJiraConfig().getLoginData();
         UpsourceChecker.updateMessage(bot, values, message, jiraLoginData);
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Ok: "));
     }
