@@ -76,12 +76,7 @@ public class JiraCheckerHelper {
     }
 
     public static String getTelegramIssueLink(Issue issue) {
-        try {
-            return BotHelper.getLink(issue.getSelf().toURL().getPath(), issue.getKey());
-        } catch (MalformedURLException e) {
-            ConsoleLogger.logError(e, "getTelegramIssueLink");
-            return issue.getKey();
-        }
+        return getTelegramIssueLink(issue.getSelf().getScheme()+"://"+issue.getSelf().getHost(), issue.getKey());
     }
 
     public static String getTelegramIssueLink(String jiraUrl, String issueKey) {
