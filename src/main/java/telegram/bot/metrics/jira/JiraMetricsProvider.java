@@ -1,11 +1,11 @@
-package telegram.bot.checker;
+package telegram.bot.metrics.jira;
 
 import lombok.Data;
 
 import java.util.concurrent.TimeUnit;
 
 @Data
-public class JiraBigMetricsProvider {
+public class JiraMetricsProvider {
 
     private final TimeUnit timeUnit;
     private final double budgetAtCompletion;

@@ -1,10 +1,13 @@
 package atlassian.jira;
 
+import lombok.Data;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@Data
 public class JqlCriteria {
     Integer maxPerQuery = 100;
     Integer startIndex = 0;

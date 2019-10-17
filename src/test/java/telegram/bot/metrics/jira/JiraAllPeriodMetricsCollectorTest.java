@@ -1,26 +1,31 @@
-package telegram.bot.checker;
+package telegram.bot.metrics.jira;
 
 import atlassian.jira.JiraHelper;
 import atlassian.jira.JqlCriteria;
-import atlassian.jira.SprintDto;
+import atlassian.jira.subclient.VersionDto;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
+import com.atlassian.jira.rest.client.api.domain.Version;
 import org.assertj.core.api.Assertions;
+import org.joda.time.DateTime;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import telegram.bot.data.jira.FavoriteJqlRules;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class JiraBigMetricsCollectorTest {
+public class JiraAllPeriodMetricsCollectorTest {
 
     private JiraHelper jiraHelper = Mockito.mock(JiraHelper.class);
     private FavoriteJqlRules jiraConfig = Mockito.mock(FavoriteJqlRules.class);
-    private JiraBigMetricsCollector testTarget;
+    private JiraAllPeriodMetricsCollector testTarget;
     private int expectedOriginalEstimate = 112;
     private float expectedPv = expectedOriginalEstimate;
 
@@ -28,42 +33,76 @@ public class JiraBigMetricsCollectorTest {
     public void setUp() {
 
         Mockito.when(jiraConfig.getAllIssuesJql(Mockito.anyString())).thenReturn("any1");
-        Mockito.when(jiraConfig.getSprintAllIssuesJql(Mockito.anyString())).thenReturn("any2");
-        Mockito.when(jiraConfig.getSprintClosedIssuesJql(Mockito.anyString())).thenReturn("any3");
-        Mockito.when(jiraConfig.getSprintActiveIssuesJql(Mockito.anyString())).thenReturn("any4");
-        Mockito.when(jiraConfig.getSprintOpenIssuesJql(Mockito.anyString())).thenReturn("any5");
-        Mockito.when(jiraConfig.getSprintUnEstimatedIssuesJql(Mockito.anyString())).thenReturn("any6");
-        Mockito.when(jiraConfig.getSprintUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any7");
-        Mockito.when(jiraConfig.getSprintClosedAndUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any8");
+        Mockito.when(jiraConfig.getAllEstimatedOrTrackedIssues(Mockito.anyString())).thenReturn("any2");
+        Mockito.when(jiraConfig.getAllClosedAndEstimatedOrTrackedIssues(Mockito.anyString())).thenReturn("any3");
+        Mockito.when(jiraConfig.getSprintAllIssuesJql(Mockito.anyString())).thenReturn("any4");
+        Mockito.when(jiraConfig.getSprintClosedIssuesJql(Mockito.anyString())).thenReturn("any5");
+        Mockito.when(jiraConfig.getSprintActiveIssuesJql(Mockito.anyString())).thenReturn("any6");
+        Mockito.when(jiraConfig.getSprintOpenIssuesJql(Mockito.anyString())).thenReturn("any7");
+        Mockito.when(jiraConfig.getSprintUnEstimatedIssuesJql(Mockito.anyString())).thenReturn("any8");
+        Mockito.when(jiraConfig.getSprintUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any9");
+        Mockito.when(jiraConfig.getSprintClosedAndUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any10");
 
-        testTarget = new JiraBigMetricsCollector(jiraHelper, jiraConfig, "TEST");
+        testTarget = new JiraAllPeriodMetricsCollector(jiraHelper, jiraConfig, "TEST");
         List<Issue> mockedIssues = Arrays.asList(
             getMockedIssueWithMockedTimeTracking(1, expectedOriginalEstimate)
         );
-        String jql = jiraConfig.getSprintAllIssuesJql("TEST");
+        String jql = jiraConfig.getAllEstimatedOrTrackedIssues("TEST");
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
-        SprintDto sprint = Mockito.mock(SprintDto.class);
-        Mockito.when(jiraHelper.getActiveSprint("TEST")).thenReturn(sprint);
+        Project project = Mockito.mock(Project.class);
+        Mockito.when(jiraHelper.getProject("TEST")).thenReturn(project);
+        ArrayList<Version> versions = new ArrayList<>();
+        versions.add(Mockito.mock(Version.class));
+        versions.add(Mockito.mock(Version.class));
+        versions.add(Mockito.mock(Version.class));
+        versions.add(Mockito.mock(Version.class));
+        versions.add(Mockito.mock(Version.class));
+
+        Mockito.when(project.getVersions()).thenReturn(versions);
+        Mockito.when(versions.get(0).getSelf()).thenReturn(URI.create("https://test-jira.com/0"));
+        Mockito.when(versions.get(1).getSelf()).thenReturn(URI.create("https://test-jira.com/1"));
+        Mockito.when(versions.get(2).getSelf()).thenReturn(URI.create("https://test-jira.com/2"));
+        Mockito.when(versions.get(3).getSelf()).thenReturn(URI.create("https://test-jira.com/3"));
+        Mockito.when(versions.get(4).getSelf()).thenReturn(URI.create("https://test-jira.com/4"));
+
+        Mockito.when(jiraHelper.getVersion(versions.get(0).getSelf())).thenReturn(Mockito.mock(VersionDto.class));
+        Mockito.when(jiraHelper.getVersion(versions.get(1).getSelf())).thenReturn(Mockito.mock(VersionDto.class));
+        Mockito.when(jiraHelper.getVersion(versions.get(2).getSelf())).thenReturn(Mockito.mock(VersionDto.class));
+        Mockito.when(jiraHelper.getVersion(versions.get(3).getSelf())).thenReturn(Mockito.mock(VersionDto.class));
+        Mockito.when(jiraHelper.getVersion(versions.get(4).getSelf())).thenReturn(Mockito.mock(VersionDto.class));
+
         long weekInMillis = TimeUnit.DAYS.toMillis(7);
         long time = new Date().getTime();
-        Mockito.when(sprint.getStartDate()).thenReturn(new Date(time - weekInMillis));
-        Mockito.when(sprint.getEndDate()).thenReturn(new Date(time + weekInMillis));
+        DateTime startTime = new DateTime(new Date(time - weekInMillis).getTime());
+        DateTime endTime = new DateTime(new Date(time + weekInMillis).getTime());
+
+        Mockito.when(jiraHelper.getVersion(versions.get(0).getSelf()).getStartDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(1).getSelf()).getStartDate()).thenReturn(startTime);
+        Mockito.when(jiraHelper.getVersion(versions.get(2).getSelf()).getStartDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(3).getSelf()).getStartDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(4).getSelf()).getStartDate()).thenReturn(null);
+
+        Mockito.when(jiraHelper.getVersion(versions.get(0).getSelf()).getReleaseDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(1).getSelf()).getReleaseDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(2).getSelf()).getReleaseDate()).thenReturn(endTime);
+        Mockito.when(jiraHelper.getVersion(versions.get(3).getSelf()).getReleaseDate()).thenReturn(null);
+        Mockito.when(jiraHelper.getVersion(versions.get(4).getSelf()).getReleaseDate()).thenReturn(null);
     }
 
     @Test
-    public void testGetSprintProgressFactor() {
-        Float sprintProgressFactor = testTarget.getSprintProgressFactor();
+    public void testGetProgressFactor() {
+        Float progressFactor = testTarget.getProgressFactor();
 
-        Assertions.assertThat(sprintProgressFactor)
-            .as("sprintProgressFactor")
+        Assertions.assertThat(progressFactor)
+            .as("progressFactor")
             .isBetween(0.49f, 0.51f);
     }
 
     @Test
-    public void testGetActiveSprintTotalHours() {
+    public void testProjectTotalHours() {
 
-        Long totalTime = testTarget.getActiveSprintTotalHours(TimeUnit.MINUTES);
+        Long totalTime = testTarget.getProjectTotalHours(TimeUnit.MINUTES);
 
         Assertions.assertThat(totalTime).isEqualTo(expectedOriginalEstimate);
     }
@@ -214,7 +253,7 @@ public class JiraBigMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[1], originalEstimateMinutes[1]),
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
-        String jql = jiraConfig.getSprintClosedIssuesJql(projectId);
+        String jql = jiraConfig.getAllClosedAndEstimatedOrTrackedIssues(projectId);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }
@@ -225,7 +264,7 @@ public class JiraBigMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[1], originalEstimateMinutes[1]),
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
-        String jql = jiraConfig.getSprintAllIssuesJql(projectId);
+        String jql = jiraConfig.getAllEstimatedOrTrackedIssues(projectId);
         JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }

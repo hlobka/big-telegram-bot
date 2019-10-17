@@ -1,4 +1,4 @@
-package telegram.bot.checker;
+package telegram.bot.metrics.jira;
 
 import atlassian.jira.JiraHelper;
 import atlassian.jira.JqlCriteria;
@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class JiraBigMetricsCollector {
+public class JiraSprintMetricsCollector implements JiraMetricsCollector {
 
     private final JiraHelper jiraHelper;
     private final FavoriteJqlRules jiraConfig;
     private final String projectKey;
 
-    public JiraBigMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey) {
+    public JiraSprintMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey) {
         this.jiraHelper = jiraHelper;
         this.jiraConfig = jiraConfig;
         this.projectKey = projectKey;
@@ -96,8 +96,9 @@ public class JiraBigMetricsCollector {
         return getActiveSprintTotalHours(timeUnit);
     }
 
-    public JiraBigMetricsProvider collect(TimeUnit timeUnit) {
-        return new JiraBigMetricsProvider(
+    @Override
+    public JiraMetricsProvider collect(TimeUnit timeUnit) {
+        return new JiraMetricsProvider(
             timeUnit,
             getBudgetAtCompletion(timeUnit),
             getSprintProgressFactor(),

@@ -6,6 +6,8 @@ import telegram.bot.data.LoginData;
 @Data
 public class FavoriteJqlRules {
     private final String allIssuesJql;
+    private final String allEstimatedOrTrackedIssues;
+    private final String allClosedAndEstimatedOrTrackedIssues;
     private final String sprintAllIssuesJql;
     private final String sprintClosedIssuesJql;
     private final String sprintActiveIssuesJql;
@@ -17,6 +19,14 @@ public class FavoriteJqlRules {
 
     public String getAllIssuesJql(String projectKey) {
         return String.format(getAllIssuesJql(), projectKey);
+    }
+
+    public String getAllEstimatedOrTrackedIssues(String projectKey) {
+        return String.format(getAllEstimatedOrTrackedIssues(), projectKey);
+    }
+
+    public String getAllClosedAndEstimatedOrTrackedIssues(String projectKey) {
+        return String.format(getAllClosedAndEstimatedOrTrackedIssues(), projectKey);
     }
 
     public String getSprintAllIssuesJql(String projectKey) {

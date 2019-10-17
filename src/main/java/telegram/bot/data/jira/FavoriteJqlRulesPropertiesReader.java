@@ -15,6 +15,14 @@ public class FavoriteJqlRulesPropertiesReader {
         return properties.getProperty("rules.jql.getAllIssues");
     }
 
+    public String getAllEstimatedOrTrackedIssues() {
+        return properties.getProperty("rules.jql.getAllEstimatedOrTrackedIssues");
+    }
+
+    public String getAllClosedAndEstimatedOrTrackedIssues() {
+        return properties.getProperty("rules.jql.getAllClosedAndEstimatedOrTrackedIssues");
+    }
+
     public String getSprintAllIssuesJql() {
         return properties.getProperty("rules.jql.getSprintAllIssues");
     }
@@ -42,6 +50,7 @@ public class FavoriteJqlRulesPropertiesReader {
     public String getSprintClosedAndUnTrackedIssuesJql() {
         return properties.getProperty("rules.jql.getSprintClosedAndUnTrackedIssues");
     }
+
     public LoginData getLoginData() {
         return new LoginData(properties, "jira");
     }

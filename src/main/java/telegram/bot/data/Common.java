@@ -92,6 +92,8 @@ public class Common {
         FavoriteJqlRulesPropertiesReader chatPropertiesReader = new FavoriteJqlRulesPropertiesReader(propertiesFile);
         return new FavoriteJqlRules(
             chatPropertiesReader.getAllIssuesJql(),
+            chatPropertiesReader.getAllEstimatedOrTrackedIssues(),
+            chatPropertiesReader.getAllClosedAndEstimatedOrTrackedIssues(),
             chatPropertiesReader.getSprintAllIssuesJql(),
             chatPropertiesReader.getSprintClosedIssuesJql(),
             chatPropertiesReader.getSprintActiveIssuesJql(),

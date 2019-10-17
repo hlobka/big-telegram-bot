@@ -54,7 +54,8 @@ public class MainBot {
         rules.registerRule(new ReLoginRule(bot));
         CommandExecutorRule commandExecutorRule = new CommandExecutorRule(bot);
         commandExecutorRule.addCallBackCommand("update_upsource_checker_view_result_for", new UpdateUpsourceViewResult(bot));
-        commandExecutorRule.addCallBackCommand(ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC, new ShowJiraMetricsByProjectIdCommand(bot));
+        commandExecutorRule.addCallBackCommand(ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC, new ShowJiraMetricsByProjectIdCommand(bot, false));
+        commandExecutorRule.addCallBackCommand(ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC_FOR_ALL_PERIOD, new ShowJiraMetricsByProjectIdCommand(bot, true));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_tabs_description", new ShowAlertFromResource(Common.UPSOURCE.checkerHelpLink, bot));
         commandExecutorRule.addCallBackCommand("show_upsource_checker_possible_problems", new ShowAlertFromResource(Common.UPSOURCE.checkerPossibleProblemsHelpLink, bot));
         commandExecutorRule.addCommand("/get_chat_id", new GetChatIdCommand());
@@ -85,11 +86,11 @@ public class MainBot {
         commandExecutorRule.addCommand("/resolve_ets", new ResolveEts(bot));
         commandExecutorRule.addCommand("/show_reviews", new ShowUpsourceReviewCommand(bot));
         commandExecutorRule.addCommand("/show_ets", new ShowEtsCommand(bot));
-        commandExecutorRule.addCommand("/show_jira_metrics", new ShowJiraMetricsCommand(bot));
+        commandExecutorRule.addCommand("/show_sprint_jira_metrics", new ShowJiraMetricsCommand(bot, ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC));
+        commandExecutorRule.addCommand("/show_full_jira_metrics", new ShowJiraMetricsCommand(bot, ShowJiraMetricsCommand.SHOW_JIRA_STATISTIC_FOR_ALL_PERIOD));
         rules.registerRule(commandExecutorRule);
         initCommonChecker(bot);
 //        new JokesSender(bot).start();
-//        new JiraChecker(bot, TimeUnit.MINUTES.toMillis(20)).start();
         new JenkinsCheckerForAllStatuses(bot, TimeUnit.HOURS.toMillis(1), Common.JENKINS_ADDITIONAL_URL)
             .withIdleTimeoutMultiplier(5)
             .withMaxNumberOfAttempts(5)
@@ -101,7 +102,6 @@ public class MainBot {
         for (Long chatId : Common.data.getMainGeneralChatIds()) {
             new EtsClarityChecker(bot, chatId, TimeUnit.MINUTES.toMillis(58), Common.ETS_DAY).start();
         }
-
         ConsoleLogger.additionalErrorLogger = message -> {
             BotHelper.logError(bot, message);
         };

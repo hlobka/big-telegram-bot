@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ShowJiraMetricsCommand implements Command {
-    public static final String SHOW_JIRA_STATISTIC = "show_jira_statistic";
+    public static final String SHOW_JIRA_STATISTIC = "show_sprint_jira_statistic";
+    public static final String SHOW_JIRA_STATISTIC_FOR_ALL_PERIOD = "show_full_jira_statistic";
     private final TelegramBot bot;
+    private final String command;
 
-    public ShowJiraMetricsCommand(TelegramBot bot) {
+    public ShowJiraMetricsCommand(TelegramBot bot, String command) {
         this.bot = bot;
+        this.command = command;
     }
 
     @Override
@@ -53,11 +56,11 @@ public class ShowJiraMetricsCommand implements Command {
         bot.execute(request);
     }
 
-    private static InlineKeyboardButton[] getInlineKeyboardButtons(List<String> jiraProjectKeyIds) {
+    private InlineKeyboardButton[] getInlineKeyboardButtons(List<String> jiraProjectKeyIds) {
         InlineKeyboardButton[] result = new InlineKeyboardButton[jiraProjectKeyIds.size()];
         for (int i = 0; i < jiraProjectKeyIds.size(); i++) {
             String jiraId = jiraProjectKeyIds.get(i);
-            String callbackId = SHOW_JIRA_STATISTIC + ":" + jiraId;
+            String callbackId = command + ":" + jiraId;
             result[i] = new InlineKeyboardButton(jiraId).callbackData(callbackId);
         }
         return result;
