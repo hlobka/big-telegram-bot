@@ -153,11 +153,15 @@ public class MainBot {
             .withIdleTimeoutMultiplier(2)
             .withMaxNumberOfAttempts(5)
             .start();
-        new CommonChecker(bot, TimeUnit.MINUTES.toMillis(20))
+        new CommonChecker(bot, TimeUnit.MINUTES.toMillis(10))
             .withChecker(new NewJiraIssuesChecker(jiraHelperServiceProviderMap))
+            .withIdleTimeoutMultiplier(5)
+            .withMaxNumberOfAttempts(5)
+            .start();
+        new CommonChecker(bot, TimeUnit.HOURS.toMillis(1))
             .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProviderMap))
             .withChecker(new UnTrackedJiraIssuesOnReviewChecker(jiraHelperServiceProviderMap, upsourceServiceProvider))
-            .withIdleTimeoutMultiplier(5)
+            .withIdleTimeoutMultiplier(2)
             .withMaxNumberOfAttempts(5)
             .start();
     }
