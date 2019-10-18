@@ -1,6 +1,9 @@
 package atlassian.jira;
 
+import atlassian.jira.subclient.VersionDto;
+import atlassian.jira.subclient.VersionRestClientV2;
 import com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient;
+import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.jira.rest.client.api.*;
 import com.atlassian.jira.rest.client.api.domain.*;
@@ -147,7 +150,7 @@ public class JiraHelper {
                 }
 
             }
-        } else if(sprintValue instanceof List){
+        } else if (sprintValue instanceof List) {
             sprintValues = (List<String>) sprintValue;
         } else {
             throw new RuntimeException(String.format("No sprint values for project: %s", projectId));
@@ -183,6 +186,17 @@ public class JiraHelper {
             }
         }
         throw new RuntimeException(String.format("Active sprint where not found by projectId: %s", projectId));
+    }
+
+    public VersionDto getVersion(URI uri) {
+        try {
+            HttpClient httpClient = (HttpClient) FieldUtils.readField(client, "httpClient", true);
+            VersionRestClientV2 versionRestClient = new VersionRestClientV2(httpClient);
+            return versionRestClient.getVersion(uri);
+        } catch (IllegalAccessException e) {
+            ConsoleLogger.logError(e, "getVersion: " + uri);
+        }
+        return null;
     }
 
     public Project getProject(String projectId) {
