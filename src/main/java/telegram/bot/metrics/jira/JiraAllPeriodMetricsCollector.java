@@ -90,13 +90,20 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
         List<Issue> result = new ArrayList<>();
         Integer maxPerQuery = jqlCriteria.getMaxPerQuery();
         int startIndex = 0;
-        if (maxPerQuery > 100 && jqlCriteria.getStartIndex() == 0) {
+        int limitedMaxPerQuery = 50;
+        if (maxPerQuery > limitedMaxPerQuery && jqlCriteria.getStartIndex() == 0) {
             while (startIndex < maxPerQuery) {
                 jqlCriteria.setStartIndex(startIndex);
-                jqlCriteria.setMaxPerQuery(100);
-                result.addAll(jiraHelper.getIssues(jql, jqlCriteria));
-                startIndex += 100;
+                jqlCriteria.setMaxPerQuery(limitedMaxPerQuery);
+                List<Issue> issues = jiraHelper.getIssues(jql, jqlCriteria);
+                if(issues.isEmpty()){
+                    break;
+                }
+                result.addAll(issues);
+                startIndex += limitedMaxPerQuery;
             }
+        } else {
+            result.addAll(jiraHelper.getIssues(jql, jqlCriteria));
         }
         issuesCache.put(jql, result);
         return result;
