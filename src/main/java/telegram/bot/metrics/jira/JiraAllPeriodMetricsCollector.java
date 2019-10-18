@@ -158,15 +158,29 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
     }
 
     @Override
-    public JiraMetricsProvider collect(TimeUnit timeUnit) {
+    public JiraMetricsProvider collect(TimeUnit timeUnit, ProgressListener progressListener) {
         issuesCache = new HashMap<>();
+        progressListener.update(0, 4);
+        double budgetAtCompletion = getBudgetAtCompletion(timeUnit);
+        progressListener.update(1, 4);
+        Float progressFactor = getProgressFactor();
+        progressListener.update(2, 4);
+        long earnedValue = getEarnedValue(timeUnit);
+        progressListener.update(3, 4);
+        long actualCost = getActualCost(timeUnit);
+        progressListener.update(4, 4);
         return new JiraMetricsProvider(
             timeUnit,
-            getBudgetAtCompletion(timeUnit),
-            getProgressFactor(),
-            getEarnedValue(timeUnit),
-            getActualCost(timeUnit)
+            budgetAtCompletion,
+            progressFactor,
+            earnedValue,
+            actualCost
         );
+    }
+
+    @Override
+    public JiraMetricsProvider collect(TimeUnit timeUnit) {
+        return collect(timeUnit, (currentStep, maxSteps) -> {});
     }
 
     @Data

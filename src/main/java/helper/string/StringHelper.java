@@ -126,7 +126,7 @@ public class StringHelper {
         return result.toString();
     }
 
-    private static String repeat(String s, int n) {
+    public static String repeat(String s, int n) {
         return String.join("", Collections.nCopies(n, s));
     }
 }

@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.DeleteMessage;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
@@ -34,6 +35,18 @@ public class BotHelper {
             .parseMode(parseMode)
             .disableWebPagePreview(disableWebPagePreview)
             .disableNotification(disableNotification);
+        return bot.execute(request);
+    }
+
+    public static BaseResponse editMessage(TelegramBot bot, Long chatId, int messageId, String message) {
+        return editMessage(bot, chatId, messageId, message, ParseMode.Markdown, false);
+    }
+
+    public static BaseResponse editMessage(TelegramBot bot, Long chatId, int messageId, String message, ParseMode parseMode, boolean disableWebPagePreview) {
+        message = getCuttedMessage(message);
+        EditMessageText request = new EditMessageText(chatId, messageId, message)
+            .parseMode(parseMode)
+            .disableWebPagePreview(disableWebPagePreview);
         return bot.execute(request);
     }
 

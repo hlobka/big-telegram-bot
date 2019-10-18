@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import helper.string.StringHelper;
 import javafx.util.Pair;
 import telegram.bot.data.Common;
 import telegram.bot.data.LoginData;
@@ -38,8 +39,18 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
             Message message = callbackQuery.message();
             if (message != null) {
                 try {
-                    String metrics = getMetrics(jiraId);
-                    BotHelper.sendMessage(bot, message.chat().id(), metrics, ParseMode.Markdown);
+                    String metricsHeader = getMetricsHeader(jiraId);
+                    Integer messageId = BotHelper.sendMessage(bot, message.chat().id(), metricsHeader, ParseMode.Markdown).message().messageId();
+                    String metrics = getMetrics(jiraId, (currentStep, maxSteps) -> {
+                        BotHelper.editMessage(
+                            bot, message.chat().id(), messageId,
+                            metricsHeader + StringHelper.repeat("🍏", currentStep) + StringHelper.repeat("🍎", maxSteps-currentStep)
+                        );
+                    });
+                    BotHelper.editMessage(
+                        bot, message.chat().id(), messageId,
+                        metrics
+                    );
                 } catch (RuntimeException e) {
                     BotHelper.sendMessage(bot, message.chat().id(), e.getMessage(), ParseMode.Markdown);
                     e.printStackTrace();
@@ -49,8 +60,8 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Ok: "));
     }
 
-    private String getMetrics(String jiraId) {
-        String metrics = (forAllPeriod ? "Full" : "Sprint") + " project metrics for " + jiraId + " metrics:\n";
+    private String getMetrics(String jiraId, JiraMetricsCollector.ProgressListener progressListener) {
+        String metrics = getMetricsHeader(jiraId);
         final FavoriteJqlRules jiraConfig = getJiraConfig(jiraId);
         if (jiraConfig == null) {
             return "No available login data's for: " + jiraId;
@@ -64,7 +75,7 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
             } else {
                 jiraMetricsCollector = new JiraSprintMetricsCollector(jiraHelper, jiraConfig, jiraId);
             }
-            JiraMetricsProvider jiraMetricsProvider = jiraMetricsCollector.collect(TimeUnit.HOURS);
+            JiraMetricsProvider jiraMetricsProvider = jiraMetricsCollector.collect(TimeUnit.HOURS, progressListener);
             metrics += "\nPV:  " + jiraMetricsProvider.getPlannedValue();
             metrics += "\nEV:  " + jiraMetricsProvider.getEarnedValue();
             metrics += "\nAC:  " + jiraMetricsProvider.getActualCost();
@@ -80,6 +91,10 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
             jiraHelper.disconnect();
         }
         return metrics;
+    }
+
+    private String getMetricsHeader(String jiraId) {
+        return (forAllPeriod ? "Full" : "Sprint") + " project metrics for " + jiraId + " metrics:\n";
     }
 
     private FavoriteJqlRules getJiraConfig(String jiraId) {
