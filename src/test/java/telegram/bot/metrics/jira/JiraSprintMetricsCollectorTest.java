@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import telegram.bot.data.jira.FavoriteJqlRules;
-import telegram.bot.metrics.jira.JiraSprintMetricsCollector;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -54,7 +53,7 @@ public class JiraSprintMetricsCollectorTest {
 
     @Test
     public void testGetSprintProgressFactor() {
-        Float sprintProgressFactor = testTarget.getSprintProgressFactor();
+        Float sprintProgressFactor = testTarget.getProgressFactor();
 
         Assertions.assertThat(sprintProgressFactor)
             .as("sprintProgressFactor")

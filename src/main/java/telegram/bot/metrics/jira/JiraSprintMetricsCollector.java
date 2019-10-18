@@ -74,12 +74,12 @@ public class JiraSprintMetricsCollector implements JiraMetricsCollector {
         return getIssuesSpentTotalTimeIn(issues, timeUnit);
     }
 
-    Float getSprintProgressFactor() {
+    Float getProgressFactor() {
         SprintDto activeSprint = jiraHelper.getActiveSprint(projectKey);
-        return getSprintProgressFactor(activeSprint);
+        return getProgressFactor(activeSprint);
     }
 
-    private Float getSprintProgressFactor(SprintDto sprint) {
+    private Float getProgressFactor(SprintDto sprint) {
         long sprintDuration = getSprintDuration(sprint);
         long actualTime = new Date().getTime();
         long sprintProgress = actualTime - sprint.getStartDate().getTime();
@@ -101,7 +101,7 @@ public class JiraSprintMetricsCollector implements JiraMetricsCollector {
         return new JiraMetricsProvider(
             timeUnit,
             getBudgetAtCompletion(timeUnit),
-            getSprintProgressFactor(),
+            getProgressFactor(),
             getEarnedValue(timeUnit),
             getActualCost(timeUnit)
         );
