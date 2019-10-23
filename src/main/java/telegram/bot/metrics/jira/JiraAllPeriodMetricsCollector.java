@@ -19,17 +19,24 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
     private final FavoriteJqlRules jiraConfig;
     private final String projectKey;
     private Map<String, List<Issue>> issuesCache;
-    protected int maxPerQuery;
+    protected final int maxPerQuery;
+    private int limitedMaxPerQuery;
 
     public JiraAllPeriodMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey) {
         this(jiraHelper, jiraConfig, projectKey, 1000);
     }
+
     public JiraAllPeriodMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey, long maxPerQuery) {
         this.jiraHelper = jiraHelper;
         this.jiraConfig = jiraConfig;
         this.projectKey = projectKey;
         this.maxPerQuery = 1000;
-        issuesCache = new HashMap<>();
+        this.limitedMaxPerQuery = 100;
+        this.issuesCache = new HashMap<>();
+    }
+
+    public void setLimitedMaxPerQuery(int limitedMaxPerQuery) {
+        this.limitedMaxPerQuery = limitedMaxPerQuery;
     }
 
     Long getProjectTotalHours(TimeUnit timeUnit) {
@@ -90,7 +97,6 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
         List<Issue> result = new ArrayList<>();
         Integer maxPerQuery = jqlCriteria.getMaxPerQuery();
         int startIndex = 0;
-        int limitedMaxPerQuery = 50;
         if (maxPerQuery > limitedMaxPerQuery && jqlCriteria.getStartIndex() == 0) {
             while (startIndex < maxPerQuery) {
                 jqlCriteria.setStartIndex(startIndex);

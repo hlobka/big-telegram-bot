@@ -27,6 +27,7 @@ public class JiraAllPeriodMetricsCollectorTest {
     private FavoriteJqlRules jiraConfig = Mockito.mock(FavoriteJqlRules.class);
     private JiraAllPeriodMetricsCollector testTarget;
     private int expectedOriginalEstimate = 112;
+    private int maxPerProperty = 100;
     private float expectedPv = expectedOriginalEstimate;
 
     @BeforeMethod
@@ -44,11 +45,12 @@ public class JiraAllPeriodMetricsCollectorTest {
         Mockito.when(jiraConfig.getSprintClosedAndUnTrackedIssuesJql(Mockito.anyString())).thenReturn("any10");
 
         testTarget = new JiraAllPeriodMetricsCollector(jiraHelper, jiraConfig, "TEST");
+        testTarget.setLimitedMaxPerQuery(maxPerProperty);
         List<Issue> mockedIssues = Arrays.asList(
             getMockedIssueWithMockedTimeTracking(1, expectedOriginalEstimate)
         );
         String jql = jiraConfig.getAllEstimatedOrTrackedIssues("TEST");
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(50);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerProperty);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
         Project project = Mockito.mock(Project.class);
         Mockito.when(jiraHelper.getProject("TEST")).thenReturn(project);
@@ -254,7 +256,7 @@ public class JiraAllPeriodMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
         String jql = jiraConfig.getAllClosedAndEstimatedOrTrackedIssues(projectId);
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(50);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerProperty);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }
 
@@ -265,7 +267,7 @@ public class JiraAllPeriodMetricsCollectorTest {
             getMockedIssueWithMockedTimeTracking(timeSpentMinutes[2], originalEstimateMinutes[2])
         );
         String jql = jiraConfig.getAllEstimatedOrTrackedIssues(projectId);
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(50);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerProperty);
         Mockito.when(jiraHelper.getIssues(jql, jqlCriteria)).thenReturn(mockedIssues);
     }
 
