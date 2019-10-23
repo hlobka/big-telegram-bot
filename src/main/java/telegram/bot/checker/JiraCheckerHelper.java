@@ -62,7 +62,7 @@ public class JiraCheckerHelper {
         StringBuilder result = new StringBuilder();
         if (!issues.isEmpty()) {
             result.append("🔥🔥🔥\n");
-            result.append("Данные задачи нуждаються в дополнительной экстимации:");
+            result.append("Данные задачи нуждаются в дополнительной эстимации:");
         }
         for (Issue issue : issues) {
             result.append(getIssueDescription(issue));
