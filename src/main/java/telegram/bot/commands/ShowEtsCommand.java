@@ -29,6 +29,6 @@ public class ShowEtsCommand implements Command {
             EtsClarityChecker.sendNotification(chatId, bot);
             return new Pair<>(ParseMode.HTML, Collections.singletonList(""));
         }
-        return new Pair<>(ParseMode.HTML, Collections.singletonList("Sorry, you cannot have access for thus command"));
+        return new Pair<>(ParseMode.HTML, Collections.singletonList("Sorry, you cannot have access for this command"));
     }
 }
