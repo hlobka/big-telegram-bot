@@ -16,6 +16,7 @@ public class Common {
     public static final String ETS_USERS = "/tmp/ets_users.ser";
     public static final String ETS_USERS_IN_VACATION = "/tmp/ets_users_in_vacation.ser";
     public static final String ETS_USERS_WITH_ISSUES = "/tmp/ets_users_with_issues.ser";
+    public static final String ETS_USERS_WITH_APPROVED_ISSUES = "/tmp/ets_users_with_approved_issues.ser";
     public static final String COMMON_INT_DATA = "/tmp/common.ser";
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
     public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
@@ -29,7 +30,7 @@ public class Common {
     public static final LoginData EMAIL = new LoginData(PROPERTIES, "email");
     public static final GoogleData GOOGLE = new GoogleData(PROPERTIES);
     public static final UpsourceData UPSOURCE = new UpsourceData(PROPERTIES);
-    public static final EtsHelper ETS_HELPER = new EtsHelper(ETS_USERS, ETS_USERS_IN_VACATION, ETS_USERS_WITH_ISSUES);
+    public static final EtsHelper ETS_HELPER = new EtsHelper(ETS_USERS, ETS_USERS_IN_VACATION, ETS_USERS_WITH_ISSUES, ETS_USERS_WITH_APPROVED_ISSUES);
     public static final String HELP_LINK;
     public static final String HELP_LINKS;
     public static final String BIG_HELP_LINKS;

@@ -11,11 +11,13 @@ public class EtsHelper {
     private final String etsUsers;
     private final String etsUsersInVacation;
     private final String etsUsersWithIssues;
+    private final String etsUsersWithApprovedIssues;
 
-    public EtsHelper(String etsUsers, String etsUsersInVacation, String etsUsersWithIssues) {
+    public EtsHelper(String etsUsers, String etsUsersInVacation, String etsUsersWithIssues, String etsUsersWithApprovedIssues) {
         this.etsUsers = etsUsers;
         this.etsUsersInVacation = etsUsersInVacation;
         this.etsUsersWithIssues = etsUsersWithIssues;
+        this.etsUsersWithApprovedIssues = etsUsersWithApprovedIssues;
     }
 
     public void clearFromDuplicates(HashMap<User, Boolean> users) {
@@ -45,6 +47,7 @@ public class EtsHelper {
         for (User user : userList) {
             users.remove(user);
         }
+        removeUserFromApprovedIssuesList(userToRemove);
         removeUserFromIssuesList(userToRemove);
         removeUserFromVacation(userToRemove);
         saveUsers(users);
@@ -98,8 +101,16 @@ public class EtsHelper {
         SharedObject.save(etsUsersWithIssues, users);
     }
 
+    private void saveUsersWhichHaveApprovedIssues(ArrayList<User> users) {
+        SharedObject.save(etsUsersWithApprovedIssues, users);
+    }
+
     private ArrayList<User> getUsersWhichHaveIssues() {
         return SharedObject.loadList(etsUsersWithIssues, new ArrayList<>());
+    }
+
+    private ArrayList<User> getUsersWhichHaveApprovedIssues() {
+        return SharedObject.loadList(etsUsersWithApprovedIssues, new ArrayList<>());
     }
 
 
@@ -107,6 +118,7 @@ public class EtsHelper {
         ArrayList<User> users = getUsersFromVacation();
         users.add(user);
         removeUserFromIssuesList(user);
+        removeUserFromApprovedIssuesList(user);
         resolveUser(user);
         saveUsersWhichInVacation(users);
     }
@@ -116,6 +128,22 @@ public class EtsHelper {
                 .stream().filter(user1 -> !user1.id().equals(user.id()))
                 .collect(Collectors.toCollection(ArrayList::new));
         saveUsersWhichHaveIssues(users);
+    }
+
+    private void removeUserFromApprovedIssuesList(User user) {
+        ArrayList<User> users = getUsersWhichHaveApprovedIssues()
+                .stream().filter(user1 -> !user1.id().equals(user.id()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        saveUsersWhichHaveApprovedIssues(users);
+    }
+
+    public void approveUserIssue(User user) {
+        ArrayList<User> users = getUsersWhichHaveApprovedIssues();
+        users.add(user);
+        removeUserFromVacation(user);
+        unResolveUser(user);
+        userHasIssue(user);
+        saveUsersWhichHaveApprovedIssues(users);
     }
 
     public void userHasIssue(User user) {
@@ -134,6 +162,16 @@ public class EtsHelper {
             }
         }
 
+        return false;
+    }
+
+    public boolean isUserHasApprovedIssue(User user) {
+        ArrayList<User> users = getUsersWhichHaveApprovedIssues();
+        for (User user1 : users) {
+            if (user1.id().equals(user.id())) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -195,6 +233,7 @@ public class EtsHelper {
         users.put(user, status);
         saveUsers(users);
         removeUserFromIssuesList(user);
+        removeUserFromApprovedIssuesList(user);
         removeUserFromVacation(user);
     }
 }

@@ -49,13 +49,29 @@ public class EtsHelperTest {
         etsHelper.resolveUser(getUser(1));
         etsHelper.userOnVacation(getUser(2));
         etsHelper.userHasIssue(getUser(3));
+        etsHelper.approveUserIssue(getUser(4));
 
-        assertThat(etsHelper.getUsers()).hasSize(3);
+        assertThat(etsHelper.getUsers()).hasSize(4);
 
         etsHelper.removeUser(getUser(1));
 
         etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).hasSize(3);
+
+        etsHelper.removeUser(getUser(2));
+
+        etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(2);
+
+        etsHelper.removeUser(getUser(3));
+
+        etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).hasSize(1);
+
+        etsHelper.removeUser(getUser(4));
+
+        etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).hasSize(0);
     }
 
     @Test
@@ -66,14 +82,15 @@ public class EtsHelperTest {
         etsHelper.resolveUser(getUser(1));
         etsHelper.userOnVacation(getUser(2));
         etsHelper.userHasIssue(getUser(3));
+        etsHelper.approveUserIssue(getUser(4));
 
-        assertThat(etsHelper.getUsers()).hasSize(3);
+        assertThat(etsHelper.getUsers()).hasSize(4);
         assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
 
         etsHelper.removeUser(getUser(2));
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.getUsers()).hasSize(2);
+        assertThat(etsHelper.getUsers()).hasSize(3);
         assertThat(etsHelper.isUserOnVacation(getUser(2))).isFalse();
     }
 
@@ -97,6 +114,28 @@ public class EtsHelperTest {
     }
 
     @Test
+    public void testRemoveUserShouldBeRemovedFromApprovedIssuesUsers() {
+        EtsHelper etsHelper;
+
+        etsHelper = getEtsHelper();
+        etsHelper.resolveUser(getUser(1));
+        etsHelper.userOnVacation(getUser(2));
+        etsHelper.userHasIssue(getUser(3));
+        etsHelper.approveUserIssue(getUser(3));
+
+        assertThat(etsHelper.getUsers()).hasSize(3);
+        assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isTrue();
+
+        etsHelper.removeUser(getUser(3));
+
+        etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).hasSize(2);
+        assertThat(etsHelper.isUserHasIssue(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isFalse();
+    }
+
+    @Test
     public void testResolveAllUsualUsers() {
         EtsHelper etsHelper;
 
@@ -106,17 +145,25 @@ public class EtsHelperTest {
         etsHelper.resolveUser(getUser(1));
         etsHelper.userOnVacation(getUser(2));
         etsHelper.userHasIssue(getUser(3));
+        etsHelper.approveUserIssue(getUser(4));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.isUserResolve(getUser(1))).isTrue();
         assertThat(etsHelper.isUserHasIssue(getUser(1))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(1))).isFalse();
         assertThat(etsHelper.isUserOnVacation(getUser(1))).isFalse();
         assertThat(etsHelper.isUserResolve(getUser(2))).isTrue();
         assertThat(etsHelper.isUserHasIssue(getUser(2))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(2))).isFalse();
         assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
         assertThat(etsHelper.isUserResolve(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isFalse();
         assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
         assertThat(etsHelper.isUserOnVacation(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(4))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(4))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(4))).isTrue();
+        assertThat(etsHelper.isUserOnVacation(getUser(4))).isFalse();
 
         etsHelper.unResolveAllUsualUsers();
 
@@ -211,6 +258,46 @@ public class EtsHelperTest {
         assertThat(etsHelper.isUserOnVacation(user)).isFalse();
     }
 
+
+    @Test
+    public void testResolveUserWitsIssue() {
+
+        EtsHelper etsHelper;
+
+        etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).isEmpty();
+
+        User user = getUser();
+        etsHelper.approveUserIssue(user);
+
+        assertThat(etsHelper.isUserHasIssue(user)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(user)).isTrue();
+
+        etsHelper.resolveUser(user);
+
+        assertThat(etsHelper.isUserHasIssue(user)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(user)).isFalse();
+    }
+
+    @Test
+    public void testResolveUserWitsIssueShouldBeBackFromIssues() {
+
+        EtsHelper etsHelper;
+
+        etsHelper = getEtsHelper();
+        assertThat(etsHelper.getUsers()).isEmpty();
+
+        User user = getUser();
+        etsHelper.approveUserIssue(user);
+        assertThat(etsHelper.isUserHasIssue(user)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(user)).isTrue();
+
+        etsHelper.resolveUser(user);
+
+        assertThat(etsHelper.isUserHasIssue(user)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(user)).isFalse();
+    }
+
     @Test
     public void testSaveUsers() {
         HashMap<User, Boolean> users;
@@ -282,14 +369,22 @@ public class EtsHelperTest {
         usersFromVacation = etsHelper.getUsersFromVacation();
         assertThat(usersFromVacation).isEmpty();
         User userMock = getUser();
+        User user2Mock = getUser(2);
 
         etsHelper.userHasIssue(userMock);
+        etsHelper.approveUserIssue(user2Mock);
         assertThat(etsHelper.isUserHasIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserHasIssue(user2Mock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(user2Mock)).isTrue();
         etsHelper.userOnVacation(userMock);
+        etsHelper.userOnVacation(user2Mock);
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.getUsersFromVacation()).isNotEmpty().contains(userMock);
+        assertThat(etsHelper.getUsersFromVacation()).isNotEmpty().contains(userMock).contains(user2Mock);
         assertThat(etsHelper.isUserHasIssue(userMock)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isFalse();
+        assertThat(etsHelper.isUserHasIssue(user2Mock)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(user2Mock)).isFalse();
     }
 
     @Test
@@ -300,8 +395,24 @@ public class EtsHelperTest {
 
 
         assertThat(etsHelper.isUserHasIssue(userMock)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isFalse();
         etsHelper.userHasIssue(userMock);
         assertThat(etsHelper.isUserHasIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isFalse();
+    }
+
+    @Test
+    public void testUserHasApprovedIssue() {
+        EtsHelper etsHelper;
+        etsHelper = getEtsHelper();
+        User userMock = getUser();
+
+
+        assertThat(etsHelper.isUserHasIssue(userMock)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isFalse();
+        etsHelper.approveUserIssue(userMock);
+        assertThat(etsHelper.isUserHasIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isTrue();
     }
 
     @Test
@@ -309,14 +420,24 @@ public class EtsHelperTest {
         EtsHelper etsHelper;
         etsHelper = getEtsHelper();
         User userMock = getUser();
+        User user2Mock = getUser();
 
         etsHelper.userOnVacation(userMock);
+        etsHelper.userOnVacation(user2Mock);
 
         assertThat(etsHelper.isUserOnVacation(userMock)).isTrue();
         assertThat(etsHelper.isUserHasIssue(userMock)).isFalse();
+        assertThat(etsHelper.isUserOnVacation(user2Mock)).isTrue();
+        assertThat(etsHelper.isUserHasIssue(user2Mock)).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(user2Mock)).isFalse();
         etsHelper.userHasIssue(userMock);
+        etsHelper.userHasIssue(user2Mock);
         assertThat(etsHelper.isUserHasIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isFalse();
         assertThat(etsHelper.isUserOnVacation(userMock)).isFalse();
+        assertThat(etsHelper.isUserHasIssue(user2Mock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(user2Mock)).isFalse();
+        assertThat(etsHelper.isUserOnVacation(user2Mock)).isFalse();
     }
 
     @Test
@@ -357,12 +478,28 @@ public class EtsHelperTest {
         assertThat(etsHelper.isUserResolve(userMock)).isFalse();
     }
 
+    @Test
+    public void testUserHasApprovedIssueShouldBeUnResolve() {
+        EtsHelper etsHelper;
+        etsHelper = getEtsHelper();
+        User userMock = getUser();
+
+        etsHelper.resolveUser(userMock);
+
+        assertThat(etsHelper.isUserResolve(userMock)).isTrue();
+        etsHelper.approveUserIssue(userMock);
+        assertThat(etsHelper.isUserHasIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(userMock)).isTrue();
+        assertThat(etsHelper.isUserResolve(userMock)).isFalse();
+    }
+
 
     private EtsHelper getEtsHelper() {
         String etsUsers = testRootUrl + "test1.ser";
         String etsUsersInVacation = testRootUrl + "test2.ser";
         String etsUsersWithIssues = testRootUrl + "test3.ser";
-        return new EtsHelper(etsUsers, etsUsersInVacation, etsUsersWithIssues);
+        String etsUsersWithApprovedIssues = testRootUrl + "test4.ser";
+        return new EtsHelper(etsUsers, etsUsersInVacation, etsUsersWithIssues, etsUsersWithApprovedIssues);
     }
 
     private User getUser() {
