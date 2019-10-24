@@ -110,6 +110,7 @@ public class EtsClarityChecker extends Thread {
                 new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
                 new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
                 new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+                new InlineKeyboardButton("Approve Issues").callbackData("ets_approve_users_with_issues"),
             }));
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
@@ -137,6 +138,7 @@ public class EtsClarityChecker extends Thread {
                     new InlineKeyboardButton("Resolve").callbackData("ets_resolved"),
                     new InlineKeyboardButton("On Vacation").callbackData("ets_on_vacation"),
                     new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
+                    new InlineKeyboardButton("Approve Issues").callbackData("ets_approve_users_with_issues"),
                 }));
             bot.execute(request);
         } catch (RuntimeException e) {
@@ -176,7 +178,9 @@ public class EtsClarityChecker extends Thread {
                 User user = userBooleanEntry.getKey();
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
-                    if (etsHelper.isUserHasIssue(user)) {
+                    if (etsHelper.isUserHasApprovedIssue(user)) {
+                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🦠"));
+                    } else if (etsHelper.isUserHasIssue(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "💊"));
                     } else if (etsHelper.isUserOnVacation(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍹"));
@@ -190,9 +194,19 @@ public class EtsClarityChecker extends Thread {
                 }
             }
         }
-        int expectedCount = count - 1 - usersInVacation.size();
-        isResolvedToday = resolvedCount >= expectedCount;
+        isResolvedToday = isResolvedToday(resolvedCount, count);
         return resolvedUsers.toString() + String.format("%nResolved: %d/%d%n", resolvedCount, count - 1);
+    }
+
+    private static Boolean isResolvedToday(int resolvedCount, int count) {
+        Boolean result;
+        EtsHelper etsHelper = Common.ETS_HELPER;
+        ArrayList<User> usersInVacation = etsHelper.getUsersFromVacation();
+        ArrayList<User> usersWithApprovedIssues = etsHelper.getUsersWhichHaveApprovedIssues();
+
+        int expectedCount = count - 1 - usersInVacation.size() - usersWithApprovedIssues.size();
+        result = resolvedCount >= expectedCount;
+        return result;
     }
 
     private static String getUserName(User user, Boolean resolved) {
@@ -228,7 +242,7 @@ public class EtsClarityChecker extends Thread {
         for (Map.Entry<User, Boolean> userBooleanEntry : users.entrySet()) {
             User user = userBooleanEntry.getKey();
             Boolean resolved = userBooleanEntry.getValue();
-            if ((resolved || etsHelper.isUserOnVacation(user)) && !etsHelper.isUserHasIssue(user)) {
+            if ((resolved || etsHelper.isUserOnVacation(user)) || etsHelper.isUserHasApprovedIssue(user)) {
                 resolvedCount++;
             }
         }

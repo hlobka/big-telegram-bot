@@ -63,7 +63,7 @@ public class EtsHelper {
     }
 
     private static boolean isUserPresent(User user, Set<Map.Entry<User, Boolean>> entries) {
-        Integer amount = 0;
+        int amount = 0;
         for (Map.Entry<User, Boolean> userBooleanEntry : entries) {
             User entryKey = userBooleanEntry.getKey();
             if (!entryKey.equals(user) && Objects.equals(entryKey.id(), user.id())) {
@@ -105,11 +105,11 @@ public class EtsHelper {
         SharedObject.save(etsUsersWithApprovedIssues, users);
     }
 
-    private ArrayList<User> getUsersWhichHaveIssues() {
+    public ArrayList<User> getUsersWhichHaveIssues() {
         return SharedObject.loadList(etsUsersWithIssues, new ArrayList<>());
     }
 
-    private ArrayList<User> getUsersWhichHaveApprovedIssues() {
+    public ArrayList<User> getUsersWhichHaveApprovedIssues() {
         return SharedObject.loadList(etsUsersWithApprovedIssues, new ArrayList<>());
     }
 
