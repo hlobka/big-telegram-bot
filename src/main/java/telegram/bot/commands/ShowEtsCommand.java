@@ -25,6 +25,7 @@ public class ShowEtsCommand implements Command {
         Integer userId = message.from().id();
         boolean hasChatData = Common.data.hasChatData(chatId);
         boolean userHasAccess = Common.data.telegramUserIdsWithGeneralAccess.contains(userId);
+        userHasAccess = userHasAccess || Common.USER_LOGIN_ON_TELEGRAM_ID_MAP.containsValue(userId);
         if (hasChatData || userHasAccess) {
             EtsClarityChecker.sendNotification(chatId, bot);
             return new Pair<>(ParseMode.HTML, Collections.singletonList(""));
