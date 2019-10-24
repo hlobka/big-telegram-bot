@@ -163,6 +163,10 @@ public class Common {
         return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsGeneral).collect(Collectors.toList());
     }
 
+    public boolean hasChatData(Long chatId) {
+        return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).size()>0;
+    }
+
     public ChatData getChatData(Long chatId) {
         return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).get(0);
     }
