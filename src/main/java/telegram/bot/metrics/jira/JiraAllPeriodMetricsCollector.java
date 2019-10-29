@@ -15,22 +15,24 @@ import java.util.concurrent.TimeUnit;
 
 public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
 
+    static final Set<String> JIRA_FIELDS = new HashSet<>(Arrays.asList("timetracking", "summary", "issuetype", "created", "updated", "project", "status"));;
+
     private final JiraHelper jiraHelper;
     private final FavoriteJqlRules jiraConfig;
     private final String projectKey;
     private Map<String, List<Issue>> issuesCache;
-    protected final int maxPerQuery;
+    private final int maxPerQuery;
     private int limitedMaxPerQuery;
 
     public JiraAllPeriodMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey) {
         this(jiraHelper, jiraConfig, projectKey, 1000);
     }
 
-    public JiraAllPeriodMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey, long maxPerQuery) {
+    public JiraAllPeriodMetricsCollector(JiraHelper jiraHelper, FavoriteJqlRules jiraConfig, String projectKey, int maxPerQuery) {
         this.jiraHelper = jiraHelper;
         this.jiraConfig = jiraConfig;
         this.projectKey = projectKey;
-        this.maxPerQuery = 1000;
+        this.maxPerQuery = maxPerQuery;
         this.limitedMaxPerQuery = 100;
         this.issuesCache = new HashMap<>();
     }
@@ -41,7 +43,7 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
 
     Long getProjectTotalHours(TimeUnit timeUnit) {
         String jql = jiraConfig.getAllEstimatedOrTrackedIssues(projectKey);
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerQuery);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFields(JIRA_FIELDS).withMaxPerQuery(maxPerQuery);
         List<Issue> issues = getIssues(jql, jqlCriteria);
         return getIssuesOriginalTotalTimeIn(issues, timeUnit);
     }
@@ -78,20 +80,20 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
 
     private long getEarnedValue(TimeUnit timeUnit) {
         String jql = jiraConfig.getAllClosedAndEstimatedOrTrackedIssues(projectKey);
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerQuery);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFields(JIRA_FIELDS).withMaxPerQuery(maxPerQuery);
         List<Issue> issues = getIssues(jql, jqlCriteria);
         return getIssuesOriginalTotalTimeIn(issues, timeUnit);
     }
 
     private long getActualCost(TimeUnit timeUnit) {
         String jql = jiraConfig.getAllEstimatedOrTrackedIssues(projectKey);
-        JqlCriteria jqlCriteria = new JqlCriteria().withFillInformation(true).withMaxPerQuery(maxPerQuery);
+        JqlCriteria jqlCriteria = new JqlCriteria().withFields(JIRA_FIELDS).withMaxPerQuery(maxPerQuery);
         List<Issue> issues = getIssues(jql, jqlCriteria);
         return getIssuesSpentTotalTimeIn(issues, timeUnit);
     }
 
     private List<Issue> getIssues(String jql, JqlCriteria jqlCriteria) {
-        if(issuesCache.containsKey(jql)){
+        if (issuesCache.containsKey(jql)) {
             return issuesCache.get(jql);
         }
         List<Issue> result = new ArrayList<>();
@@ -102,7 +104,7 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
                 jqlCriteria.setStartIndex(startIndex);
                 jqlCriteria.setMaxPerQuery(limitedMaxPerQuery);
                 List<Issue> issues = jiraHelper.getIssues(jql, jqlCriteria);
-                if(issues.isEmpty()){
+                if (issues.isEmpty()) {
                     break;
                 }
                 result.addAll(issues);
@@ -186,7 +188,8 @@ public class JiraAllPeriodMetricsCollector implements JiraMetricsCollector {
 
     @Override
     public JiraMetricsProvider collect(TimeUnit timeUnit) {
-        return collect(timeUnit, (currentStep, maxSteps) -> {});
+        return collect(timeUnit, (currentStep, maxSteps) -> {
+        });
     }
 
     @Data
