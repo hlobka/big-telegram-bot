@@ -31,10 +31,25 @@ public class ShowJiraMetricsCommand implements Command {
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
         Message message = update.message() == null ? update.editedMessage() : update.message();
-        if(!Common.data.telegramUserIdsWithGeneralAccess.contains(message.from().id())){
-            BotHelper.sendMessage(bot, message.chat().id(), "You cannot have access for this operation", ParseMode.Markdown);
-            return new Pair<>(ParseMode.HTML, Collections.singletonList(""));
+        Integer userId = message.from().id();
+        Long chatId = message.chat().id();
+        if(!Common.data.telegramUserIdsWithGeneralAccess.contains(userId)){
+            return new Pair<>(ParseMode.HTML, Collections.singletonList("You cannot have access for this operation"));
         }
+        if(!values.isEmpty()){
+            showJiraMetricsByProjectId(update, values);
+        } else {
+            showAllProjects(chatId);
+        }
+        return new Pair<>(ParseMode.HTML, Collections.singletonList(""));
+    }
+
+    private void showJiraMetricsByProjectId(Update update, String projectId) {
+        boolean forAllPeriod = command.equals(SHOW_JIRA_STATISTIC_FOR_ALL_PERIOD);
+        new ShowJiraMetricsByProjectIdCommand(bot, forAllPeriod).run(update, projectId);
+    }
+
+    private void showAllProjects(Long chatId) {
         List<String> jiraProjectKeyIds = new ArrayList<>();
         for (ChatData generalChat : Common.data.getGeneralChats()) {
             jiraProjectKeyIds.addAll(generalChat.getJiraProjectKeyIds());
@@ -42,9 +57,7 @@ public class ShowJiraMetricsCommand implements Command {
         jiraProjectKeyIds = jiraProjectKeyIds.stream().distinct().collect(Collectors.toList());
 
         InlineKeyboardButton[] buttons = getInlineKeyboardButtons(jiraProjectKeyIds);
-        sendMessage(message.chat().id(), "Choose project: ", buttons);
-
-        return new Pair<>(ParseMode.HTML, Collections.singletonList(""));
+        sendMessage(chatId, "Choose project: ", buttons);
     }
 
     private void sendMessage(long groupId, String message, InlineKeyboardButton[] buttons) {

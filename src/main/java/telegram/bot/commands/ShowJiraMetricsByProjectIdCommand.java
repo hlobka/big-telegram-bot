@@ -34,30 +34,35 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String jiraId) {
-        CallbackQuery callbackQuery = update.callbackQuery();
-        if (callbackQuery != null) {
-            Message message = callbackQuery.message();
-            if (message != null) {
-                try {
-                    String metricsHeader = getMetricsHeader(jiraId);
-                    Integer messageId = BotHelper.sendMessage(bot, message.chat().id(), metricsHeader, ParseMode.Markdown).message().messageId();
-                    String metrics = getMetrics(jiraId, (currentStep, maxSteps) -> {
-                        BotHelper.editMessage(
-                            bot, message.chat().id(), messageId,
-                            metricsHeader + StringHelper.repeat("🍏", currentStep) + StringHelper.repeat("🍎", maxSteps-currentStep)
-                        );
-                    });
-                    BotHelper.editMessage(
-                        bot, message.chat().id(), messageId,
-                        metrics
-                    );
-                } catch (RuntimeException e) {
-                    BotHelper.sendMessage(bot, message.chat().id(), e.getMessage(), ParseMode.Markdown);
-                    e.printStackTrace();
-                }
-            }
+        Message message = getMessage(update);
+        Long chatId = message.chat().id();
+        try {
+            String metricsHeader = getMetricsHeader(jiraId);
+            Integer messageId = BotHelper.sendMessage(bot, chatId, metricsHeader, ParseMode.Markdown).message().messageId();
+            String metrics = getMetrics(jiraId, (currentStep, maxSteps) -> BotHelper.editMessage(
+                bot, chatId, messageId,
+                metricsHeader + StringHelper.repeat("🍏", currentStep) + StringHelper.repeat("🍎", maxSteps-currentStep)
+            ));
+            BotHelper.editMessage(
+                bot, chatId, messageId,
+                metrics
+            );
+        } catch (RuntimeException e) {
+            BotHelper.sendMessage(bot, chatId, e.getMessage(), ParseMode.Markdown);
+            e.printStackTrace();
         }
         return new Pair<>(ParseMode.HTML, Collections.singletonList("Ok: "));
+    }
+
+    private Message getMessage(Update update) {
+        CallbackQuery callbackQuery = update.callbackQuery();
+        Message message;
+        if (callbackQuery != null) {
+            message = callbackQuery.message();
+        } else {
+            message = update.message() == null ? update.editedMessage() : update.message();
+        }
+        return message;
     }
 
     private String getMetrics(String jiraId, JiraMetricsCollector.ProgressListener progressListener) {
