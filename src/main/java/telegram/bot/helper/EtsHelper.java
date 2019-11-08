@@ -92,8 +92,8 @@ public class EtsHelper {
 
     private void removeUserFromVacation(User user) {
         ArrayList<User> users = getUsersFromVacation()
-                .stream().filter(user1 -> !user1.id().equals(user.id()))
-                .collect(Collectors.toCollection(ArrayList::new));
+            .stream().filter(user1 -> !user1.id().equals(user.id()))
+            .collect(Collectors.toCollection(ArrayList::new));
         saveUsersWhichInVacation(users);
     }
 
@@ -125,15 +125,15 @@ public class EtsHelper {
 
     private void removeUserFromIssuesList(User user) {
         ArrayList<User> users = getUsersWhichHaveIssues()
-                .stream().filter(user1 -> !user1.id().equals(user.id()))
-                .collect(Collectors.toCollection(ArrayList::new));
+            .stream().filter(user1 -> !user1.id().equals(user.id()))
+            .collect(Collectors.toCollection(ArrayList::new));
         saveUsersWhichHaveIssues(users);
     }
 
     private void removeUserFromApprovedIssuesList(User user) {
         ArrayList<User> users = getUsersWhichHaveApprovedIssues()
-                .stream().filter(user1 -> !user1.id().equals(user.id()))
-                .collect(Collectors.toCollection(ArrayList::new));
+            .stream().filter(user1 -> !user1.id().equals(user.id()))
+            .collect(Collectors.toCollection(ArrayList::new));
         saveUsersWhichHaveApprovedIssues(users);
     }
 
@@ -214,7 +214,7 @@ public class EtsHelper {
     public void unResolveAllUsualUsers() {
         HashMap<User, Boolean> users = getUsers();
         for (User user : users.keySet()) {
-            if (!isUserOnVacation(user) && !isUserHasIssue(user)) {
+            if (!isUserOnVacation(user)) {
                 unResolveUser(user);
             }
         }
