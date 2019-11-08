@@ -179,9 +179,9 @@ public class EtsClarityChecker extends Thread {
                 Boolean resolved = userBooleanEntry.getValue();
                 if (!user.isBot()) {
                     if (etsHelper.isUserHasApprovedIssue(user)) {
-                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🦠"));
-                    } else if (etsHelper.isUserHasIssue(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "💊"));
+                    } else if (etsHelper.isUserHasIssue(user)) {
+                        resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🦠"));
                     } else if (etsHelper.isUserOnVacation(user)) {
                         resolvedUsers.append(String.format("%s %s : %s%n", user.firstName(), user.lastName(), "🍹"));
                     } else {
