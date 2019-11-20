@@ -175,7 +175,7 @@ public class EtsHelperTest {
         assertThat(etsHelper.isUserHasIssue(getUser(2))).isFalse();
         assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
         assertThat(etsHelper.isUserResolve(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(3))).isFalse();
         assertThat(etsHelper.isUserOnVacation(getUser(3))).isFalse();
     }
 
