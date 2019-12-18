@@ -112,6 +112,7 @@ public class EtsClarityChecker extends Thread {
                 new InlineKeyboardButton("Has Issues").callbackData("ets_with_issue"),
                 new InlineKeyboardButton("Approve Issues").callbackData("ets_approve_users_with_issues"),
             }));
+        removeLastNotification(bot, chatId);
         SendResponse execute = bot.execute(request);
         LAST_MESSAGE_ID = execute.message().messageId();
         LAST_MESSAGE_CHAT_ID = chatId;
@@ -120,6 +121,12 @@ public class EtsClarityChecker extends Thread {
         commonData.put("LAST_MESSAGE_CHAT_ID", LAST_MESSAGE_CHAT_ID);
         SharedObject.save(COMMON_INT_DATA, commonData);
         bot.execute(new PinChatMessage(chatId, LAST_MESSAGE_ID));
+    }
+
+    private static void removeLastNotification(TelegramBot bot, long chatId) {
+        if (LAST_MESSAGE_CHAT_ID == chatId && LAST_MESSAGE_ID != -1) {
+            BotHelper.removeMessage(bot, chatId, LAST_MESSAGE_ID);
+        }
     }
 
     public static void updateLastMessage(TelegramBot bot, long chatId) {
