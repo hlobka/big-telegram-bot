@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static helper.logger.ConsoleLogger.logFor;
-import static telegram.bot.data.Common.JENKINS_STATUSES;
 
 public class JenkinsCheckerForAllStatuses extends Thread {
     private TelegramBot bot;
@@ -40,6 +39,7 @@ public class JenkinsCheckerForAllStatuses extends Thread {
     private int idleTimeoutMultiplier = 1;
     private HashMap<String, Boolean> statuses;
     private int numberOfAttempts = -1;
+    protected String jenkinsStatusesConfigKey;
 
     public JenkinsCheckerForAllStatuses(TelegramBot bot, long timeoutInMillis, String jenkinsServerUrl) throws URISyntaxException {
         this(bot, timeoutInMillis, jenkinsServerUrl, 0);
@@ -53,7 +53,8 @@ public class JenkinsCheckerForAllStatuses extends Thread {
         CloseableHttpClient httpClient = HttpClients.custom().setRoutePlanner(routePlanner).build();
         this.jenkins = new JenkinsServer(new JenkinsHttpClient(new URI(jenkinsServerUrl), httpClient));
         this.maxNumberOfAttempts = maxNumberOfAttempts;
-        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<>());
+        jenkinsStatusesConfigKey = Common.getPathForJenkinsStatuses("RGS");
+        this.statuses = SharedObject.loadMap(jenkinsStatusesConfigKey, new HashMap<>());
     }
 
     @Override
@@ -150,8 +151,8 @@ public class JenkinsCheckerForAllStatuses extends Thread {
         logFor(this, msg);
         sendMessage(chatData, msg, possibleException.isEmpty());
         statuses.put(statusKey, result.equals(BuildResult.SUCCESS));
-        SharedObject.save(JENKINS_STATUSES, statuses);
-        this.statuses = SharedObject.loadMap(JENKINS_STATUSES, new HashMap<>());
+        SharedObject.save(jenkinsStatusesConfigKey, statuses);
+        this.statuses = SharedObject.loadMap(jenkinsStatusesConfigKey, new HashMap<>());
     }
 
     private void sendMessage(ChatData chatData, String msg, boolean disableNotification) {

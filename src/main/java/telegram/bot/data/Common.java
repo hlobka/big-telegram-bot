@@ -19,7 +19,7 @@ public class Common {
     public static final String ETS_USERS_WITH_APPROVED_ISSUES = "/tmp/ets_users_with_approved_issues.ser";
     public static final String COMMON_INT_DATA = "/tmp/common.ser";
     public static final String ACTION_ITEMS2 = "/tmp/actionItems2.ser";
-    public static final String JENKINS_STATUSES = "/tmp/jenkinsStatuses.ser";
+    public static final String JENKINS_STATUSES = getPathForJenkinsStatuses();
     public static final String JIRA_CHECKER_STATUSES = "/tmp/jiraCheckerStatuses.ser";
     public static final String RESOLVED_ACTION_ITEMS = "/tmp/resolvedActionItems.ser";
     public static final String LIKED_POSTS = "/tmp/likedPosts.ser";
@@ -164,10 +164,18 @@ public class Common {
     }
 
     public boolean hasChatData(Long chatId) {
-        return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).size()>0;
+        return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).size() > 0;
     }
 
     public ChatData getChatData(Long chatId) {
         return BIG_GENERAL_GROUPS.stream().filter(chatData -> chatData.getChatId() == chatId).collect(Collectors.toList()).get(0);
+    }
+
+    public static String getPathForJenkinsStatuses() {
+        return getPathForJenkinsStatuses("");
+    }
+
+    public static String getPathForJenkinsStatuses(String uniqueId) {
+        return String.format("/tmp/jenkinsStatuses%s.ser", uniqueId);
     }
 }
