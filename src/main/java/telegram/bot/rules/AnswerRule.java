@@ -161,13 +161,13 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что в %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
-        commonAnswers.put("Понедельник", s -> "День потерянного контекста");
-        commonAnswers.put("Вторник", s -> "День говна");
-        commonAnswers.put("Среда", s -> "Рунглишь дэй");
-        commonAnswers.put("Четверг", s -> "День шаринга или несбывшегося пива");
-        commonAnswers.put("Пятница", s -> "Какие наркотики");
-        commonRegAnswers.put(".*(среду|пятницу).*", s -> Math.random() > 0.5 ? "не лучший день" : "лучше на пиво в этот день");
-        commonRegAnswers.put(".*(срал|срать|дерьмо|говно|воня|понос).*", s -> {
+        answers.put("Понедельник", s -> "День потерянного контекста");
+        answers.put("Вторник", s -> "День говна");
+        answers.put("Среда", s -> "Рунглишь дэй");
+        answers.put("Четверг", s -> "День шаринга или несбывшегося пива");
+        answers.put("Пятница", s -> "Какие наркотики");
+        answers.put(".*(среду|пятницу).*", s -> Math.random() > 0.5 ? "не лучший день" : "лучше на пиво в этот день");
+        answers.put(".*(срал|срать|дерьмо|говно|воня|понос).*", s -> {
             if (TimeHelper.checkToDayIs(DayOfWeek.TUESDAY)) {
                 return "Как ни как Вторник";
             }
