@@ -18,7 +18,7 @@ public class MailHelper {
         try {
             sendMail(to, title, messageContent, type);
         } catch (MessagingException e) {
-            ConsoleLogger.logErrorFor(SharedObject.class, e);
+            ConsoleLogger.logErrorFor(MailHelper.class, e);
         }
     }
 
