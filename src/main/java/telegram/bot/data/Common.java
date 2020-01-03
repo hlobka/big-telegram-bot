@@ -118,20 +118,25 @@ public class Common {
         Properties chatProperties = new Properties();
         loadPropertiesFile(PROPERTIES.getProperty("telegram.chat." + chatConfigId), chatProperties);
         ChatPropertiesReader chatPropertiesReader = new ChatPropertiesReader(chatProperties);
-        return new ChatData(
-            chatPropertiesReader.getChatId(),
-            chatPropertiesReader.getChatName(),
-            chatPropertiesReader.getJenkinsIds(),
-            chatPropertiesReader.getJenkinsIdsForAllStatuses(),
-            chatPropertiesReader.getUpsourceIds(),
-            chatPropertiesReader.getJiraIds(),
-            chatPropertiesReader.isEstimationRequired(),
-            chatPropertiesReader.isMainGeneralChat(),
-            chatPropertiesReader.isGeneralChat(),
-            chatPropertiesReader.isReportChat(),
-            chatPropertiesReader.isSpamChat(),
-            favoriteJqlRulesMap.get(chatPropertiesReader.getJiraType())
-        );
+        try {
+            return new ChatData(
+                chatPropertiesReader.getChatId(),
+                chatPropertiesReader.getChatName(),
+                chatPropertiesReader.getJenkinsIds(),
+                chatPropertiesReader.getJenkinsIdsForAllStatuses(),
+                chatPropertiesReader.getUpsourceIds(),
+                chatPropertiesReader.getJiraIds(),
+                chatPropertiesReader.isEstimationRequired(),
+                chatPropertiesReader.isMainGeneralChat(),
+                chatPropertiesReader.isGeneralChat(),
+                chatPropertiesReader.isReportChat(),
+                chatPropertiesReader.isSpamChat(),
+                favoriteJqlRulesMap.get(chatPropertiesReader.getJiraType()),
+                chatPropertiesReader.getFilter()
+            );
+        } catch (RuntimeException e){
+            throw new RuntimeException("can't parse chat data for: " + chatConfigId, e);
+        }
     }
 
     private static List<String> getPropertyAsList(String property) {

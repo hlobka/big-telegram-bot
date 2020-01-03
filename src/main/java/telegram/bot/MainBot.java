@@ -45,6 +45,7 @@ public class MainBot {
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());
         Rules rules = new Rules();
+        rules.registerRule(new ClearRedundantMessagesRule(bot));
         rules.registerRule(new SlotMachineRule(bot));
         rules.registerRule(new AnswerRule(bot));
         rules.registerRule(new IIAnswerRule(bot));

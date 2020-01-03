@@ -19,5 +19,6 @@ public class ChatData {
     private final Boolean isReport;
     private final Boolean isSpam;
     private final FavoriteJqlRules jiraConfig;
+    private final ChatFilter chatFilter;
 
 }

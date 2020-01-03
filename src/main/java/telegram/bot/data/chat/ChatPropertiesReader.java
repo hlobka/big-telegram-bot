@@ -20,6 +20,14 @@ public class ChatPropertiesReader {
         return properties.getProperty("chat.atlassian.jira.typeId");
     }
 
+    public ChatFilter getFilter() {
+        return new ChatFilter(
+            getPropertyAsBool("chat.filter.isActive"),
+            getPropertyAsInt("chat.filter.delayInMinutes"),
+            properties.getProperty("chat.filter.regexp")
+        );
+    }
+
     public long getChatId() {
         return Long.parseLong(properties.getProperty("chat.id"));
     }
@@ -62,6 +70,14 @@ public class ChatPropertiesReader {
 
     public Boolean isSpamChat() {
         return getPropertyAsBool("chat.config.isSpam");
+    }
+
+    private Integer getPropertyAsInt(String property) {
+        return Integer.valueOf(properties.getProperty(property));
+    }
+
+    private Long getPropertyAsLong(String property) {
+        return Long.valueOf(properties.getProperty(property));
     }
 
     private Boolean getPropertyAsBool(String property) {
