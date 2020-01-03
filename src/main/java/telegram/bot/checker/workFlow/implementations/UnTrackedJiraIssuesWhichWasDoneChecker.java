@@ -4,6 +4,7 @@ import atlassian.jira.JiraHelper;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Worklog;
+import helper.time.TimeHelper;
 import telegram.bot.checker.JiraCheckerHelper;
 import telegram.bot.checker.workFlow.ChatChecker;
 import telegram.bot.checker.workFlow.implementations.services.ServiceProvider;
@@ -69,16 +70,9 @@ public class UnTrackedJiraIssuesWhichWasDoneChecker implements ChatChecker {
             }
         }
         result = "🔥🔥🔥🔥🔥🔥\n Общее время которое могло быть затреканно: ** \n" +
-            getMinutesAsStringTime(lostTimeInMinutes);
+            TimeHelper.getMinutesAsStringTime(lostTimeInMinutes);
 
         return result;
-    }
-
-    private String getMinutesAsStringTime(Integer lostTimeInMinutes) {
-        long days = TimeUnit.MINUTES.toDays(lostTimeInMinutes);
-        long hours = TimeUnit.MINUTES.toHours(lostTimeInMinutes - TimeUnit.DAYS.toMinutes(days));
-        long minutes = TimeUnit.MINUTES.toHours(lostTimeInMinutes - TimeUnit.DAYS.toMinutes(days) - TimeUnit.HOURS.toMinutes(hours));
-        return String.format("%dd %dh %dm", days, hours, minutes);
     }
 
     public List<String> getUnTrackedMessages(List<Issue> issues) {

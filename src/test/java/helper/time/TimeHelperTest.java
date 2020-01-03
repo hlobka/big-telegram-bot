@@ -86,12 +86,23 @@ public class TimeHelperTest {
     @Test
     public void testCheckDaysAreSame() {
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            assertThat(TimeHelper.checkDaysAreSame(dayOfWeek, DayOfWeek.of(dayOfWeek.ordinal()+1))).isTrue();
+            assertThat(TimeHelper.checkDaysAreSame(dayOfWeek, DayOfWeek.of(dayOfWeek.ordinal() + 1))).isTrue();
         }
     }
 
     @Test
     public void testCheckToDayIs() {
         assertThat(TimeHelper.checkToDayIs(LocalDate.now().getDayOfWeek())).isTrue();
+    }
+
+    @Test
+    public void getMinutesAsStringTimeTest() {
+        assertThat(TimeHelper.getMinutesAsStringTime(1)).isEqualTo("0d 0h 1m");
+        assertThat(TimeHelper.getMinutesAsStringTime(60)).isEqualTo("0d 1h 0m");
+        assertThat(TimeHelper.getMinutesAsStringTime(61)).isEqualTo("0d 1h 1m");
+        assertThat(TimeHelper.getMinutesAsStringTime(60 * 24)).isEqualTo("1d 0h 0m");
+        assertThat(TimeHelper.getMinutesAsStringTime(60 * 24 + 1)).isEqualTo("1d 0h 1m");
+        assertThat(TimeHelper.getMinutesAsStringTime(60 * 24 + 1 + 60)).isEqualTo("1d 1h 1m");
+        assertThat(TimeHelper.getMinutesAsStringTime(60 * 24 + 60)).isEqualTo("1d 1h 0m");
     }
 }

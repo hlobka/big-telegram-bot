@@ -61,4 +61,16 @@ public class TimeHelper {
     public static boolean isWeekends() {
         return TimeHelper.checkToDayIs(DayOfWeek.SUNDAY) || TimeHelper.checkToDayIs(DayOfWeek.SATURDAY);
     }
+
+    public static String getMinutesAsStringTime(Long lostTimeInMinutes) {
+        return getMinutesAsStringTime(lostTimeInMinutes.intValue());
+    }
+
+    public static String getMinutesAsStringTime(Integer lostTimeInMinutes) {
+        long days = TimeUnit.MINUTES.toDays(lostTimeInMinutes);
+        long hours = TimeUnit.MINUTES.toHours(lostTimeInMinutes - TimeUnit.DAYS.toMinutes(days));
+        long minutes = lostTimeInMinutes - TimeUnit.DAYS.toMinutes(days) - TimeUnit.HOURS.toMinutes(hours);
+        return String.format("%dd %dh %dm", days, hours, minutes);
+    }
+
 }
