@@ -42,9 +42,11 @@ import static helper.logger.ConsoleLogger.logFor;
 public class UpsourceChecker extends Thread {
     public static final String TITLE = "Господа, ваши содевелоперы, ожидают фидбэка по ревью, Будьте бдительны, Не заставляйте их ждать!!!";
     private TelegramBot bot;
+    private List<Message> messagesToRemove;
 
     public UpsourceChecker(TelegramBot bot) {
         this.bot = bot;
+        this.messagesToRemove = new ArrayList<>();
     }
 
     private static UpsourceApi getUpsourceApi() {
@@ -281,10 +283,18 @@ public class UpsourceChecker extends Thread {
     }
 
     public void check() throws IOException {
+        removeMessages();
         UpsourceApi upsourceApi = getUpsourceApi();
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
             check(upsourceApi, chatData);
         }
+    }
+
+    private void removeMessages() {
+        for (Message message : messagesToRemove) {
+            BotHelper.removeMessage(bot, message);
+        }
+        messagesToRemove.clear();
     }
 
     public void check(ChatData chatData) throws IOException {
@@ -310,11 +320,11 @@ public class UpsourceChecker extends Thread {
             Pair<String, String> projectIdOnMessagePair = messages.get(0);
             sendMessageWithInlineBtns(chatData, TITLE + projectIdOnMessagePair.getValue(), projectIdOnMessagePair.getKey());
         } else if (messages.size() > 0) {
-            BotHelper.sendMessage(bot, chatData.getChatId(), TITLE, ParseMode.Markdown);
+            SendResponse sendResponse = BotHelper.sendMessage(bot, chatData.getChatId(), TITLE, ParseMode.Markdown);
+            messagesToRemove.add(sendResponse.message());
             for (Pair<String, String> message : messages) {
                 sendMessageWithInlineBtns(chatData, message.getValue(), message.getKey());
             }
-
         }
     }
 
@@ -326,6 +336,7 @@ public class UpsourceChecker extends Thread {
             .disableNotification(false)
             .replyMarkup(getReplyMarkup(upsourceProjectId));
         SendResponse execute = bot.execute(request);
+        messagesToRemove.add(execute.message());
         bot.execute(new PinChatMessage(chatId, execute.message().messageId()));
     }
 }
