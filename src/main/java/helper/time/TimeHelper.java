@@ -37,6 +37,10 @@ public class TimeHelper {
     }
 
     public static void waitTime(int timeout, TimeUnit timeUnit) {
+        waitTime(Long.valueOf(timeout), timeUnit);
+    }
+
+    public static void waitTime(long timeout, TimeUnit timeUnit) {
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {

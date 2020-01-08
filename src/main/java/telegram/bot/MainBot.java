@@ -11,6 +11,7 @@ import helper.logger.ConsoleLogger;
 import okhttp3.OkHttpClient;
 import telegram.bot.checker.*;
 import telegram.bot.checker.workFlow.CommonChecker;
+import telegram.bot.checker.workFlow.CommonCheckerWithRemoveOfPreviousMessages;
 import telegram.bot.checker.workFlow.implementations.NewJiraIssuesChecker;
 import telegram.bot.checker.workFlow.implementations.UnEstimatedJiraIssuesChecker;
 import telegram.bot.checker.workFlow.implementations.UnTrackedJiraIssuesOnReviewChecker;
@@ -149,7 +150,7 @@ public class MainBot {
             jiraHelperServiceProviderMap.put(loginData.url, new JiraHelperServiceProvider(bot, loginData));
         }
         UpsourceServiceProvider upsourceServiceProvider = new UpsourceServiceProvider();
-        new CommonChecker(bot, TimeUnit.HOURS.toMillis(2))
+        new CommonCheckerWithRemoveOfPreviousMessages(bot, TimeUnit.HOURS.toMillis(2))
             .withChecker(new UnTrackedJiraIssuesWhichWasDoneChecker(jiraHelperServiceProviderMap))
             .withIdleTimeoutMultiplier(2)
             .withMaxNumberOfAttempts(5)
@@ -159,7 +160,7 @@ public class MainBot {
             .withIdleTimeoutMultiplier(5)
             .withMaxNumberOfAttempts(5)
             .start();
-        new CommonChecker(bot, TimeUnit.HOURS.toMillis(1))
+        new CommonCheckerWithRemoveOfPreviousMessages(bot, TimeUnit.HOURS.toMillis(1))
             .withChecker(new UnEstimatedJiraIssuesChecker(jiraHelperServiceProviderMap))
             .withChecker(new UnTrackedJiraIssuesOnReviewChecker(jiraHelperServiceProviderMap, upsourceServiceProvider))
             .withIdleTimeoutMultiplier(2)
