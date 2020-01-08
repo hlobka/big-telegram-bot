@@ -78,6 +78,7 @@ public class CommonCheckerWithRemoveOfPreviousMessages extends Thread {
 
     public void check() {
         logFor(this, "check:start");
+        removeMessages();
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
             check(chatData);
         }
@@ -86,7 +87,6 @@ public class CommonCheckerWithRemoveOfPreviousMessages extends Thread {
 
     public void check(ChatData chatData) {
         List<String> messages = new ArrayList<>();
-        removeMessages();
         for (ChatChecker chatChecker : chatCheckerList) {
             if (chatChecker.isAccessibleToCheck(chatData)) {
                 try {
