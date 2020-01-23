@@ -41,7 +41,7 @@ public class ClearRedundantMessagesRule implements Rule {
     private void updateAndRemoveFilteredMessage(Message message, String text, Long chatId, ChatFilter chatFilter) {
         BotHelper.removeMessage(bot, message);
         String time = TimeHelper.getMinutesAsStringTime(chatFilter.getDelayInMinutes());
-        String newMessage = text + "\n```Данное сообщение будет удаленно через: " + time + "```";
+        String newMessage = text + "\n```Данное сообщение будет удалено через: " + time + "```";
         SendResponse sendResponse = BotHelper.sendMessage(bot, chatId, newMessage, ParseMode.Markdown);
         if (sendResponse.isOk()) {
             new Thread(() -> {
