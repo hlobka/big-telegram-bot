@@ -56,6 +56,10 @@ public class Common {
         ETS_DAY = DayOfWeek.of(Integer.parseInt(PROPERTIES.getProperty("ets.check.day")));
     }
 
+    public static String getDefaultSharedObjectPath(String fileName) {
+        return String.format("/tmp/%1s.ser", fileName);
+    }
+
     public List<ChatData> getChatForReport() {
         return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsReport).collect(Collectors.toList());
     }
@@ -134,7 +138,7 @@ public class Common {
                 favoriteJqlRulesMap.get(chatPropertiesReader.getJiraType()),
                 chatPropertiesReader.getFilter()
             );
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new RuntimeException("can't parse chat data for: " + chatConfigId, e);
         }
     }
