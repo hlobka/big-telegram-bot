@@ -27,6 +27,8 @@ import telegram.bot.helper.BotHelper;
 import telegram.bot.rules.*;
 import telegram.bot.rules.like.LikeAnswerRule;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -35,10 +37,12 @@ import java.util.concurrent.TimeUnit;
 
 public class MainBot {
     public static void main(String[] args) throws URISyntaxException {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(Common.JENKINS_PROXY_HOST, Integer.parseInt(Common.JENKINS_PROXY_PORT)));
         OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
+            .proxy(proxy)
             .build();
         TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token, client);
 //        TelegramBot bot = new TelegramBot(Common.data.token);
