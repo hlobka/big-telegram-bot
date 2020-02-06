@@ -123,6 +123,16 @@ public class UpsourceChecker extends Thread {
         if (hasReviews) {
             message += "\n------------------------------------------------------";
             message += "\n```";
+            message += "\n Задачи: ";
+            List<String> issueLinks = extractIssueLinks(reviews, jiraHelper);
+            for (String issueLink : issueLinks) {
+                message += " " + issueLink;
+            }
+            message += "\n Ревьюхи: ";
+            List<String> reviewLinks = extractReviewLinks(reviews, jiraHelper);
+            for (String reviewLink : reviewLinks) {
+                message += " " + reviewLink;
+            }
             message += "\n ";
             List<String> users = extractReviewers(reviews, jiraHelper);
             for (String user : users) {
@@ -131,6 +141,37 @@ public class UpsourceChecker extends Thread {
         }
 
         return message;
+    }
+
+    private static List<String> extractReviewLinks(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
+        List<String> result = new ArrayList<>();
+        for (JiraUpsourceReview review : reviews) {
+            String linkedReviewKey = BotHelper.getLink(
+                String.format(
+                    "%s%s/review/%s",
+                    Common.UPSOURCE.url,
+                    review.upsourceReview.projectId(),
+                    review.upsourceReview.reviewId()
+                ),
+                review.upsourceReview.reviewId()
+            );
+            if (!result.contains(linkedReviewKey)) {
+                result.add(linkedReviewKey);
+            }
+        }
+        return result;
+    }
+
+    private static List<String> extractIssueLinks(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
+        List<String> result = new ArrayList<>();
+        for (JiraUpsourceReview review : reviews) {
+            Issue issue = jiraHelper.getIssue(review.issueId);
+            String linkedIssueKey = JiraCheckerHelper.getTelegramIssueLink(issue);
+            if (!result.contains(linkedIssueKey)) {
+                result.add(linkedIssueKey);
+            }
+        }
+        return result;
     }
 
     private static List<String> extractReviewers(List<JiraUpsourceReview> reviews, JiraHelper jiraHelper) {
