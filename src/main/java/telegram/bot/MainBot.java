@@ -42,7 +42,7 @@ public class MainBot {
             .connectTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
-            .proxy(proxy)
+//            .proxy(proxy)
             .build();
         TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token, client);
 //        TelegramBot bot = new TelegramBot(Common.data.token);
