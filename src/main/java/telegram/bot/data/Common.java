@@ -140,7 +140,7 @@ public class Common {
     }
 
     private static List<String> getPropertyAsList(String property) {
-        return Arrays.asList(PROPERTIES.getProperty(property).split(","));
+        return Arrays.asList(PROPERTIES.getProperty(property).split(",")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 
     private static void loadPropertiesFile(String filePath, Properties properties) {

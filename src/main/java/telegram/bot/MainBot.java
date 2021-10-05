@@ -37,7 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MainBot {
     public static void main(String[] args) throws URISyntaxException {
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(Common.JENKINS_PROXY_HOST, Integer.parseInt(Common.JENKINS_PROXY_PORT)));
+        String jenkinsProxyHost = Common.JENKINS_PROXY_HOST;
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(jenkinsProxyHost, Integer.parseInt(Common.JENKINS_PROXY_PORT)));
         OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
