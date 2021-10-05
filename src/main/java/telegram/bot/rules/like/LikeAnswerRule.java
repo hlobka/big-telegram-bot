@@ -14,6 +14,7 @@ import telegram.bot.helper.BotHelper;
 import helper.file.SharedObject;
 import helper.logger.ConsoleLogger;
 import telegram.bot.data.Common;
+import telegram.bot.helper.MessageHelper;
 import telegram.bot.rules.Rule;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class LikeAnswerRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
         if (message.from().isBot()) {
             return;

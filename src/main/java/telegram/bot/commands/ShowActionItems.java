@@ -7,6 +7,7 @@ import javafx.util.Pair;
 import telegram.bot.data.Common;
 import telegram.bot.dto.ActionItemDto;
 import telegram.bot.helper.ActionItemsHelper;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,7 @@ public class ShowActionItems implements Command {
     public Pair<ParseMode, List<String>> run(Update update, String values) {
         Map<Integer, ActionItemDto> actionItems = ActionItemsHelper.unresolved.loadActionItems();
         StringBuilder s = new StringBuilder("Action items: \n");
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         Long chatId = message.chat().id();
         boolean isBigGroup = Common.data.isGeneralChat(chatId);
         for (Map.Entry<Integer, ActionItemDto> entry : actionItems.entrySet()) {

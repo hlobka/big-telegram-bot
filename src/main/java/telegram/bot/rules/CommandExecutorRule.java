@@ -9,6 +9,7 @@ import helper.string.StringHelper;
 import javafx.util.Pair;
 import telegram.bot.commands.Command;
 import telegram.bot.data.TelegramCriteria;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class CommandExecutorRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         final String text = message.text() == null ? "" : message.text();
         final String command = getRegString(text, "(^\\/([a-zA-Z]+)((_[a-zA-Z]+)+)?)").toLowerCase();
         if (message.from().isBot() || command.isEmpty() || !command.startsWith("/")) {

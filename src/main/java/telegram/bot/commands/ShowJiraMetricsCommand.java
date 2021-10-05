@@ -11,6 +11,7 @@ import javafx.util.Pair;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class ShowJiraMetricsCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         Integer userId = message.from().id();
         Long chatId = message.chat().id();
         if(!Common.data.telegramUserIdsWithGeneralAccess.contains(userId)){

@@ -12,6 +12,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import helper.logger.ConsoleLogger;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class SlotMachine implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         run(message);
     }
 

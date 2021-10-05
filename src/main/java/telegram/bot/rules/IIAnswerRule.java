@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.apache.commons.lang.ArrayUtils;
 import telegram.bot.data.Common;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class IIAnswerRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
         if (message.chat().id() == Common.data.getChatForReport().get(0).getChatId() && !message.from().isBot()) {
             if(true) return;

@@ -9,6 +9,7 @@ import javafx.util.Pair;
 import telegram.bot.checker.UpsourceChecker;
 import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
+import telegram.bot.helper.MessageHelper;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ShowUpsourceReviewCommand implements Command {
 
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         Long chatId = message.chat().id();
         for (ChatData chatData : Common.BIG_GENERAL_GROUPS) {
             if(chatData.getChatId() == chatId){

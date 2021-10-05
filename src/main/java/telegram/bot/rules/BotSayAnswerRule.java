@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 
 public class BotSayAnswerRule implements Rule {
     private TelegramBot bot;
@@ -16,7 +17,7 @@ public class BotSayAnswerRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
         if (message.from().isBot()) {
             return;

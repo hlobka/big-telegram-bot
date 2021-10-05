@@ -13,6 +13,7 @@ import telegram.bot.data.LoginData;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.data.jira.FavoriteJqlRules;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 import telegram.bot.metrics.jira.JiraAllPeriodMetricsCollector;
 import telegram.bot.metrics.jira.JiraMetricsCollector;
 import telegram.bot.metrics.jira.JiraMetricsProvider;
@@ -60,7 +61,7 @@ public class ShowJiraMetricsByProjectIdCommand implements Command {
         if (callbackQuery != null) {
             message = callbackQuery.message();
         } else {
-            message = update.message() == null ? update.editedMessage() : update.message();
+            message = MessageHelper.getAnyMessage(update);
         }
         return message;
     }

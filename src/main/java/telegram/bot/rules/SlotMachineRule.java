@@ -13,6 +13,7 @@ import helper.file.SharedObject;
 import helper.string.StringHelper;
 import telegram.bot.data.Common;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -81,7 +82,7 @@ public class SlotMachineRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         String text = message.text();
         if (text == null) {
             return;

@@ -11,6 +11,7 @@ import telegram.bot.data.Common;
 import telegram.bot.data.chat.ChatData;
 import telegram.bot.data.chat.ChatFilter;
 import telegram.bot.helper.BotHelper;
+import telegram.bot.helper.MessageHelper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +24,7 @@ public class ClearRedundantMessagesRule implements Rule {
 
     @Override
     public void run(Update update) {
-        Message message = update.message() == null ? update.editedMessage() : update.message();
+        Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
         Long chatId = message.chat().id();
         if (message.from().isBot()) {
