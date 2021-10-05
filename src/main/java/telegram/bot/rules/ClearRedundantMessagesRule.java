@@ -23,19 +23,25 @@ public class ClearRedundantMessagesRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        Long chatId = message.chat().id();
+        boolean isNotChannel = message.from() != null;
+        boolean isBot = message.from() != null && message.from().isBot();
+        boolean hasChatData = Common.data.hasChatData(chatId);
+        return isNotChannel && !isBot && hasChatData;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
         Long chatId = message.chat().id();
-        if (message.from().isBot()) {
-            return;
-        }
-        if (Common.data.hasChatData(chatId)) {
-            ChatData chatData = Common.data.getChatData(chatId);
-            ChatFilter chatFilter = chatData.getChatFilter();
-            if (chatFilter.getIsActive() && text.matches(chatFilter.getRegexp())) {
-                updateAndRemoveFilteredMessage(message, text, chatId, chatFilter);
-            }
+
+        ChatData chatData = Common.data.getChatData(chatId);
+        ChatFilter chatFilter = chatData.getChatFilter();
+        if (chatFilter.getIsActive() && text.matches(chatFilter.getRegexp())) {
+            updateAndRemoveFilteredMessage(message, text, chatId, chatFilter);
         }
     }
 

@@ -28,11 +28,11 @@ public class SlotMachineRule implements Rule {
     private List<String> wildSymbols = new ArrayList<>(Arrays.asList("🐰", "🦋", "🌑", "🍅"));
     private static final String savedUserBalanceKey = "/tmp/slots/savedUsersBalanceV1.ser";
     private static final String savedUserMachineKey = "/tmp/slots/savedUsersMachineV1.ser";
-    private final HashMap<Integer, Double> savedUsersBalance;
-    private final HashMap<Integer, SlotMachineData> savedUsersMachine;
+    private final HashMap<Long, Double> savedUsersBalance;
+    private final HashMap<Long, SlotMachineData> savedUsersMachine;
     private List<List<String>> reels = new ArrayList<>();
     private List<String> reelNames = new ArrayList<>();
-    protected final Map<Integer, SlotMachine> slotMachines;
+    protected final Map<Long, SlotMachine> slotMachines;
     private Double defaultBalance = 1000D;
     private List<List<Integer>> lines = Arrays.asList(
         new ArrayList<>(Arrays.asList(1 - 1, 1 - 1, 1 - 1, 1 - 1)),
@@ -81,15 +81,17 @@ public class SlotMachineRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        boolean isBot = message.from() != null && message.from().isBot();
+        boolean textIsPresent = message.text() != null;
+        return !isBot && textIsPresent;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         String text = message.text();
-        if (text == null) {
-            return;
-        }
-        if (message.from().isBot()) {
-            return;
-        }
 
         Long chatId = message.chat().id();
         if (Common.data.isGeneralChat(chatId)) {
@@ -100,11 +102,11 @@ public class SlotMachineRule implements Rule {
         }
     }
 
-    public void playTheGame(Message message, Integer userId, String who) {
+    public void playTheGame(Message message, Long userId, String who) {
         playTheGame(message, userId, new Random().nextInt(reels.size()), who);
     }
 
-    public void playTheGame(Message message, Integer userId, int index, String who) {
+    public void playTheGame(Message message, Long userId, int index, String who) {
         SlotMachine slotMachine = getSlotMachine(userId, index, who);
         slotMachine.run(message);
     }
@@ -119,7 +121,7 @@ public class SlotMachineRule implements Rule {
             String data = callbackQuery.data();
             if (data.contains("SlotMachine:")) {
 
-                Integer userId = Integer.valueOf(StringHelper.getRegString(data, "SlotMachine:.*userId:(\\d+).*"));
+                Long userId = Long.valueOf(StringHelper.getRegString(data, "SlotMachine:.*userId:(\\d+).*"));
                 if (!userId.equals(callbackQuery.from().id())) {
                     BotHelper.alert(bot, callbackQuery.id(), "Это не ваша игра!\nПишите спин и приобретете свою игру");
                     return;
@@ -163,7 +165,7 @@ public class SlotMachineRule implements Rule {
         return getSlotMachine(user.id(), new Random().nextInt(reels.size()), user.firstName());
     }
 
-    private SlotMachine getSlotMachine(Integer userId, int index, String who) {
+    private SlotMachine getSlotMachine(Long userId, int index, String who) {
         Double balance = savedUsersBalance.getOrDefault(userId, defaultBalance);
         SlotMachine machine = slotMachines.getOrDefault(userId, new SlotMachine(
             bot,
@@ -187,7 +189,7 @@ public class SlotMachineRule implements Rule {
         return machine;
     }
 
-    private SlotMachineData getSlotMachineData(Integer userId, int index) {
+    private SlotMachineData getSlotMachineData(Long userId, int index) {
         SlotMachineData machineData = savedUsersMachine.getOrDefault(userId, new SlotMachineData(
             reelNames.get(index),
             Arrays.asList(

@@ -37,12 +37,12 @@ public class SlotMachine implements Rule {
     private Integer reelsMessageId;
     private Integer controlsMessageId;
     protected Long chatId;
-    private final Integer userId;
+    private final Long userId;
     private final Map<String, Double> symbolsMultiplier;
     private final List<String> wildSymbols;
     private final String who;
 
-    public SlotMachine(TelegramBot bot, SlotMachineData slotMachineData, Double balance, Double bet, Integer userId, Map<String, Double> symbolsMultiplier, List<String> wildSymbols, String who) {
+    public SlotMachine(TelegramBot bot, SlotMachineData slotMachineData, Double balance, Double bet, Long userId, Map<String, Double> symbolsMultiplier, List<String> wildSymbols, String who) {
         this.slotMachineData = slotMachineData;
         this.bot = bot;
         this.balance = balance;

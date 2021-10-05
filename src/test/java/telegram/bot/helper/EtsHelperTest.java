@@ -28,8 +28,8 @@ public class EtsHelperTest {
     public void testClearFromDuplicates() {
         EtsHelper etsHelper = getEtsHelper();
         HashMap<User, Boolean> users = etsHelper.getUsers();
-        users.put(getUser(1, "test1"), true);
-        users.put(getUser(1, "test2"), false);
+        users.put(getUser(1L, "test1"), true);
+        users.put(getUser(1L, "test2"), false);
         Assertions.assertThat(users).hasSize(2);
         etsHelper.clearFromDuplicates(users);
         Assertions.assertThat(users).hasSize(1);
@@ -46,29 +46,29 @@ public class EtsHelperTest {
         EtsHelper etsHelper;
 
         etsHelper = getEtsHelper();
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.userOnVacation(getUser(2));
-        etsHelper.userHasIssue(getUser(3));
-        etsHelper.approveUserIssue(getUser(4));
+        etsHelper.resolveUser(getUser(1L));
+        etsHelper.userOnVacation(getUser(2L));
+        etsHelper.userHasIssue(getUser(3L));
+        etsHelper.approveUserIssue(getUser(4L));
 
         assertThat(etsHelper.getUsers()).hasSize(4);
 
-        etsHelper.removeUser(getUser(1));
+        etsHelper.removeUser(getUser(1L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(3);
 
-        etsHelper.removeUser(getUser(2));
+        etsHelper.removeUser(getUser(2L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(2);
 
-        etsHelper.removeUser(getUser(3));
+        etsHelper.removeUser(getUser(3L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(1);
 
-        etsHelper.removeUser(getUser(4));
+        etsHelper.removeUser(getUser(4L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(0);
@@ -79,19 +79,19 @@ public class EtsHelperTest {
         EtsHelper etsHelper;
 
         etsHelper = getEtsHelper();
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.userOnVacation(getUser(2));
-        etsHelper.userHasIssue(getUser(3));
-        etsHelper.approveUserIssue(getUser(4));
+        etsHelper.resolveUser(getUser(1L));
+        etsHelper.userOnVacation(getUser(2L));
+        etsHelper.userHasIssue(getUser(3L));
+        etsHelper.approveUserIssue(getUser(4L));
 
         assertThat(etsHelper.getUsers()).hasSize(4);
-        assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
+        assertThat(etsHelper.isUserOnVacation(getUser(2L))).isTrue();
 
-        etsHelper.removeUser(getUser(2));
+        etsHelper.removeUser(getUser(2L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(3);
-        assertThat(etsHelper.isUserOnVacation(getUser(2))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(2L))).isFalse();
     }
 
     @Test
@@ -99,18 +99,18 @@ public class EtsHelperTest {
         EtsHelper etsHelper;
 
         etsHelper = getEtsHelper();
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.userOnVacation(getUser(2));
-        etsHelper.userHasIssue(getUser(3));
+        etsHelper.resolveUser(getUser(1L));
+        etsHelper.userOnVacation(getUser(2L));
+        etsHelper.userHasIssue(getUser(3L));
 
         assertThat(etsHelper.getUsers()).hasSize(3);
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isTrue();
 
-        etsHelper.removeUser(getUser(3));
+        etsHelper.removeUser(getUser(3L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(2);
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isFalse();
     }
 
     @Test
@@ -118,21 +118,21 @@ public class EtsHelperTest {
         EtsHelper etsHelper;
 
         etsHelper = getEtsHelper();
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.userOnVacation(getUser(2));
-        etsHelper.userHasIssue(getUser(3));
-        etsHelper.approveUserIssue(getUser(3));
+        etsHelper.resolveUser(getUser(1L));
+        etsHelper.userOnVacation(getUser(2L));
+        etsHelper.userHasIssue(getUser(3L));
+        etsHelper.approveUserIssue(getUser(3L));
 
         assertThat(etsHelper.getUsers()).hasSize(3);
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isTrue();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3L))).isTrue();
 
-        etsHelper.removeUser(getUser(3));
+        etsHelper.removeUser(getUser(3L));
 
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).hasSize(2);
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3L))).isFalse();
     }
 
     @Test
@@ -142,41 +142,41 @@ public class EtsHelperTest {
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).isEmpty();
 
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.userOnVacation(getUser(2));
-        etsHelper.userHasIssue(getUser(3));
-        etsHelper.approveUserIssue(getUser(4));
+        etsHelper.resolveUser(getUser(1l));
+        etsHelper.userOnVacation(getUser(2l));
+        etsHelper.userHasIssue(getUser(3l));
+        etsHelper.approveUserIssue(getUser(4l));
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.isUserResolve(getUser(1))).isTrue();
-        assertThat(etsHelper.isUserHasIssue(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserOnVacation(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserResolve(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserHasIssue(getUser(2))).isFalse();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(2))).isFalse();
-        assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isTrue();
-        assertThat(etsHelper.isUserOnVacation(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserResolve(getUser(4))).isFalse();
-        assertThat(etsHelper.isUserHasApprovedIssue(getUser(4))).isTrue();
-        assertThat(etsHelper.isUserHasIssue(getUser(4))).isTrue();
-        assertThat(etsHelper.isUserOnVacation(getUser(4))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(1L))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(2L))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(2L))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isTrue();
+        assertThat(etsHelper.isUserOnVacation(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(4L))).isFalse();
+        assertThat(etsHelper.isUserHasApprovedIssue(getUser(4L))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(4L))).isTrue();
+        assertThat(etsHelper.isUserOnVacation(getUser(4L))).isFalse();
 
         etsHelper.unResolveAllUsualUsers();
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.isUserResolve(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserHasIssue(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserOnVacation(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserResolve(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserHasIssue(getUser(2))).isFalse();
-        assertThat(etsHelper.isUserOnVacation(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserHasIssue(getUser(3))).isFalse();
-        assertThat(etsHelper.isUserOnVacation(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserHasIssue(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserHasIssue(getUser(2L))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserHasIssue(getUser(3L))).isFalse();
+        assertThat(etsHelper.isUserOnVacation(getUser(3L))).isFalse();
     }
 
     @Test
@@ -186,28 +186,28 @@ public class EtsHelperTest {
         etsHelper = getEtsHelper();
         assertThat(etsHelper.getUsers()).isEmpty();
 
-        etsHelper.resolveUser(getUser(1));
-        etsHelper.resolveUser(getUser(2));
-        etsHelper.resolveUser(getUser(3));
+        etsHelper.resolveUser(getUser(1L));
+        etsHelper.resolveUser(getUser(2L));
+        etsHelper.resolveUser(getUser(3L));
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.isUserResolve(getUser(1))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(1L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(3L))).isTrue();
 
         etsHelper.unResolveAllUsers();
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.isUserResolve(getUser(1))).isFalse();
-        assertThat(etsHelper.isUserResolve(getUser(2))).isFalse();
-        assertThat(etsHelper.isUserResolve(getUser(3))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(1L))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(2L))).isFalse();
+        assertThat(etsHelper.isUserResolve(getUser(3L))).isFalse();
 
         etsHelper.resolveAllUsers();
 
         etsHelper = getEtsHelper();
-        assertThat(etsHelper.isUserResolve(getUser(1))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(2))).isTrue();
-        assertThat(etsHelper.isUserResolve(getUser(3))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(1L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(2L))).isTrue();
+        assertThat(etsHelper.isUserResolve(getUser(3L))).isTrue();
     }
 
     @Test
@@ -369,7 +369,7 @@ public class EtsHelperTest {
         usersFromVacation = etsHelper.getUsersFromVacation();
         assertThat(usersFromVacation).isEmpty();
         User userMock = getUser();
-        User user2Mock = getUser(2);
+        User user2Mock = getUser(2L);
 
         etsHelper.userHasIssue(userMock);
         etsHelper.approveUserIssue(user2Mock);
@@ -503,15 +503,15 @@ public class EtsHelperTest {
     }
 
     private User getUser() {
-        return getUser(1);
+        return getUser(1L);
     }
 
-    private User getUser(Integer id) {
+    private User getUser(Long id) {
         return getUser(id, "testName");
     }
 
-    private User getUser(Integer id, String firstName) {
-        User user = new User();
+    private User getUser(Long id, String firstName) {
+        User user = new User(id);
         setField(user, "id", id);
         setField(user, "first_name", firstName);
         return user;

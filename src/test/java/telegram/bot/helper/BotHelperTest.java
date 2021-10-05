@@ -22,7 +22,7 @@ public class BotHelperTest {
     @Test
     public void testGetDefaultLinkOnUser() {
         User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(100500);
+        Mockito.when(user.id()).thenReturn(100500L);
         Mockito.when(user.firstName()).thenReturn("firstName");
         Mockito.when(user.lastName()).thenReturn("lastName");
         String linkOnUser = BotHelper.getLinkOnUser(user);
@@ -33,7 +33,7 @@ public class BotHelperTest {
     @Test
     public void testGetMarkDownLinkOnUser() {
         User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(100500);
+        Mockito.when(user.id()).thenReturn(100500L);
         Mockito.when(user.firstName()).thenReturn("firstName");
         Mockito.when(user.lastName()).thenReturn("lastName");
         String linkOnUser = BotHelper.getLinkOnUser(user, ParseMode.Markdown);
@@ -44,7 +44,7 @@ public class BotHelperTest {
     @Test
     public void testGetHtmlLinkOnUser() {
         User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(100500);
+        Mockito.when(user.id()).thenReturn(100500L);
         Mockito.when(user.firstName()).thenReturn("firstName");
         Mockito.when(user.lastName()).thenReturn("lastName");
         String linkOnUser = BotHelper.getLinkOnUser(user, ParseMode.HTML);
@@ -55,7 +55,7 @@ public class BotHelperTest {
     @Test
     public void testGetMarkDownLinkOnUserWithCustomName() {
         User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(100500);
+        Mockito.when(user.id()).thenReturn(100500L);
         Mockito.when(user.firstName()).thenReturn("firstName");
         Mockito.when(user.lastName()).thenReturn("lastName");
         String linkOnUser = BotHelper.getLinkOnUser(user, "TestName", ParseMode.Markdown);
@@ -66,7 +66,7 @@ public class BotHelperTest {
     @Test
     public void testGetHtmlLinkOnUserWithCustomName() {
         User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(100500);
+        Mockito.when(user.id()).thenReturn(100500L);
         Mockito.when(user.firstName()).thenReturn("firstName");
         Mockito.when(user.lastName()).thenReturn("lastName");
         String linkOnUser = BotHelper.getLinkOnUser(user, "TestName", ParseMode.HTML);

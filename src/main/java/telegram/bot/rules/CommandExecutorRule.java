@@ -39,11 +39,18 @@ public class CommandExecutorRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        boolean isBot = message.from() != null && message.from().isBot();
+        return !isBot;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         final String text = message.text() == null ? "" : message.text();
         final String command = getRegString(text, "(^\\/([a-zA-Z]+)((_[a-zA-Z]+)+)?)").toLowerCase();
-        if (message.from().isBot() || command.isEmpty() || !command.startsWith("/")) {
+        if (command.isEmpty() || !command.startsWith("/")) {
             return;
         }
         String values = getRegString(text, "(\\/\\D\\w+)__(\\w+)@?.*", 2);

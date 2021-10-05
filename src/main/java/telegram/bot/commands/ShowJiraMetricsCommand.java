@@ -32,7 +32,7 @@ public class ShowJiraMetricsCommand implements Command {
     @Override
     public Pair<ParseMode, List<String>> run(Update update, String values) {
         Message message = MessageHelper.getAnyMessage(update);
-        Integer userId = message.from().id();
+        Long userId = message.from().id();
         Long chatId = message.chat().id();
         if(!Common.data.telegramUserIdsWithGeneralAccess.contains(userId)){
             return new Pair<>(ParseMode.HTML, Collections.singletonList("You cannot have access for this operation"));

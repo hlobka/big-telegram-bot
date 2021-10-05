@@ -23,7 +23,7 @@ public class ShowEtsCommand implements Command {
     public Pair<ParseMode, List<String>> run(Update update, String values) {
         Message message = MessageHelper.getAnyMessage(update);
         Long chatId = message.chat().id();
-        Integer userId = message.from().id();
+        Long userId = message.from().id();
         boolean hasChatData = Common.data.hasChatData(chatId);
         boolean userHasAccess = Common.data.telegramUserIdsWithGeneralAccess.contains(userId);
         userHasAccess = userHasAccess || Common.USER_LOGIN_ON_TELEGRAM_ID_MAP.containsValue(userId);

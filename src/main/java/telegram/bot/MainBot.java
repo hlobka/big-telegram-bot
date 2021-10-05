@@ -2,7 +2,7 @@ package telegram.bot;
 
 import atlassian.jira.JiraHelper;
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.TelegramBotAdapter;
+//import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
@@ -45,8 +45,8 @@ public class MainBot {
             .readTimeout(60, TimeUnit.SECONDS)
 //            .proxy(proxy)
             .build();
-        TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token, client);
-//        TelegramBot bot = new TelegramBot(Common.data.token);
+//        TelegramBot bot = TelegramBotAdapter.buildCustom(Common.data.token, client);
+        TelegramBot bot = new TelegramBot(Common.data.token);
         GetUpdatesResponse updatesResponse = bot.execute(new GetUpdates());
         List<Update> updates = updatesResponse.updates();
         System.out.println("onResponse: " + updates.toString());

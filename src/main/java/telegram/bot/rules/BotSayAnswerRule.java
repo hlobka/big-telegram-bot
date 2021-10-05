@@ -16,16 +16,18 @@ public class BotSayAnswerRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        boolean isBot = message.from() != null && message.from().isBot();
+        return !isBot;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
-        if (message.from().isBot()) {
-            return;
-        }
-        if(text.toLowerCase().contains("#bot_say")){
-            removeMessage(message);
-            sendMessage(message);
-        }
+        removeMessage(message);
+        sendMessage(message);
     }
 
     private void removeMessage(Message message) {

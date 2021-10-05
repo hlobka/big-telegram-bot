@@ -19,7 +19,9 @@ public class Rules {
                     if(update.callbackQuery() != null){
                         rule.callback(update);
                     } else {
-                        rule.run(update);
+                        if (rule.guard(update)) {
+                            rule.run(update);
+                        }
                     }
                 } catch (Exception e){
                     ConsoleLogger.logErrorFor(this, e);

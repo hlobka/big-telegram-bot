@@ -6,6 +6,10 @@ import com.pengrad.telegrambot.model.Update;
 public interface Rule {
     void run(Update update);
 
+    default boolean guard(Update update){
+        return true;
+    }
+
     default void callback(Update update) {
         callback(update.callbackQuery());
     }

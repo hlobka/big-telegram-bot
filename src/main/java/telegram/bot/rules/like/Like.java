@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 class Like implements Serializable {
-    ArrayList<Integer> usersWhoLiked;
-    ArrayList<Integer> usersWhoDisLiked;
+    ArrayList<Long> usersWhoLiked;
+    ArrayList<Long> usersWhoDisLiked;
 
     Like() {
         this.usersWhoLiked = new ArrayList<>();

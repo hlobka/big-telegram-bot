@@ -261,14 +261,18 @@ public class AnswerRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        boolean isBot = message.from() != null && message.from().isBot();
+        return !isBot;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
-        if (message.from().isBot()) {
-            return;
-        }
         Long chatId = message.chat().id();
-        if (message.replyToMessage() != null) {
+        if (message.replyToMessage() != null && message.replyToMessage().from() != null) {
             if (message.replyToMessage().from().isBot() && !Common.data.isGeneralChat(chatId)) {
                 Collections.shuffle(popularBotAnswers);
                 String answer = popularBotAnswers.get(0);

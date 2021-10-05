@@ -29,12 +29,18 @@ public class LikeAnswerRule implements Rule {
     }
 
     @Override
+    public boolean guard(Update update) {
+        Message message = MessageHelper.getAnyMessage(update);
+        boolean isBot = message.from() != null && message.from().isBot();
+        String text = message.text() == null ? "" : message.text();
+        boolean isLikeMessage = text.toLowerCase().contains("#like");
+        return !isBot && isLikeMessage;
+    }
+
+    @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         String text = message.text() == null ? "" : message.text();
-        if (message.from().isBot()) {
-            return;
-        }
         if (text.toLowerCase().contains("#like")) {
             BotHelper.removeMessage(bot, message);
             sendMessage(message);
@@ -91,7 +97,7 @@ public class LikeAnswerRule implements Rule {
                     if(!listOfLikes.containsKey(uniqueMessageId)){
                         listOfLikes.put(uniqueMessageId, like);
                     }
-                    Integer whoId = callbackQuery.from().id();
+                    Long whoId = callbackQuery.from().id();
                     if (data.contains("dislike_") && !like.usersWhoDisLiked.contains(whoId)) {
                         like.usersWhoDisLiked.add(whoId);
                         like.usersWhoLiked.remove(whoId);
