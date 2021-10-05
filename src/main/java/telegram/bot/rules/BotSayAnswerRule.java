@@ -19,13 +19,14 @@ public class BotSayAnswerRule implements Rule {
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
         boolean isBot = message.from() != null && message.from().isBot();
-        return !isBot;
+        String text = message.text() == null ? "" : message.text();
+        boolean isNeedToAnswer = text.toLowerCase().contains("#bot_say");
+        return !isBot && isNeedToAnswer;
     }
 
     @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
-        String text = message.text() == null ? "" : message.text();
         removeMessage(message);
         sendMessage(message);
     }

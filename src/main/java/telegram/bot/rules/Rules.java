@@ -20,6 +20,8 @@ public class Rules {
                         rule.callback(update);
                     } else {
                         if (rule.guard(update)) {
+//                            String simpleName = rule.getClass().getSimpleName();
+//                            System.out.println(simpleName);
                             rule.run(update);
                         }
                     }
