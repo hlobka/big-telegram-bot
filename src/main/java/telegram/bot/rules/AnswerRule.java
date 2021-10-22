@@ -192,6 +192,10 @@ public class AnswerRule implements Rule {
             Long random2 = Math.round(Math.random() * 10);
             return String.format("Я бы сказал что у %s %d %s но может и %d %s", regString1, random1, regString2, random2, regString2);
         });
+        commonAnswers.put("Ковид", s -> "Будь те здоровы");
+        commonAnswers.put("Covid", s -> "Одевайте маску");
+        commonAnswers.put("прививка", s -> "хуйло");
+        commonAnswers.put("путин", s -> "хуйло");
         commonAnswers.put("хуй", s -> "Попрошу не матюкаться.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкаться.");
         commonAnswers.put("ебат", s -> "Попрошу не матюкаться.");

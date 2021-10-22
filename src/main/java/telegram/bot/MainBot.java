@@ -116,7 +116,7 @@ public class MainBot {
         ConsoleLogger.additionalErrorLogger = message -> {
             BotHelper.logError(bot, message);
         };
-        initUpsourceCheckers(bot);
+//        initUpsourceCheckers(bot);
         bot.setUpdatesListener(updatess -> {
             if ("debug".equalsIgnoreCase(System.getProperty("debug"))) {
                 System.out.println("onResponse: " + updatess.toString());
@@ -155,6 +155,9 @@ public class MainBot {
     private static void initCommonChecker(TelegramBot bot) {
         Map<String, ServiceProvider<JiraHelper>> jiraHelperServiceProviderMap = new HashMap<>();
         for (ChatData generalChat : Common.data.getGeneralChats()) {
+            if (generalChat.getJiraConfig() == null) {
+                continue;
+            }
             LoginData loginData = generalChat.getJiraConfig().getLoginData();
             jiraHelperServiceProviderMap.put(loginData.url, new JiraHelperServiceProvider(bot, loginData));
         }
