@@ -65,7 +65,7 @@ public class Common {
     }
 
     public final String token;
-    public final List<Integer> telegramUserIdsWithGeneralAccess;
+    public final List<Long> telegramUserIdsWithGeneralAccess;
 
 
     private Common() {
@@ -74,7 +74,7 @@ public class Common {
         token = PROPERTIES.getProperty("telegram.bot.token");
         telegramUserIdsWithGeneralAccess = getPropertyAsList("telegram.user.id.available.list")
             .stream()
-            .map(Integer::parseInt)
+            .map(Long::parseLong)
             .collect(Collectors.toList());
         collectFavoriteJqlRulesMap();
         collectChatDatas();
