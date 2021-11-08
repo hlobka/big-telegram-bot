@@ -309,7 +309,7 @@ public class AnswerRule implements Rule {
                 bot.execute(request);
             }
         }
-        if (!Common.data.isGeneralChat(chatId)) {
+        if (Common.data.isSpamChat(chatId)) {
             for (Map.Entry<String, Function<String, String>> entry : answers.entrySet()) {
                 if (entry.getKey().isEmpty()) {
                     break;
