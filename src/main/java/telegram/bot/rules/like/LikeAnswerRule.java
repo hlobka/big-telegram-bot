@@ -31,6 +31,9 @@ public class LikeAnswerRule implements Rule {
     @Override
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return false;
+        }
         boolean isBot = message.from() != null && message.from().isBot();
         String text = message.text() == null ? "" : message.text();
         boolean isLikeMessage = text.toLowerCase().contains("#like");
@@ -49,14 +52,14 @@ public class LikeAnswerRule implements Rule {
 
     private void sendMessage(Message message) {
         SendMessage request = new SendMessage(message.chat().id(), "Like it: " + message.text().replaceAll("#like", ""))
-            .parseMode(ParseMode.HTML)
-            .disableWebPagePreview(false)
-            .disableNotification(false)
-            .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                new InlineKeyboardButton("Like 👍🏻").callbackData("like_0"),
-                new InlineKeyboardButton("DisLike 👎🏻").callbackData("dislike_0")
-            }));
-        if(message.replyToMessage() != null){
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(false)
+                .disableNotification(false)
+                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                        new InlineKeyboardButton("Like 👍🏻").callbackData("like_0"),
+                        new InlineKeyboardButton("DisLike 👎🏻").callbackData("dislike_0")
+                }));
+        if (message.replyToMessage() != null) {
             request.replyToMessageId(message.replyToMessage().messageId());
         }
         SendResponse execute = bot.execute(request);
@@ -71,12 +74,12 @@ public class LikeAnswerRule implements Rule {
     private void updateMessage(Message message, Integer numberOfLikes, Integer numberOfDisLikes) {
         try {
             EditMessageText request = new EditMessageText(message.chat().id(), message.messageId(), message.text())
-                .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(false)
-                .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[] {
-                    new InlineKeyboardButton(String.format("Like %d 👍🏻", numberOfLikes)).callbackData("like_" + numberOfLikes),
-                    new InlineKeyboardButton(String.format("DisLike %d 👎🏻", numberOfDisLikes)).callbackData("dislike_" + numberOfDisLikes)
-                }));
+                    .parseMode(ParseMode.HTML)
+                    .disableWebPagePreview(false)
+                    .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                            new InlineKeyboardButton(String.format("Like %d 👍🏻", numberOfLikes)).callbackData("like_" + numberOfLikes),
+                            new InlineKeyboardButton(String.format("DisLike %d 👎🏻", numberOfDisLikes)).callbackData("dislike_" + numberOfDisLikes)
+                    }));
             bot.execute(request);
         } catch (RuntimeException e) {
             ConsoleLogger.logErrorFor(this, e);
@@ -94,7 +97,7 @@ public class LikeAnswerRule implements Rule {
                 if (data.contains("like_")) {
                     Integer uniqueMessageId = getLikeKey(callbackQuery.message());
                     Like like = listOfLikes.getOrDefault(uniqueMessageId, new Like());
-                    if(!listOfLikes.containsKey(uniqueMessageId)){
+                    if (!listOfLikes.containsKey(uniqueMessageId)) {
                         listOfLikes.put(uniqueMessageId, like);
                     }
                     Long whoId = callbackQuery.from().id();
