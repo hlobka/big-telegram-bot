@@ -157,7 +157,7 @@ public class Common {
     }
 
     public boolean isSpamChat(Long chatId) {
-        return BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsSpam).map(ChatData::getChatId).collect(Collectors.toList()).contains(chatId);
+        return !this.isGeneralChat(chatId) || BIG_GENERAL_GROUPS.stream().filter(ChatData::getIsSpam).map(ChatData::getChatId).collect(Collectors.toList()).contains(chatId);
     }
 
     public List<ChatData> getChatsFotSpam() {
