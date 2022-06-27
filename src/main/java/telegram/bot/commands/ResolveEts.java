@@ -55,7 +55,7 @@ public class ResolveEts implements Command {
 
     public static void notifyThatIsResolvedToDay(TelegramBot bot) {
         for (Long mainGeneralChatId : Common.data.getMainGeneralChatIds()) {
-            BotHelper.sendMessage(bot, mainGeneralChatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
+            BotHelper.sendMessage(bot, mainGeneralChatId, "Ets resolved today!!!", ParseMode.Markdown);
         }
     }
 

@@ -62,7 +62,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     private void check() {
-        System.out.println("EtsClarityChecker::check");
+        System.out.println("EtsChecker::check");
         if (TimeHelper.checkToDayIs(DAY_TO_CHECK)) {
             checkIsAllUsersPresentsOnThisChat(bot, chatId);
             if (checkIsResolvedToDay(bot, chatId)) {
@@ -259,7 +259,7 @@ public class EtsClarityChecker extends Thread {
     }
 
     public void notifyThatIsResolvedToDay() {
-        BotHelper.sendMessage(bot, chatId, "EtsClarity resolved today!!!", ParseMode.Markdown);
+        BotHelper.sendMessage(bot, chatId, "Ets resolved today!!!", ParseMode.Markdown);
     }
 
     private static String getMessageFromFile() {
