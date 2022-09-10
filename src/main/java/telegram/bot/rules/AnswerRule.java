@@ -95,8 +95,10 @@ public class AnswerRule implements Rule {
         answers.put("чай", s -> "кава");
         answers.put("кофе", s -> "чай");
         answers.put("кава", s -> "чай");
-        answers.put("пиво", s -> "водка");
-        answers.put("водка", s -> "пиво");
+        answers.put("пиво", s -> "горілка");
+        answers.put("водка", s -> "самогон");
+        answers.put("самогон", s -> "горілка");
+        answers.put("горілка", s -> "пиво");
         answers.put("педалить", s -> "не лучшая практика в девелопменте");
 //        answers.put("ревью", s -> "О, ревью, Набегай!");
         answers.put("в смысле?", s -> "В прямом");
