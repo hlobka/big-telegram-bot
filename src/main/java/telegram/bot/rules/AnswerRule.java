@@ -281,6 +281,7 @@ public class AnswerRule implements Rule {
         commonAnswers.put("охуенные", s -> "Лучше некуда!!!.");
         commonAnswers.put("охуєнні", s -> "Лучше некуда!!!.");
         commonAnswers.put("Русні", s -> "Пізда!!!.");
+        commonAnswers.put("Русні?", s -> "Пізда!!!.");
         commonAnswers.put("Слава Україні", s -> "Героям слава!!!.");
         commonAnswers.put("Слава нації", s -> "Смерть ворогам!!!.");
         commonAnswers.put("Україна", s -> "Понад Усе!!!.");
