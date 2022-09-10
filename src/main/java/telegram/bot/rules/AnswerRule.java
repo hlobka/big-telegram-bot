@@ -358,6 +358,9 @@ public class AnswerRule implements Rule {
     @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return;
+        }
         String text = message.text() == null ? "" : message.text();
         Long chatId = message.chat().id();
         if (message.replyToMessage() != null && message.replyToMessage().from() != null) {

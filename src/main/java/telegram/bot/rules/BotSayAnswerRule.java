@@ -18,6 +18,9 @@ public class BotSayAnswerRule implements Rule {
     @Override
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return false;
+        }
         boolean isBot = message.from() != null && message.from().isBot();
         String text = message.text() == null ? "" : message.text();
         boolean isNeedToAnswer = text.toLowerCase().contains("#bot_say");

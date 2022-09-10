@@ -41,6 +41,9 @@ public class CommandExecutorRule implements Rule {
     @Override
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return false;
+        }
         boolean isBot = message.from() != null && message.from().isBot();
         return !isBot;
     }

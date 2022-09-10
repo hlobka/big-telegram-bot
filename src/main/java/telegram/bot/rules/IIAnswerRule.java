@@ -25,6 +25,9 @@ public class IIAnswerRule implements Rule {
     @Override
     public void run(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return;
+        }
         String text = message.text() == null ? "" : message.text();
         if (message.chat().id() == Common.data.getChatForReport().get(0).getChatId() && !message.from().isBot()) {
             if(true) return;

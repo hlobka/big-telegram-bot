@@ -25,6 +25,9 @@ public class ClearRedundantMessagesRule implements Rule {
     @Override
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return false;
+        }
         Long chatId = message.chat().id();
         boolean isNotChannel = message.from() != null;
         boolean isBot = message.from() != null && message.from().isBot();

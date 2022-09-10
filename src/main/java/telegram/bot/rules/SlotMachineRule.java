@@ -83,6 +83,9 @@ public class SlotMachineRule implements Rule {
     @Override
     public boolean guard(Update update) {
         Message message = MessageHelper.getAnyMessage(update);
+        if (message == null) {
+            return false;
+        }
         boolean isBot = message.from() != null && message.from().isBot();
         boolean textIsPresent = message.text() != null;
         return !isBot && textIsPresent;
