@@ -31,6 +31,12 @@ public class AnswerRule implements Rule {
     private Map<String, Function<String, String>> answers = new HashMap<>();
     private Map<String, Function<Message, String>> actions = new HashMap<>();
     private List<String> popularBotAnswers = Arrays.asList(
+        "Ох і гарні новини будуть, чекайте",
+        "Так, я буду знущатись з русні по максимуму сьогодні",
+        "ЗСУ ЗСУ ЗСУ",
+        "Русні п;зда",
+        "на смерть русні 6 грн \uD83D\uDC79",
+        "Все буде добре",
         "Які наркотики",
         "Хто тут?",
         "Lorem ipsum",
@@ -41,6 +47,7 @@ public class AnswerRule implements Rule {
 
     public AnswerRule(TelegramBot bot) {
         this.bot = bot;
+        answers.put("Повітряна тривога", s -> "Всі в укриття");
         answers.put("бот, привет", s -> "О, Привет!");
         answers.put("бот, привіт", s -> "О, Привет!");
         answers.put("да, бот?", s -> {
