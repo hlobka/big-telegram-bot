@@ -295,7 +295,7 @@ public class AnswerRule implements Rule {
                 return "NaN";
             }
         });
-        commonAnswers.put("Яка година?", s -> String.format("Зарах біля: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
+        commonAnswers.put("Яка година?", s -> String.format("Зараз біля: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("который час?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько время?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
         commonAnswers.put("сколько времени?", s -> String.format("Сейчас около: %s", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())));
