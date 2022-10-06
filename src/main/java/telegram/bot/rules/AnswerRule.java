@@ -278,6 +278,8 @@ public class AnswerRule implements Rule {
         commonAnswers.put("хуй", s -> "Попрошу не матюкатися.");
         commonAnswers.put("пизд", s -> "Попрошу не матюкатися.");
         commonAnswers.put("ебат", s -> "Попрошу не матюкатися.");
+        commonAnswers.put("їбат", s -> "Попрошу не матюкатися.");
+        commonAnswers.put("їбош", s -> "Попрошу не матюкатися.");
         commonAnswers.put("ебан", s -> "Попрошу не матюкатися.");
         commonAnswers.put("бля", s -> "Попрошу не матюкатися.");
         commonAnswers.put("жопа", s -> "Буває і гірше...");
